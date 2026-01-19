@@ -310,7 +310,7 @@ const PartnerDashboard = () => {
                                                 #{index + 1}
                                             </div>
                                             <img 
-                                                src={product.imageUrl || 'https://via.placeholder.com/200'} 
+                                                src={product.imageUrl || 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/99486859-0ff3-46b4-949b-2d16af2ad421/custom-nike-air-max-90-by-you-shoes.png'} 
                                                 alt={product.name}
                                                 style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px', marginBottom: '12px' }}
                                             />
