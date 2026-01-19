@@ -10,54 +10,54 @@ const Testimonials = () => {
             name: 'Trịnh Việt Hoàng',
             role: 'Software Engineer',
             rating: 5,
-            comment: 'I bought a Dell XPS 15 laptop from the store. Quality product, reasonable price. Staff are enthusiastic and professional. Fast delivery. Very satisfied!',
-            product: 'Dell XPS 15',
-            date: '2 weeks ago'
+            comment: 'Nike Air Jordan 1 chất lượng tuyệt vời! Đế êm, form đẹp, phối đồ dễ dàng. Nhân viên tư vấn nhiệt tình, giao hàng nhanh chóng. Rất hài lòng!',
+            product: 'Nike Air Jordan 1',
+            date: '2 tuần trước'
         },
         {
             id: 2,
-            name: 'Trịnh Việt Hoàng',
+            name: 'Nguyễn Minh Anh',
             role: 'Graphic Designer',
             rating: 5,
-            comment: 'MacBook Pro M2 purchased from here is amazing! Beautiful screen, smooth performance, serves design work very well. Support team is enthusiastic and answers all questions. Will recommend to friends!',
-            product: 'MacBook Pro M2',
-            date: '3 weeks ago'
+            comment: 'Adidas Ultraboost mua ở đây cực kỳ êm chân! Chạy bộ hàng ngày rất thoải mái, thiết kế đẹp, nhẹ nhàng. Đội ngũ hỗ trợ nhiệt tình!',
+            product: 'Adidas Ultraboost',
+            date: '3 tuần trước'
         },
         {
             id: 3,
-            name: 'Trịnh Việt Hoàng',
-            role: 'IT Student',
+            name: 'Lê Hoàng Nam',
+            role: 'Student',
             rating: 5,
-            comment: 'MSI gaming laptop purchased for study and entertainment. Strong configuration, smooth gaming, affordable price for students. Good warranty, immediate support for any issues. Recommend!',
-            product: 'MSI Gaming GF63',
-            date: '1 month ago'
+            comment: 'Converse Chuck Taylor classic, phong cách đơn giản mà đẹp. Giá cả phải chăng, phù hợp với sinh viên. Bảo hành tốt, hỗ trợ nhanh!',
+            product: 'Converse Chuck Taylor',
+            date: '1 tháng trước'
         },
         {
             id: 4,
-            name: 'Trịnh Việt Hoàng',
+            name: 'Phạm Thu Hà',
             role: 'Content Creator',
             rating: 5,
-            comment: 'HP Pavilion purchased for content creation, video editing works great. Long battery life, beautiful design, also has promotional price. Staff explained every specification in detail. Wonderful shopping experience!',
-            product: 'HP Pavilion 15',
-            date: '1 month ago'
+            comment: 'Puma RS-X mua về quay content rất hợp, màu sắc bắt mắt, đi cả ngày không mỏi. Nhân viên giải thích kỹ từng chi tiết. Trải nghiệm mua sắm tuyệt vời!',
+            product: 'Puma RS-X',
+            date: '1 tháng trước'
         },
         {
             id: 5,
-            name: 'Trịnh Việt Hoàng',
+            name: 'Đỗ Văn Khánh',
             role: 'Entrepreneur',
             rating: 5,
-            comment: 'Lenovo ThinkPad used for business work is very durable. Great keyboard, all-day battery life. Reputable store, 100% genuine products. Good after-sales support!',
-            product: 'Lenovo ThinkPad X1',
-            date: '5 weeks ago'
+            comment: 'Vans Old Skool dùng cho công việc và dạo phố rất bền. Đế cao su chống trượt tốt, thoáng khí. Cửa hàng uy tín, sản phẩm 100% chính hãng!',
+            product: 'Vans Old Skool',
+            date: '5 tuần trước'
         },
         {
             id: 6,
-            name: 'Trịnh Việt Hoàng',
+            name: 'Hoàng Thị Lan',
             role: 'Marketing Manager',
             rating: 5,
-            comment: 'Asus ZenBook is thin, light, elegant design, very convenient for work. Stable performance for office work and online meetings. Best market price. Fast delivery, careful packaging!',
-            product: 'Asus ZenBook 14',
-            date: '6 weeks ago'
+            comment: 'New Balance 574 mỏng nhẹ, thiết kế thanh lịch, đi làm rất tiện. Hiệu năng ổn định cho hoạt động hàng ngày. Giao hàng nhanh, đóng gói cẩn thận!',
+            product: 'New Balance 574',
+            date: '6 tuần trước'
         }
     ];
 
@@ -85,12 +85,10 @@ const Testimonials = () => {
             <div className="testimonials-container">
                 <div className="testimonials-header">
                     <h2 className="testimonials-title">
-                        <span className="title-icon">💬</span>
                         What Our Customers Say
-                        <span className="title-icon">💬</span>
                     </h2>
                     <p className="testimonials-subtitle">
-                        Over 10,000+ customers have trusted and chosen us
+                        Hơn 10,000+ khách hàng đã tin tưởng và lựa chọn chúng tôi
                     </p>
                     <div className="overall-rating">
                         <div className="rating-stars">⭐⭐⭐⭐⭐</div>
@@ -127,8 +125,8 @@ const Testimonials = () => {
                                 <div className="testimonial-body">
                                     <p className="testimonial-comment">"{testimonial.comment}"</p>
                                     <div className="testimonial-meta">
-                                        <span className="product-bought">📦 {testimonial.product}</span>
-                                        <span className="review-date">🕒 {testimonial.date}</span>
+                                        <span className="product-bought">{testimonial.product}</span>
+                                        <span className="review-date">{testimonial.date}</span>
                                     </div>
                                 </div>
                             </div>
@@ -152,19 +150,15 @@ const Testimonials = () => {
 
                 <div className="trust-badges">
                     <div className="trust-badge">
-                        <span className="badge-icon">🏆</span>
-                        <span className="badge-text">Top #1 Laptop Marketplace</span>
+                        <span className="badge-text">Top #1 Shoe Store</span>
                     </div>
                     <div className="trust-badge">
-                        <span className="badge-icon">✅</span>
                         <span className="badge-text">100% Genuine Products</span>
                     </div>
                     <div className="trust-badge">
-                        <span className="badge-icon">🚚</span>
                         <span className="badge-text">Free Shipping</span>
                     </div>
                     <div className="trust-badge">
-                        <span className="badge-icon">🛡️</span>
                         <span className="badge-text">12-36 Months Warranty</span>
                     </div>
                 </div>

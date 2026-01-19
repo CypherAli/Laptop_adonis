@@ -22,10 +22,10 @@ export const getPlaceholderImage = (width = 300, height = 200, text = 'No Image'
 
 // Preset placeholders
 export const PLACEHOLDER_IMAGES = {
-    product: getPlaceholderImage(300, 200, 'Laptop'),
-    productSmall: getPlaceholderImage(200, 150, 'Laptop'),
-    productLarge: getPlaceholderImage(600, 400, 'Laptop'),
-    thumbnail: getPlaceholderImage(100, 100, 'Laptop'),
-    cart: getPlaceholderImage(120, 120, 'Laptop'),
+    product: getPlaceholderImage(300, 200, 'Shoe'),
+    productSmall: getPlaceholderImage(200, 150, 'Shoe'),
+    productLarge: getPlaceholderImage(600, 400, 'Shoe'),
+    thumbnail: getPlaceholderImage(100, 100, 'Shoe'),
+    cart: getPlaceholderImage(120, 120, 'Shoe'),
     avatar: getPlaceholderImage(80, 80, 'User'),
 };

@@ -17,8 +17,9 @@ export default class ProductsController {
         inStock,
         sortBy,
         search,
-        ram,
-        processor,
+        size,
+        color,
+        material,
       } = request.qs()
 
       // Build filter object
@@ -54,32 +55,41 @@ export default class ProductsController {
         }
       }
 
-      // RAM filter (search in variant specifications)
-      if (ram) {
-        const rams = ram
+      // Size filter (search in variants)
+      if (size) {
+        const sizes = size
           .split(',')
-          .map((r: string) => r.trim())
-          .filter((r: string) => r)
-        if (rams.length > 0) {
+          .map((s: string) => s.trim())
+          .filter((s: string) => s)
+        if (sizes.length > 0) {
           andConditions.push({
-            $or: rams.map((r: string) => ({
-              'variants.specifications.ram': { $regex: `\\b${r}\\b`, $options: 'i' },
-            })),
+            'variants.size': { $in: sizes },
           })
         }
       }
 
-      // Processor filter (search in variant specifications)
-      if (processor) {
-        const processors = processor
+      // Color filter (search in variants)
+      if (color) {
+        const colors = color
           .split(',')
-          .map((p: string) => p.trim())
-          .filter((p: string) => p)
-        if (processors.length > 0) {
+          .map((c: string) => c.trim())
+          .filter((c: string) => c)
+        if (colors.length > 0) {
           andConditions.push({
-            $or: processors.map((p: string) => ({
-              'variants.specifications.processor': { $regex: p, $options: 'i' },
-            })),
+            'variants.color': { $in: colors.map((c) => new RegExp(c, 'i')) },
+          })
+        }
+      }
+
+      // Material filter (search in variants)
+      if (material) {
+        const materials = material
+          .split(',')
+          .map((m: string) => m.trim())
+          .filter((m: string) => m)
+        if (materials.length > 0) {
+          andConditions.push({
+            'variants.material': { $in: materials.map((m) => new RegExp(m, 'i')) },
           })
         }
       }

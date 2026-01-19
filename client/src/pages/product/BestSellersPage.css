@@ -1,7 +1,7 @@
 /* Best Sellers Page Styles */
 .bestsellers-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
     padding-top: 0;
 }
 
@@ -68,7 +68,7 @@
 
 /* Why Best Sellers Section */
 .why-bestsellers {
-    background: white;
+    background: #242424;
     padding: 60px 20px;
 }
 
@@ -80,7 +80,7 @@
 
 .why-content h2 {
     font-size: 2rem;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 40px;
 }
 
@@ -93,30 +93,31 @@
 .why-item {
     padding: 30px;
     border-radius: 15px;
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
     transition: all 0.3s;
+    border: 1px solid #333333;
 }
 
 .why-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(255, 136, 0, 0.2);
 }
 
 .why-icon {
     font-size: 3rem;
     display: block;
     margin-bottom: 15px;
-    color: #fa709a;
+    color: #FF8800;
 }
 
 .why-item h4 {
     font-size: 1.2rem;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 8px;
 }
 
 .why-item p {
-    color: #666;
+    color: #aaaaaa;
     font-size: 0.95rem;
 }
 
@@ -134,17 +135,18 @@
 }
 
 .product-card.bestseller-card {
-    background: white;
+    background: #242424;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     transition: all 0.3s;
     position: relative;
+    border: 1px solid #333333;
 }
 
 .product-card.bestseller-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 40px rgba(255, 136, 0, 0.2);
 }
 
 .rank-badge {
@@ -197,7 +199,7 @@
     position: relative;
     padding-top: 66.67%;
     overflow: hidden;
-    background: #f5f5f5;
+    background: #1a1a1a;
 }
 
 .product-image {
@@ -218,16 +220,17 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    background: white;
-    border: none;
+    background: #242424;
+    border: 2px solid #FF8800;
     border-radius: 50%;
     width: 45px;
     height: 45px;
     font-size: 1.5rem;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.3s;
     z-index: 10;
+    color: #FF8800;
 }
 
 .wishlist-btn:hover {
@@ -253,7 +256,7 @@
     display: block;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 12px;
     text-decoration: none;
     line-height: 1.4;
@@ -262,7 +265,7 @@
 }
 
 .product-name:hover {
-    color: #fa709a;
+    color: #FF8800;
 }
 
 .product-rating {
@@ -278,17 +281,18 @@
 
 .rating-count {
     font-size: 0.85rem;
-    color: #666;
+    color: #aaaaaa;
 }
 
 .sold-count {
     font-size: 0.9rem;
-    color: #fa709a;
+    color: #FF8800;
     font-weight: 600;
     margin-bottom: 12px;
     padding: 8px;
-    background: #fff5f7;
+    background: rgba(255, 136, 0, 0.1);
     border-radius: 8px;
+    border: 1px solid #FF8800;
     text-align: center;
 }
 
@@ -301,10 +305,11 @@
 
 .spec-item {
     font-size: 0.85rem;
-    color: #666;
-    background: #f5f5f5;
+    color: #aaaaaa;
+    background: #1a1a1a;
     padding: 5px 10px;
     border-radius: 12px;
+    border: 1px solid #333333;
 }
 
 .price-section {
@@ -317,18 +322,18 @@
 
 .original-price {
     font-size: 0.95rem;
-    color: #999;
+    color: #aaaaaa;
     text-decoration: line-through;
 }
 
 .current-price {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #fa709a;
+    color: #FF8800;
 }
 
 .discount-percent {
-    background: #fa709a;
+    background: #FF8800;
     color: white;
     padding: 4px 8px;
     border-radius: 8px;
@@ -343,7 +348,7 @@
 .add-to-cart-btn {
     width: 100%;
     padding: 12px;
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    background: linear-gradient(135deg, #FF8800 0%, #ff7500 100%);
     color: white;
     border: none;
     border-radius: 25px;
@@ -358,7 +363,7 @@
 
 .add-to-cart-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 136, 0, 0.4);
 }
 
 .add-to-cart-btn:disabled {
@@ -369,9 +374,10 @@
 .stock-warning {
     margin-top: 10px;
     padding: 8px;
-    background: #fff3cd;
-    color: #856404;
+    background: rgba(255, 136, 0, 0.1);
+    color: #FF8800;
     border-radius: 5px;
+    border: 1px solid #FF8800;
     font-size: 0.85rem;
     text-align: center;
     font-weight: 600;
@@ -381,10 +387,11 @@
 .no-bestsellers {
     text-align: center;
     padding: 80px 20px;
-    background: white;
+    background: #242424;
     border-radius: 15px;
     margin: 40px auto;
     max-width: 500px;
+    border: 1px solid #333333;
 }
 
 .no-bestsellers-icon {
@@ -394,19 +401,19 @@
 
 .no-bestsellers h3 {
     font-size: 1.5rem;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 10px;
 }
 
 .no-bestsellers p {
-    color: #666;
+    color: #aaaaaa;
     margin-bottom: 25px;
 }
 
 .back-home-btn {
     display: inline-block;
     padding: 12px 30px;
-    background: #fa709a;
+    background: #FF8800;
     color: white;
     text-decoration: none;
     border-radius: 25px;
@@ -415,8 +422,8 @@
 }
 
 .back-home-btn:hover {
-    background: #fee140;
-    color: #333;
+    background: #ff7500;
+    color: white;
     transform: translateY(-2px);
 }
 
@@ -424,16 +431,17 @@
 .loading-container, .error-container {
     text-align: center;
     padding: 100px 20px;
-    background: white;
+    background: #242424;
     border-radius: 15px;
     margin: 40px;
+    border: 1px solid #333333;
 }
 
 .spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #fa709a;
+    border: 4px solid #333333;
+    border-top: 4px solid #FF8800;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;
@@ -445,7 +453,7 @@
 }
 
 .error-message {
-    color: #fa709a;
+    color: #FF8800;
     font-size: 1.2rem;
 }
 

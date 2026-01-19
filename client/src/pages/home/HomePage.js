@@ -13,10 +13,9 @@ import BestSellers from '../../components/product/BestSellers';
 import Testimonials from '../../components/common/Testimonials';
 import CompareBar from '../../components/comparison/CompareBar';
 import FilterSidebar from '../../components/sidebar/FilterSidebar';
-import FAQ from '../../components/common/FAQ';
 import AnimatedProductCard from '../../components/product/AnimatedProductCard';
 import QuickViewModal from '../../components/modal/QuickViewModal';
-import { BRANDS, RAM_OPTIONS, PROCESSOR_OPTIONS } from '../../utils/constants';
+import { BRANDS, SIZE_OPTIONS, COLOR_OPTIONS, MATERIAL_OPTIONS } from '../../utils/constants';
 import { scrollToElement } from '../../utils/helpers';
 import useProducts from '../../hooks/useProducts';
 import './HomePage.professional.css';
@@ -29,8 +28,9 @@ const HomePage = () => {
     const [tempFilters, setTempFilters] = useState({
         search: '',
         brands: [], // Array để chọn nhiều brands
-        rams: [], // Array để chọn nhiều RAMs
-        processors: [], // Array để chọn nhiều processors
+        sizes: [], // Array để chọn nhiều sizes
+        colors: [], // Array để chọn nhiều colors
+        materials: [], // Array để chọn nhiều materials
         minPrice: '',
         maxPrice: '',
         inStock: false,
@@ -54,9 +54,9 @@ const HomePage = () => {
         resetFilters
     } = useProducts({ 
         search: '',
-        brand: '',
-        ram: '',
-        processor: '',
+        size: '',
+        color: '',
+        material: '',
         minPrice: '',
         maxPrice: '',
         inStock: false,
@@ -65,8 +65,9 @@ const HomePage = () => {
 
     // Available filter options (bỏ 'All', chỉ lấy các option thực)
     const brands = BRANDS.filter(b => b !== 'All');
-    const ramOptions = RAM_OPTIONS.filter(r => r !== 'All');
-    const processorOptions = PROCESSOR_OPTIONS.filter(p => p !== 'All');
+    const sizeOptions = SIZE_OPTIONS.filter(s => s !== 'All');
+    const colorOptions = COLOR_OPTIONS.filter(c => c !== 'All');
+    const materialOptions = MATERIAL_OPTIONS.filter(m => m !== 'All');
 
     // Handle URL search query parameter - only set temp filter, don't apply yet
     useEffect(() => {
@@ -93,10 +94,11 @@ const HomePage = () => {
     // Calculate active filters count
     const activeFiltersCount = useMemo(() => {
         let count = 0;
-        if (tempFilters.search) count++;
+        if (tempFilters.searchQuery) count++;
         count += tempFilters.brands.length;
-        count += tempFilters.rams.length;
-        count += tempFilters.processors.length;
+        count += tempFilters.sizes.length;
+        count += tempFilters.colors.length;
+        count += tempFilters.materials.length;
         if (tempFilters.minPrice || tempFilters.maxPrice) count++;
         if (tempFilters.inStock) count++;
         if (tempFilters.sortBy) count++;
@@ -108,7 +110,7 @@ const HomePage = () => {
         setTempFilters(prev => ({ ...prev, [filterName]: value }));
     };
 
-    // Toggle multiple selection (brands, rams, processors)
+    // Toggle multiple selection (brands, sizes, colors, materials)
     const toggleArrayFilter = (filterName, value) => {
         setTempFilters(prev => {
             const currentArray = prev[filterName];
@@ -123,14 +125,16 @@ const HomePage = () => {
     const handleApplyFilters = () => {
         // Convert arrays to comma-separated strings for API
         const brandString = tempFilters.brands.join(',');
-        const ramString = tempFilters.rams.join(',');
-        const processorString = tempFilters.processors.join(',');
+        const sizeString = tempFilters.sizes.join(',');
+        const colorString = tempFilters.colors.join(',');
+        const materialString = tempFilters.materials.join(',');
 
         // Apply all filters at once
         updateFilter('search', tempFilters.search);
         updateFilter('brand', brandString);
-        updateFilter('ram', ramString);
-        updateFilter('processor', processorString);
+        updateFilter('size', sizeString);
+        updateFilter('color', colorString);
+        updateFilter('material', materialString);
         updateFilter('minPrice', tempFilters.minPrice);
         updateFilter('maxPrice', tempFilters.maxPrice);
         updateFilter('inStock', tempFilters.inStock);
@@ -139,8 +143,9 @@ const HomePage = () => {
         // Show notification
         const filterCount = [
             tempFilters.brands.length,
-            tempFilters.rams.length,
-            tempFilters.processors.length,
+            tempFilters.sizes.length,
+            tempFilters.colors.length,
+            tempFilters.materials.length,
             tempFilters.search ? 1 : 0,
             tempFilters.minPrice ? 1 : 0,
             tempFilters.maxPrice ? 1 : 0
@@ -168,10 +173,11 @@ const HomePage = () => {
     const handleClearFilters = () => {
         // Clear temporary filters
         setTempFilters({
-            search: '',
+            searchQuery: '',
             brands: [],
-            rams: [],
-            processors: [],
+            sizes: [],
+            colors: [],
+            materials: [],
             minPrice: '',
             maxPrice: '',
             inStock: false,
@@ -231,8 +237,9 @@ const HomePage = () => {
                     handleClearFilters={handleClearFilters}
                     handleKeyPress={handleKeyPress}
                     brands={brands}
-                    ramOptions={ramOptions}
-                    processorOptions={processorOptions}
+                    sizeOptions={sizeOptions}
+                    colorOptions={colorOptions}
+                    materialOptions={materialOptions}
                     activeFiltersCount={activeFiltersCount}
                 />
 
@@ -249,7 +256,7 @@ const HomePage = () => {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
                     >
-                        Laptops
+                        Shoes
                     </motion.h1>
                     <motion.p 
                         className="product-count"
@@ -262,7 +269,7 @@ const HomePage = () => {
                 </motion.div>
 
                 {/* Display Selected Filters with Animation */}
-                {(tempFilters.brands.length > 0 || tempFilters.rams.length > 0 || tempFilters.processors.length > 0 || tempFilters.search) && (
+                {(tempFilters.brands.length > 0 || tempFilters.sizes.length > 0 || tempFilters.colors.length > 0 || tempFilters.materials.length > 0 || tempFilters.search) && (
                     <motion.div 
                         className="selected-filters"
                         initial={{ opacity: 0, y: -10 }}
@@ -277,7 +284,7 @@ const HomePage = () => {
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 200 }}
                             >
-                                🔍 {tempFilters.search}
+                                {tempFilters.search}
                             </motion.span>
                         )}
                         {tempFilters.brands.map((b, i) => (
@@ -288,29 +295,40 @@ const HomePage = () => {
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ delay: i * 0.05, type: "spring" }}
                             >
-                                🏢 {b}
+                                {b}
                             </motion.span>
                         ))}
-                        {tempFilters.rams.map((r, i) => (
+                        {tempFilters.sizes.map((s, i) => (
                             <motion.span 
-                                key={r} 
+                                key={s} 
                                 className="filter-tag"
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ delay: i * 0.05, type: "spring" }}
                             >
-                                💾 {r}
+                                Size {s}
                             </motion.span>
                         ))}
-                        {tempFilters.processors.map((p, i) => (
+                        {tempFilters.colors.map((c, i) => (
                             <motion.span 
-                                key={p} 
+                                key={c} 
                                 className="filter-tag"
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ delay: i * 0.05, type: "spring" }}
                             >
-                                🖥️ {p}
+                                {c}
+                            </motion.span>
+                        ))}
+                        {tempFilters.materials.map((m, i) => (
+                            <motion.span 
+                                key={m} 
+                                className="filter-tag"
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ delay: i * 0.05, type: "spring" }}
+                            >
+                                {m}
                             </motion.span>
                         ))}
                         <span className="filter-note">(Click "Search" to apply)</span>
@@ -411,9 +429,6 @@ const HomePage = () => {
             
             {/* Testimonials Section */}
             <Testimonials />
-            
-            {/* FAQ Section */}
-            <FAQ />
             
             {/* Compare Bar (Bottom Sticky) */}
             <CompareBar />

@@ -32,21 +32,44 @@ const BestSellers = () => {
             });
             
             // Add default values for missing fields
-            const productsWithDefaults = (res.data.products || res.data).map(p => ({
-                ...p,
-                processor: p.processor || 'Updating...',
-                ram: p.ram || 'Updating...',
-                storage: p.storage || 'Updating...',
-                screen: p.screen || 'Updating...',
-                description: p.description || 'Authentic product, nationwide warranty. Contact hotline 084.686.5650 for more details.',
-                features: p.features && p.features.length > 0 ? p.features : [
-                    'Brand new 100%, original seal',
-                    'Official nationwide warranty',
-                    'Nationwide delivery, flexible payment',
-                    '0% interest installment support'
-                ],
-                inStock: (p.stock && p.stock > 0)  // FIX: Check real stock availability safely
-            }));
+            const productsWithDefaults = (res.data.products || res.data).map(p => {
+                // Helper to get price from variants
+                const getPrice = () => {
+                    if (p.variants && p.variants.length > 0) {
+                        const prices = p.variants.map(v => v.price);
+                        return Math.min(...prices);
+                    }
+                    return p.price || 0;
+                };
+
+                // Helper to get total stock
+                const getTotalStock = () => {
+                    if (p.variants && p.variants.length > 0) {
+                        return p.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+                    }
+                    return p.stock || 0;
+                };
+
+                const price = getPrice();
+                const totalStock = getTotalStock();
+
+                return {
+                    ...p,
+                    price: price,
+                    totalStock: totalStock,
+                    size: p.variants?.[0]?.size || 'Multiple sizes',
+                    color: p.variants?.[0]?.color || 'Multiple colors',
+                    material: p.variants?.[0]?.material || 'Leather',
+                    description: p.description || 'Authentic shoes, nationwide warranty. Contact hotline 084.686.5650 for more details.',
+                    features: p.features && p.features.length > 0 ? p.features : [
+                        'Brand new 100%, authentic',
+                        'Official nationwide warranty',
+                        'Nationwide delivery, flexible payment',
+                        '0% interest installment support'
+                    ],
+                    inStock: totalStock > 0
+                };
+            });
             
             setBestSellers(productsWithDefaults);
         } catch (err) {
@@ -78,13 +101,8 @@ const BestSellers = () => {
             <div className="section-container">
                 <div className="section-header">
                     <h2 className="section-title">
-                        <span className="title-icon">⭐</span>
                         Best Sellers
-                        <span className="title-icon">⭐</span>
                     </h2>
-                    <p className="section-subtitle">
-                        Top laptops most loved and trusted by customers
-                    </p>
                 </div>
 
                 <div className="best-sellers-scroll">
@@ -144,7 +162,7 @@ const BestSellers = () => {
                                             </span>
                                         )}
                                         <span className="current-price">
-                                            {product.price.toLocaleString()}₫
+                                            {(product.price || 0).toLocaleString()}₫
                                         </span>
                                     </div>
                                     <div className="bestseller-stats">

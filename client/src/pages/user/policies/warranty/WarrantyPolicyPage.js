@@ -27,16 +27,16 @@ const WarrantyPolicyPage = () => {
                         <h2>⏰ Thời Gian Bảo Hành</h2>
                         <div className="warranty-table">
                             <div className="warranty-item">
+                                <span className="warranty-period">6 tháng</span>
+                                <span className="warranty-desc">Giày thể thao, giày casual</span>
+                            </div>
+                            <div className="warranty-item">
                                 <span className="warranty-period">12 tháng</span>
-                                <span className="warranty-desc">Laptop phổ thông, văn phòng</span>
+                                <span className="warranty-desc">Giày chạy bộ, giày cao cấp</span>
                             </div>
                             <div className="warranty-item">
                                 <span className="warranty-period">24 tháng</span>
-                                <span className="warranty-desc">Laptop gaming, đồ họa</span>
-                            </div>
-                            <div className="warranty-item">
-                                <span className="warranty-period">36 tháng</span>
-                                <span className="warranty-desc">Laptop cao cấp, doanh nghiệp</span>
+                                <span className="warranty-desc">Giày da, giày formal cao cấp</span>
                             </div>
                         </div>
                     </section>

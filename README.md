@@ -1,6 +1,6 @@
-# Laptop Shop - AdonisJS 6
+# Shoe Shop - AdonisJS 6
 
-E-commerce platform for laptop management built with AdonisJS 6 and MongoDB.
+E-commerce platform for shoe retail built with AdonisJS 6 and MongoDB.
 
 ## Tech Stack
 
@@ -8,6 +8,15 @@ E-commerce platform for laptop management built with AdonisJS 6 and MongoDB.
 - **Database**: MongoDB + Mongoose ODM
 - **Frontend**: React SPA
 - **Auth**: JWT + Session-based
+
+## Features
+
+- 👟 Multi-variant shoes (size, color, material)
+- 🛒 Shopping cart & checkout
+- 📦 Order management
+- 👥 User authentication
+- 🏪 Partner/seller dashboard
+- ⭐ Product reviews & ratings
 
 ## Quick Start
 

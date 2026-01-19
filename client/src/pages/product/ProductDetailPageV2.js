@@ -482,22 +482,22 @@ const ProductDetailPageV2 = () => {
                                         Thông số kỹ thuật:
                                     </h3>
                                     <div style={{display: 'grid', gap: '12px'}}>
-                                        {product.specifications.processor && (
+                                        {product.specifications.size && (
                                             <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>🖥️ CPU:</span>
-                                                <span>{product.specifications.processor}</span>
+                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>👟 Size:</span>
+                                                <span>{product.specifications.size}</span>
                                             </div>
                                         )}
-                                        {product.specifications.ram && (
+                                        {product.specifications.color && (
                                             <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>💾 RAM:</span>
-                                                <span>{product.specifications.ram}</span>
+                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>🎨 Màu:</span>
+                                                <span>{product.specifications.color}</span>
                                             </div>
                                         )}
-                                        {product.specifications.storage && (
+                                        {product.specifications.material && (
                                             <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>💿 Ổ cứng:</span>
-                                                <span>{product.specifications.storage}</span>
+                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>✨ Chất liệu:</span>
+                                                <span>{product.specifications.material}</span>
                                             </div>
                                         )}
                                         {product.specifications.display && (

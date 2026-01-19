@@ -7,20 +7,15 @@ import {
 } from 'react-icons/fi';
 import { 
     MdBrandingWatermark, 
-    MdMemory, 
-    MdComputer, 
     MdMoney, 
     MdSort, 
     MdHome
 } from 'react-icons/md';
 import { 
-    SiAcer,
-    SiLenovo,
-    SiHp,
-    SiAsus,
-    SiDell,
-    SiApple
-} from 'react-icons/si';
+    GiConverseShoe,
+    GiRunningShoe,
+    GiSonicShoes
+} from 'react-icons/gi';
 import './FilterSidebar.css';
 
 const FilterSidebar = ({
@@ -31,69 +26,38 @@ const FilterSidebar = ({
     handleClearFilters,
     handleKeyPress,
     brands,
-    ramOptions,
-    processorOptions,
+    sizeOptions,
+    colorOptions,
+    materialOptions,
     activeFiltersCount
 }) => {
     // State quản lý sections
     const [expandedSections, setExpandedSections] = React.useState({
         brand: true,
-        ram: true,
-        processor: true,
+        size: true,
+        color: true,
+        material: true,
         price: true,
         sort: true
     });
 
-    // Brand data với icons và counts
+    // Brand data với icons (shoe brands)
     const brandData = {
-        'Acer': { icon: <SiAcer />, count: 5 },
-        'Lenovo': { icon: <SiLenovo />, count: 10 },
-        'HP': { icon: <SiHp />, count: 151 },
-        'HP Dsus': { icon: <SiHp />, count: 10 },
-        'Asus': { icon: <SiAsus />, count: 7 },
-        'Dell': { icon: <SiDell />, count: 3 },
-        'Apple': { icon: <SiApple />, count: 8 },
+        'Nike': { icon: <GiRunningShoe />, count: 12 },
+        'Adidas': { icon: <GiSonicShoes />, count: 15 },
+        'Puma': { icon: <GiConverseShoe />, count: 8 },
+        'Converse': { icon: <GiConverseShoe />, count: 6 },
+        'Vans': { icon: <GiConverseShoe />, count: 9 },
+        'New Balance': { icon: <GiRunningShoe />, count: 7 },
+        'Reebok': { icon: <GiSonicShoes />, count: 5 },
+        'Skechers': { icon: <GiRunningShoe />, count: 4 },
     };
-
-    // RAM values cho slider
-    const ramValues = ['4GB', '8GB', '16GB', '32GB', '34GB', '64GB'];
-    const cpuValues = ['Intel Core i5', 'Intel Core i7', 'AMD Ryzen 7', 'AMD Ryzen 9'];
 
     const toggleSection = (section) => {
         setExpandedSections(prev => ({
             ...prev,
             [section]: !prev[section]
         }));
-    };
-
-    // Get RAM index từ filter value
-    const getRamIndex = () => {
-        if (!tempFilters.rams || tempFilters.rams.length === 0) return 2; // Default 16GB
-        const firstRam = tempFilters.rams[0];
-        const index = ramValues.indexOf(firstRam);
-        return index >= 0 ? index : 2;
-    };
-
-    // Get CPU index từ filter value
-    const getCpuIndex = () => {
-        if (!tempFilters.processors || tempFilters.processors.length === 0) return 1; // Default Core i7
-        const firstCpu = tempFilters.processors[0];
-        const index = cpuValues.indexOf(firstCpu);
-        return index >= 0 ? index : 1;
-    };
-
-    // Handle RAM slider change
-    const handleRamSliderChange = (e) => {
-        const index = parseInt(e.target.value);
-        const ramValue = ramValues[index];
-        handleTempFilterChange('rams', [ramValue]);
-    };
-
-    // Handle CPU slider change
-    const handleCpuSliderChange = (e) => {
-        const index = parseInt(e.target.value);
-        const cpuValue = cpuValues[index];
-        handleTempFilterChange('processors', [cpuValue]);
     };
 
     return (
@@ -118,16 +82,16 @@ const FilterSidebar = ({
                         <FiSearch className="search-icon" />
                         <input 
                             type="text" 
-                            placeholder="Search laptops..."
-                            value={tempFilters.search}
-                            onChange={(e) => handleTempFilterChange('search', e.target.value)}
+                            placeholder="Search shoes..."
+                            value={tempFilters.searchQuery}
+                            onChange={(e) => handleTempFilterChange('searchQuery', e.target.value)}
                             onKeyPress={handleKeyPress}
                             className="search-input-new"
                         />
-                        {tempFilters.search && (
+                        {tempFilters.searchQuery && (
                             <button 
                                 className="clear-btn"
-                                onClick={() => handleTempFilterChange('search', '')}
+                                onClick={() => handleTempFilterChange('searchQuery', '')}
                             >
                                 <FiX />
                             </button>
@@ -179,84 +143,95 @@ const FilterSidebar = ({
                     )}
                 </div>
 
-                {/* RAM Filter - Slider */}
+                {/* Size Filter - Grid Selection */}
                 <div className="filter-group-new">
                     <div 
                         className="filter-group-header-new"
-                        onClick={() => toggleSection('ram')}
+                        onClick={() => toggleSection('size')}
                     >
                         <div className="header-left">
-                            <MdMemory className="section-icon" />
-                            <span>RAM</span>
+                            <GiConverseShoe className="section-icon" />
+                            <span>SIZE</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.ram ? 'expanded' : ''}`} />
+                        <FiChevronDown className={`chevron-icon ${expandedSections.size ? 'expanded' : ''}`} />
                     </div>
-                    {expandedSections.ram && (
-                        <div className="filter-slider-container">
-                            <div className="slider-labels">
-                                {ramValues.map((value, index) => (
-                                    <span key={index} className={getRamIndex() === index ? 'active' : ''}>
-                                        {value}
-                                    </span>
-                                ))}
-                            </div>
-                            <div className="slider-wrapper">
-                                <input 
-                                    type="range" 
-                                    min="0" 
-                                    max={ramValues.length - 1}
-                                    value={getRamIndex()}
-                                    onChange={handleRamSliderChange}
-                                    className="slider-input"
-                                    style={{
-                                        background: `linear-gradient(to right, #6366f1 0%, #8b5cf6 ${(getRamIndex() / (ramValues.length - 1)) * 100}%, #e5e7eb ${(getRamIndex() / (ramValues.length - 1)) * 100}%, #e5e7eb 100%)`
-                                    }}
-                                />
-                            </div>
-                            <div className="slider-value-display">
-                                {tempFilters.rams && tempFilters.rams.length > 0 ? tempFilters.rams[0] : ramValues[2]}
-                            </div>
+                    {expandedSections.size && (
+                        <div className="filter-options-grid">
+                            {sizeOptions && sizeOptions.map(size => {
+                                const isSelected = tempFilters.sizes && tempFilters.sizes.includes(size);
+                                return (
+                                    <div 
+                                        key={size} 
+                                        className={`option-chip ${isSelected ? 'selected' : ''}`}
+                                        onClick={() => toggleArrayFilter('sizes', size)}
+                                    >
+                                        <span>{size}</span>
+                                        {isSelected && <FiCheck className="check-icon" />}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
 
-                {/* CPU Filter - Slider */}
+                {/* Color Filter - Color Palette */}
                 <div className="filter-group-new">
                     <div 
                         className="filter-group-header-new"
-                        onClick={() => toggleSection('processor')}
+                        onClick={() => toggleSection('color')}
                     >
                         <div className="header-left">
-                            <MdComputer className="section-icon" />
-                            <span>CPU</span>
+                            <span className="section-icon">🎨</span>
+                            <span>COLOR</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.processor ? 'expanded' : ''}`} />
+                        <FiChevronDown className={`chevron-icon ${expandedSections.color ? 'expanded' : ''}`} />
                     </div>
-                    {expandedSections.processor && (
-                        <div className="filter-slider-container">
-                            <div className="slider-labels cpu-labels">
-                                {cpuValues.map((value, index) => (
-                                    <span key={index} className={getCpuIndex() === index ? 'active' : ''}>
-                                        {value}
-                                    </span>
-                                ))}
-                            </div>
-                            <div className="slider-wrapper">
-                                <input 
-                                    type="range" 
-                                    min="0" 
-                                    max={cpuValues.length - 1}
-                                    value={getCpuIndex()}
-                                    onChange={handleCpuSliderChange}
-                                    className="slider-input"
-                                    style={{
-                                        background: `linear-gradient(to right, #6366f1 0%, #8b5cf6 ${(getCpuIndex() / (cpuValues.length - 1)) * 100}%, #e5e7eb ${(getCpuIndex() / (cpuValues.length - 1)) * 100}%, #e5e7eb 100%)`
-                                    }}
-                                />
-                            </div>
-                            <div className="slider-value-display">
-                                {tempFilters.processors && tempFilters.processors.length > 0 ? tempFilters.processors[0] : cpuValues[1]}
-                            </div>
+                    {expandedSections.color && (
+                        <div className="filter-options-grid">
+                            {colorOptions && colorOptions.map(color => {
+                                const isSelected = tempFilters.colors && tempFilters.colors.includes(color);
+                                return (
+                                    <div 
+                                        key={color} 
+                                        className={`option-chip ${isSelected ? 'selected' : ''}`}
+                                        onClick={() => toggleArrayFilter('colors', color)}
+                                    >
+                                        <span>{color}</span>
+                                        {isSelected && <FiCheck className="check-icon" />}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* Material Filter - List */}
+                <div className="filter-group-new">
+                    <div 
+                        className="filter-group-header-new"
+                        onClick={() => toggleSection('material')}
+                    >
+                        <div className="header-left">
+                            <span className="section-icon">✨</span>
+                            <span>MATERIAL</span>
+                        </div>
+                        <FiChevronDown className={`chevron-icon ${expandedSections.material ? 'expanded' : ''}`} />
+                    </div>
+                    {expandedSections.material && (
+                        <div className="filter-options-grid">
+                            {materialOptions && materialOptions.map(material => {
+                                const isSelected = tempFilters.materials && tempFilters.materials.includes(material);
+                                return (
+                                    <div 
+                                        key={material} 
+                                        className={`option-chip ${isSelected ? 'selected' : ''}`}
+                                        onClick={() => toggleArrayFilter('materials', material)}
+                                    >
+                                        <span>{material}</span>
+                                        {isSelected && <FiCheck className="check-icon" />}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -280,7 +255,7 @@ const FilterSidebar = ({
                                     <label>FROM</label>
                                     <input 
                                         type="text" 
-                                        placeholder="7,000,000đ"
+                                        placeholder="500,000đ"
                                         value={tempFilters.minPrice ? `${parseInt(tempFilters.minPrice).toLocaleString()}đ` : ''}
                                         onChange={(e) => {
                                             const value = e.target.value.replace(/[^\d]/g, '');
@@ -293,7 +268,7 @@ const FilterSidebar = ({
                                     <label>TO</label>
                                     <input 
                                         type="text" 
-                                        placeholder="Select criteria"
+                                        placeholder="10,000,000đ"
                                         value={tempFilters.maxPrice ? `${parseInt(tempFilters.maxPrice).toLocaleString()}đ` : ''}
                                         onChange={(e) => {
                                             const value = e.target.value.replace(/[^\d]/g, '');

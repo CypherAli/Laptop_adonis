@@ -2,26 +2,31 @@
 
 .partner-chat-button {
     position: fixed;
-    bottom: 90px;
-    right: 24px;
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #3366CC 0%, #2952a3 100%);
     color: white;
     border: none;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
-    transition: all 0.3s ease;
-    z-index: 9998;
+    cursor: grab;
+    box-shadow: 0 8px 24px rgba(51, 102, 204, 0.4);
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+    z-index: 2147483647 !important; /* Maximum z-index */
+    touch-action: none;
+    user-select: none;
+    pointer-events: auto !important;
+    isolation: isolate;
+}
+
+.partner-chat-button:active {
+    cursor: grabbing;
 }
 
 .partner-chat-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 12px 32px rgba(51, 102, 204, 0.6);
 }
 
 .partner-chat-button .button-label {
@@ -30,17 +35,16 @@
 
 .partner-chat-container {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
     width: 400px;
     height: 600px;
+    max-height: calc(100vh - 100px);
     background: white;
     border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 9998;
+    z-index: 2147483646;
     border: 1px solid #e5e7eb;
 }
 
@@ -48,14 +52,25 @@
     height: 56px;
 }
 
+.partner-chat-container.dragging {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    opacity: 0.95;
+}
+
 .partner-chat-header {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #3366CC 0%, #2952a3 100%);
     color: white;
     padding: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+    cursor: grab;
+    user-select: none;
+}
+
+.partner-chat-header:active {
+    cursor: grabbing;
 }
 
 .header-left {
@@ -63,6 +78,17 @@
     align-items: center;
     gap: 12px;
     flex: 1;
+    pointer-events: none;
+}
+
+.header-left h4,
+.header-left svg,
+.header-left span {
+    pointer-events: none;
+}
+
+.header-actions {
+    pointer-events: auto;
 }
 
 .back-button {
@@ -74,6 +100,7 @@
     border-radius: 8px;
     display: flex;
     align-items: center;
+    pointer-events: auto;
     justify-content: center;
     cursor: pointer;
     font-size: 18px;
@@ -446,7 +473,7 @@
 }
 
 .anonymous-notice {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: #3366CC;
     color: white;
     padding: 12px 16px;
     border-radius: 12px;

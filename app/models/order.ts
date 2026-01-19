@@ -13,9 +13,9 @@ interface OrderItem {
   quantity: number
   imageUrl?: string
   specifications?: {
-    processor?: string
-    ram?: string
-    storage?: string
+    size?: string // Shoe size
+    color?: string // Color
+    material?: string // Material
   }
   status: 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned'
   statusHistory?: Array<{
@@ -107,9 +107,9 @@ const OrderItemSchema = new Schema<OrderItem>({
   quantity: { type: Number, required: true, min: 1 },
   imageUrl: { type: String },
   specifications: {
-    processor: String,
-    ram: String,
-    storage: String,
+    size: String,
+    color: String,
+    material: String,
   },
   status: {
     type: String,

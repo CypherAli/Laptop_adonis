@@ -227,30 +227,30 @@ const ProductDetailPage = () => {
                     {/* Quick Specifications Summary */}
                     {product.specifications && (
                         <div className="quick-specs">
-                            {product.specifications.processor && (
+                            {product.specifications.size && (
                                 <div className="quick-spec-item">
-                                    <span className="spec-icon">🖥️</span>
+                                    <span className="spec-icon">👟</span>
                                     <div>
-                                        <div className="spec-label">Processor</div>
-                                        <div className="spec-value">{product.specifications.processor}</div>
+                                        <div className="spec-label">Size</div>
+                                        <div className="spec-value">{product.specifications.size}</div>
                                     </div>
                                 </div>
                             )}
-                            {product.specifications.ram && (
+                            {product.specifications.color && (
                                 <div className="quick-spec-item">
-                                    <span className="spec-icon">💾</span>
+                                    <span className="spec-icon">🎨</span>
                                     <div>
-                                        <div className="spec-label">Memory</div>
-                                        <div className="spec-value">{product.specifications.ram}</div>
+                                        <div className="spec-label">Color</div>
+                                        <div className="spec-value">{product.specifications.color}</div>
                                     </div>
                                 </div>
                             )}
-                            {product.specifications.storage && (
+                            {product.specifications.material && (
                                 <div className="quick-spec-item">
-                                    <span className="spec-icon">💿</span>
+                                    <span className="spec-icon">✨</span>
                                     <div>
-                                        <div className="spec-label">Storage</div>
-                                        <div className="spec-value">{product.specifications.storage}</div>
+                                        <div className="spec-label">Material</div>
+                                        <div className="spec-value">{product.specifications.material}</div>
                                     </div>
                                 </div>
                             )}
@@ -339,28 +339,28 @@ const ProductDetailPage = () => {
                                                     <td className="spec-detail">{product.specifications.display}</td>
                                                 </tr>
                                             )}
-                                            {product.specifications.processor && (
+                                            {product.specifications.size && (
                                                 <tr>
-                                                    <td className="spec-name">Processor</td>
-                                                    <td className="spec-detail">{product.specifications.processor}</td>
+                                                    <td className="spec-name">Size</td>
+                                                    <td className="spec-detail">{product.specifications.size}</td>
                                                 </tr>
                                             )}
-                                            {product.specifications.graphics && (
+                                            {product.specifications.shoeType && (
                                                 <tr>
-                                                    <td className="spec-name">Graphics</td>
-                                                    <td className="spec-detail">{product.specifications.graphics}</td>
+                                                    <td className="spec-name">Type</td>
+                                                    <td className="spec-detail">{product.specifications.shoeType}</td>
                                                 </tr>
                                             )}
-                                            {product.specifications.ram && (
+                                            {product.specifications.color && (
                                                 <tr>
-                                                    <td className="spec-name">Memory (RAM)</td>
-                                                    <td className="spec-detail">{product.specifications.ram}</td>
+                                                    <td className="spec-name">Color</td>
+                                                    <td className="spec-detail">{product.specifications.color}</td>
                                                 </tr>
                                             )}
-                                            {product.specifications.storage && (
+                                            {product.specifications.material && (
                                                 <tr>
-                                                    <td className="spec-name">Storage</td>
-                                                    <td className="spec-detail">{product.specifications.storage}</td>
+                                                    <td className="spec-name">Material</td>
+                                                    <td className="spec-detail">{product.specifications.material}</td>
                                                 </tr>
                                             )}
                                             {product.specifications.weight && (

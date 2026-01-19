@@ -45,7 +45,35 @@ const ProductDetailPageUltra = () => {
             try {
                 setLoading(true);
                 const response = await axios.get(`/products/${id}`);
-                setProduct(response.data);
+                
+                // Process product with variant price calculation
+                const rawProduct = response.data.product || response.data;
+                
+                // Calculate price from variants
+                const getPrice = () => {
+                    if (rawProduct.variants && rawProduct.variants.length > 0) {
+                        const prices = rawProduct.variants.map(v => v.price);
+                        return Math.min(...prices);
+                    }
+                    return rawProduct.price || 0;
+                };
+
+                // Calculate total stock
+                const getTotalStock = () => {
+                    if (rawProduct.variants && rawProduct.variants.length > 0) {
+                        return rawProduct.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+                    }
+                    return rawProduct.stock || 0;
+                };
+
+                const processedProduct = {
+                    ...rawProduct,
+                    price: getPrice(),
+                    stock: getTotalStock(),
+                    inStock: getTotalStock() > 0
+                };
+                
+                setProduct(processedProduct);
                 
                 // Fetch related products
                 if (response.data?.brand) {
@@ -358,28 +386,28 @@ const ProductDetailPageUltra = () => {
                             <div className="spec-card">
                                 <FiCpu className="spec-icon" />
                                 <div className="spec-content">
-                                    <span className="label">CPU</span>
-                                    <span className="value">{product.processor || product.specifications?.processor || 'Đang cập nhật'}</span>
+                                    <span className="label">Size</span>
+                                    <span className="value">{product.size || product.variants?.[0]?.size || 'Nhiều size'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
                                 <FiZap className="spec-icon" />
                                 <div className="spec-content">
-                                    <span className="label">RAM</span>
-                                    <span className="value">{product.ram || product.specifications?.ram || 'Đang cập nhật'}</span>
+                                    <span className="label">Màu sắc</span>
+                                    <span className="value">{product.color || product.variants?.[0]?.color || 'Nhiều màu'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
                                 <FiHardDrive className="spec-icon" />
                                 <div className="spec-content">
-                                    <span className="label">Ổ cứng</span>
-                                    <span className="value">{product.storage || product.specifications?.storage || 'Đang cập nhật'}</span>
+                                    <span className="label">Chất liệu</span>
+                                    <span className="value">{product.material || product.variants?.[0]?.material || 'Đang cập nhật'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
                                 <FiMonitor className="spec-icon" />
                                 <div className="spec-content">
-                                    <span className="label">Màn hình</span>
+                                    <span className="label">Loại giày</span>
                                     <span className="value">{product.screen || product.specifications?.display || 'Đang cập nhật'}</span>
                                 </div>
                             </div>
@@ -502,7 +530,7 @@ const ProductDetailPageUltra = () => {
                         <h4><FiGift /> Khuyến mãi đặc biệt</h4>
                         <ul>
                             <li><FiCheck /> Giảm thêm 5% khi thanh toán qua VNPay</li>
-                            <li><FiCheck /> Tặng balo laptop cao cấp trị giá 500.000đ</li>
+                            <li><FiCheck /> Tặng túi đựng giày cao cấp trị giá 500.000đ</li>
                             <li><FiCheck /> Trả góp 0% lãi suất qua thẻ tín dụng</li>
                             <li><FiCheck /> Thu cũ đổi mới giá cao</li>
                         </ul>
@@ -559,16 +587,16 @@ const ProductDetailPageUltra = () => {
                                     <span className="spec-value">{product.brand}</span>
                                 </div>
                                 <div className="spec-row">
-                                    <span className="spec-label">CPU:</span>
-                                    <span className="spec-value">{product.processor || product.specifications?.processor || 'Đang cập nhật'}</span>
+                                    <span className="spec-label">Size:</span>
+                                    <span className="spec-value">{product.size || product.variants?.map(v => v.size).join(', ') || 'Nhiều size'}</span>
                                 </div>
                                 <div className="spec-row">
-                                    <span className="spec-label">RAM:</span>
-                                    <span className="spec-value">{product.ram || product.specifications?.ram || 'Đang cập nhật'}</span>
+                                    <span className="spec-label">Màu sắc:</span>
+                                    <span className="spec-value">{product.color || product.variants?.map(v => v.color).join(', ') || 'Nhiều màu'}</span>
                                 </div>
                                 <div className="spec-row">
-                                    <span className="spec-label">Ổ cứng:</span>
-                                    <span className="spec-value">{product.storage || product.specifications?.storage || 'Đang cập nhật'}</span>
+                                    <span className="spec-label">Chất liệu:</span>
+                                    <span className="spec-value">{product.material || product.variants?.[0]?.material || 'Đang cập nhật'}</span>
                                 </div>
                                 <div className="spec-row">
                                     <span className="spec-label">Màn hình:</span>

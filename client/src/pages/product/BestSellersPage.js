@@ -205,8 +205,8 @@ const BestSellersPage = () => {
                                         </div>
 
                                         <div className="product-specs">
-                                            <span className="spec-item">💻 {product.processor || 'N/A'}</span>
-                                            <span className="spec-item">🎮 {product.ram || 'N/A'}</span>
+                                            <span className="spec-item">� {product.variants?.[0]?.size || product.size || 'Nhiều size'}</span>
+                                            <span className="spec-item">🎨 {product.variants?.[0]?.color || product.color || 'Nhiều màu'}</span>
                                         </div>
 
                                         <div className="price-section">

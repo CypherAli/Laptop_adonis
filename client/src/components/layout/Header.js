@@ -36,39 +36,28 @@ const Header = () => {
 
     return (
         <>
-            {/* Top Bar - Hotline & Trust Signals */}
-            <div className="top-bar">
-                <div className="top-bar-container">
-                    <div className="top-bar-left">
-                        <span className="trust-signal">🚚 Free shipping nationwide from 10 million VND</span>
-                        <span className="trust-signal">🔄 15-day return if manufacturer defect</span>
-                        <span className="trust-signal">🛡️ Official warranty 12-24 months</span>
-                    </div>
-                    <div className="top-bar-right">
-                        <span className="promo-text">💳 0% Installment - Fast approval in 30 minutes</span>
-                    </div>
-                </div>
-            </div>
-
             {/* Main Header */}
             <nav className="main-header">
                 <div className="nav-container">
                     <div className="nav-left">
                         <Link to="/" className="logo">
                             <div className="logo-icon-wrapper">
-                                <span className="logo-icon">💻</span>
+                                <img 
+                                    src="https://img.freepik.com/premium-vector/shoes-shop-logo-template-design_316488-861.jpg" 
+                                    alt="Shoe Store Logo" 
+                                    className="logo-image"
+                                />
                             </div>
                             <div className="logo-text-wrapper">
-                                <span className="logo-text">Laptop Store</span>
+                                <span className="logo-text">Shoe Store</span>
                                 <span className="logo-tagline">Premium Quality</span>
                             </div>
                         </Link>
                         
                         {/* Hotline nổi bật */}
                         <a href="tel:0848565650" className="hotline-prominent">
-                            <span className="hotline-icon">📞</span>
+                            <span className="hotline-icon"></span>
                             <div className="hotline-info">
-                                <span className="hotline-label">Free Consultation</span>
                                 <span className="hotline-number">084.856.5650</span>
                             </div>
                         </a>
@@ -79,13 +68,13 @@ const Header = () => {
                         <form className="header-search" onSubmit={handleSearch}>
                             <input 
                                 type="text" 
-                                placeholder="Search laptops, accessories..."
+                                placeholder="Search shoes, accessories..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="header-search-input"
                             />
                             <button type="submit" className="header-search-btn">
-                                🔍
+                                Search
                             </button>
                         </form>
                     </div>
@@ -96,7 +85,7 @@ const Header = () => {
                                 <NotificationBell />
                                 
                                 <Link to="/wishlist" className="icon-link">
-                                    <span className="icon">❤️</span>
+                                    <span className="icon"></span>
                                     <span className="icon-label">Wishlist</span>
                                     {wishlist.length > 0 && (
                                         <span className="icon-badge">{wishlist.length}</span>
@@ -106,7 +95,7 @@ const Header = () => {
                                     className="icon-link cart-icon-btn" 
                                     onClick={() => setIsCartSidebarOpen(true)}
                                 >
-                                    <span className="icon">🛒</span>
+                                    <span className="icon"></span>
                                     <span className="icon-label">Cart</span>
                                     {getCartCount() > 0 && (
                                         <span className="icon-badge cart-badge">{getCartCount()}</span>
@@ -122,7 +111,7 @@ const Header = () => {
                                             return avatarUrl ? (
                                                 <img src={avatarUrl} alt={user?.username} className="user-avatar-small" />
                                             ) : (
-                                                <span className="user-icon">👤</span>
+                                                <span className="user-icon"></span>
                                             );
                                         })()}
                                         <span className="user-name">{userDetails?.username || user?.username}</span>
@@ -130,23 +119,23 @@ const Header = () => {
                                     </button>
                                     <div className="user-dropdown">
                                         <Link to="/profile" className="dropdown-item">
-                                            👤 My Profile
+                                            My Profile
                                         </Link>
                                         <Link to="/orders" className="dropdown-item">
-                                            📦 My Orders
+                                            My Orders
                                         </Link>
                                         {user && user.role === 'admin' && (
                                             <Link to="/admin" className="dropdown-item">
-                                                🛡️ Admin Dashboard
+                                                Admin Dashboard
                                             </Link>
                                         )}
                                         {user && (user.role === 'admin' || user.role === 'partner') && (
                                             <Link to="/manager" className="dropdown-item">
-                                                📊 Product Management
+                                                Product Management
                                             </Link>
                                         )}
                                         <button onClick={handleLogout} className="dropdown-item logout-item">
-                                            🚪 Logout
+                                            Logout
                                         </button>
                                     </div>
                                 </div>
@@ -154,7 +143,7 @@ const Header = () => {
                         ) : (
                             <>
                                 <Link to="/wishlist" className="icon-link">
-                                    <span className="icon">❤️</span>
+                                    <span className="icon"></span>
                                     <span className="icon-label">Wishlist</span>
                                     {wishlist.length > 0 && (
                                         <span className="icon-badge">{wishlist.length}</span>
@@ -164,18 +153,18 @@ const Header = () => {
                                     className="icon-link cart-icon-btn" 
                                     onClick={() => setIsCartSidebarOpen(true)}
                                 >
-                                    <span className="icon">🛒</span>
+                                    <span className="icon"></span>
                                     <span className="icon-label">Cart</span>
                                     {getCartCount() > 0 && (
                                         <span className="icon-badge cart-badge">{getCartCount()}</span>
                                     )}
                                 </button>
                                 <Link to="/login" className="nav-link login-link">
-                                    <span className="link-icon">🔑</span>
+                                    <span className="link-icon"></span>
                                     Login
                                 </Link>
                                 <Link to="/register" className="nav-link register-link">
-                                    <span className="link-icon">✨</span>
+                                    <span className="link-icon"></span>
                                     Register
                                 </Link>
                             </>
@@ -188,7 +177,7 @@ const Header = () => {
             <div className="main-nav">
                 <div className="main-nav-container">
                     <Link to="/" className="nav-menu-item">
-                        🏠 Home
+                        Home
                     </Link>
                     <Link to="/#products" className="nav-menu-item" onClick={(e) => {
                         if (window.location.pathname === '/') {
@@ -199,22 +188,22 @@ const Header = () => {
                             }
                         }
                     }}>
-                        💻 Products
+                        Products
                     </Link>
                     <Link to="/deals" className="nav-menu-item hot-item">
-                        🔥 Hot Deals
+                        Hot Deals
                     </Link>
                     <Link to="/best-sellers" className="nav-menu-item">
-                        ⭐ Best Sellers
+                        Best Sellers
                     </Link>
                     <Link to="/blog" className="nav-menu-item">
-                        📰 News & Reviews
+                        News & Reviews
                     </Link>
                     <Link to="/about" className="nav-menu-item">
-                        ℹ️ About Us
+                        About Us
                     </Link>
                     <Link to="/contact" className="nav-menu-item">
-                        📧 Contact
+                        Contact
                     </Link>
                 </div>
             </div>

@@ -3,7 +3,7 @@
 | API Routes file
 |--------------------------------------------------------------------------
 |
-| API routes for the Laptop Shop application
+| API routes for the Shoe Shop application
 |
 */
 

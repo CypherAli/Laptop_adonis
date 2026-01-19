@@ -53,8 +53,8 @@ const LoginPage = () => {
                                 <rect x="5" y="14" width="14" height="2" rx="1"/>
                             </svg>
                         </div>
-                        <h1>Laptop Store</h1>
-                        <p>High-quality laptop marketplace platform</p>
+                        <h1>Shoe Store</h1>
+                        <p>Premium shoe marketplace platform</p>
                     </div>
                     <div className="auth-illustration">
                         <div className="floating-laptop">

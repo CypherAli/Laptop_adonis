@@ -3,37 +3,57 @@ import './HeroBanner.css';
 
 const HeroBanner = ({ onBrandClick }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [isFlipped, setIsFlipped] = useState(false);
 
     const slides = [
         {
-            title: 'Gaming Laptops',
-            subtitle: 'Dominate Every Game',
-            description: 'Up to 30% Off - RTX 40 Series',
-            cta: 'Buy Now',
-            image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&h=500&fit=crop',
-            color: '#e74c3c'
+            title: 'Running Shoes',
+            subtitle: 'Run Every Mile',
+            description: 'Up to 30% Off - Latest Collections',
+            cta: 'Shop Now',
+            image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=500&fit=crop',
+            color: '#e74c3c',
+            backInfo: {
+                brand: 'Nike',
+                features: ['Air Max Technology', 'Breathable Mesh', 'Lightweight Design', 'Premium Cushioning'],
+                warranty: '12 months',
+                origin: 'USA'
+            }
         },
         {
-            title: 'Business Laptops',
-            subtitle: 'Work Efficiently',
-            description: 'Slim & Light - Long Battery - High Security',
+            title: 'Casual Shoes',
+            subtitle: 'Step in Style',
+            description: 'Comfortable & Trendy - All Day Wear',
             cta: 'Explore',
-            image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=500&fit=crop',
-            color: '#3498db'
+            image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=500&fit=crop',
+            color: '#3498db',
+            backInfo: {
+                brand: 'Adidas',
+                features: ['Boost Technology', 'Comfortable Fit', 'Durable Outsole', 'Style & Performance'],
+                warranty: '12 months',
+                origin: 'Germany'
+            }
         },
         {
             title: 'Hot Deals',
             subtitle: '0% Interest Installment',
             description: 'Free nationwide shipping',
             cta: 'View Now',
-            image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&h=500&fit=crop',
-            color: '#f39c12'
+            image: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&h=500&fit=crop',
+            color: '#f39c12',
+            backInfo: {
+                brand: 'Puma',
+                features: ['Sport Performance', 'Flexible Sole', 'Modern Design', 'All-Day Comfort'],
+                warranty: '12 months',
+                origin: 'Germany'
+            }
         }
     ];
 
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
+            setIsFlipped(false); // Reset flip when slide changes
         }, 5000);
         return () => clearInterval(timer);
     }, [slides.length]);
@@ -57,7 +77,7 @@ const HeroBanner = ({ onBrandClick }) => {
                             style={{ '--accent-color': slide.color }}
                         >
                             <div className="hero-content">
-                                <span className="hero-tag">🔥 HOT DEAL</span>
+                                <span className="hero-tag">HOT DEAL</span>
                                 <h1 className="hero-title">
                                     {slide.title}
                                 </h1>
@@ -70,21 +90,21 @@ const HeroBanner = ({ onBrandClick }) => {
                                 {/* Trust Badges */}
                                 <div className="hero-badges">
                                     <div className="badge-item">
-                                        <span className="badge-icon">⭐</span>
+                                        <span className="badge-icon"></span>
                                         <div className="badge-text">
                                             <strong>4.8/5</strong>
                                             <small>15K+ reviews</small>
                                         </div>
                                     </div>
                                     <div className="badge-item">
-                                        <span className="badge-icon">🏆</span>
+                                        <span className="badge-icon"></span>
                                         <div className="badge-text">
                                             <strong>Top #1</strong>
-                                            <small>Laptop Store</small>
+                                            <small>Shoe Store</small>
                                         </div>
                                     </div>
                                     <div className="badge-item">
-                                        <span className="badge-icon">✓</span>
+                                        <span className="badge-icon"></span>
                                         <div className="badge-text">
                                             <strong>100%</strong>
                                             <small>Authentic</small>
@@ -92,8 +112,56 @@ const HeroBanner = ({ onBrandClick }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="hero-image">
-                                <img src={slide.image} alt={slide.title} />
+                            <div className={`hero-image-container ${isFlipped ? 'flipped' : ''}`}>
+                                <div className="flip-card">
+                                    {/* Front Side - Image */}
+                                    <div className="flip-card-front" onClick={() => setIsFlipped(true)}>
+                                        <img src={slide.image} alt={slide.title} />
+                                        <div className="flip-hint">Click to see details</div>
+                                    </div>
+                                    
+                                    {/* Back Side - Product Info */}
+                                    <div className="flip-card-back" onClick={() => setIsFlipped(false)}>
+                                        <div className="back-content">
+                                            <div className="shop-header">
+                                                <div className="shop-name">SHOE STORE</div>
+                                                <div className="shop-tagline">PREMIUM QUALITY</div>
+                                            </div>
+                                            
+                                            <div className="product-section">
+                                                <div className="product-category">{slide.title}</div>
+                                                <div className="divider"></div>
+                                            </div>
+                                            
+                                            <div className="brand-section">
+                                                <div className="brand-name">{slide.backInfo.brand}</div>
+                                            </div>
+                                            
+                                            <div className="features-section">
+                                                <div className="features-title">KEY FEATURES:</div>
+                                                <ul className="features-list">
+                                                    {slide.backInfo.features.map((feature, idx) => (
+                                                        <li key={idx}>{feature}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            
+                                            <div className="product-meta">
+                                                <div className="meta-item">
+                                                    <span className="meta-label">Warranty</span>
+                                                    <span className="meta-value">{slide.backInfo.warranty}</span>
+                                                </div>
+                                                <div className="meta-divider"></div>
+                                                <div className="meta-item">
+                                                    <span className="meta-label">Origin</span>
+                                                    <span className="meta-value">{slide.backInfo.origin}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flip-hint">Click to return</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -111,69 +179,69 @@ const HeroBanner = ({ onBrandClick }) => {
                 </div>
             </section>
 
-            {/* Brand Showcase - Official Partners */}
+            {/* Brand Showcase - Partners */}
             <section className="brand-showcase">
                 <div className="brand-container">
-                    <h3 className="brand-title">🏢 Official Partners</h3>
+                    <h3 className="brand-title">Partner</h3>
                     <div className="brand-logos">
                         <div 
                             className="brand-logo" 
-                            onClick={() => onBrandClick && onBrandClick('Dell')}
-                            title="Dell - Official Partner"
+                            onClick={() => onBrandClick && onBrandClick('Nike')}
+                            title="Nike - Official Partner"
                         >
                             <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Dell_Logo.svg/300px-Dell_Logo.svg.png" 
-                                alt="Dell Logo"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/300px-Logo_NIKE.svg.png" 
+                                alt="Nike Logo"
                             />
                         </div>
                         <div 
                             className="brand-logo" 
-                            onClick={() => onBrandClick && onBrandClick('HP')}
-                            title="HP - Official Partner"
+                            onClick={() => onBrandClick && onBrandClick('Adidas')}
+                            title="Adidas - Official Partner"
                         >
                             <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/HP_logo_2012.svg/300px-HP_logo_2012.svg.png" 
-                                alt="HP Logo"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/300px-Adidas_Logo.svg.png" 
+                                alt="Adidas Logo"
                             />
                         </div>
                         <div 
                             className="brand-logo" 
-                            onClick={() => onBrandClick && onBrandClick('Lenovo')}
-                            title="Lenovo - Official Partner"
+                            onClick={() => onBrandClick && onBrandClick('Puma')}
+                            title="Puma - Official Partner"
                         >
                             <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Lenovo_logo_2015.svg/300px-Lenovo_logo_2015.svg.png" 
-                                alt="Lenovo Logo"
+                                src="https://upload.wikimedia.org/wikipedia/en/thumb/d/da/Puma_complete_logo.svg/300px-Puma_complete_logo.svg.png" 
+                                alt="Puma Logo"
                             />
                         </div>
                         <div 
                             className="brand-logo" 
-                            onClick={() => onBrandClick && onBrandClick('ASUS')}
-                            title="ASUS - Official Partner"
+                            onClick={() => onBrandClick && onBrandClick('Converse')}
+                            title="Converse - Official Partner"
                         >
                             <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/ASUS_Logo.svg/300px-ASUS_Logo.svg.png" 
-                                alt="ASUS Logo"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Converse_logo.svg/300px-Converse_logo.svg.png" 
+                                alt="Converse Logo"
                             />
                         </div>
                         <div 
                             className="brand-logo" 
-                            onClick={() => onBrandClick && onBrandClick('Acer')}
-                            title="Acer - Official Partner"
+                            onClick={() => onBrandClick && onBrandClick('Vans')}
+                            title="Vans - Official Partner"
                         >
                             <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Acer_2011.svg/300px-Acer_2011.svg.png" 
-                                alt="Acer Logo"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Vans-logo.svg/300px-Vans-logo.svg.png" 
+                                alt="Vans Logo"
                             />
                         </div>
                         <div 
                             className="brand-logo" 
-                            onClick={() => onBrandClick && onBrandClick('MSI')}
-                            title="MSI - Official Partner"
+                            onClick={() => onBrandClick && onBrandClick('New Balance')}
+                            title="New Balance - Official Partner"
                         >
                             <img 
-                                src="https://storage-asset.msi.com/frontend/imgs/logo.png" 
-                                alt="MSI Logo"
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/New_Balance_logo.svg/300px-New_Balance_logo.svg.png" 
+                                alt="New Balance Logo"
                             />
                         </div>
                         <div 
@@ -194,28 +262,28 @@ const HeroBanner = ({ onBrandClick }) => {
             <section className="service-highlights">
                 <div className="service-container">
                     <div className="service-item">
-                        <span className="service-icon">🚚</span>
+                        <span className="service-icon"></span>
                         <div className="service-text">
                             <strong>Free Shipping</strong>
                             <small>Nationwide from 10 million</small>
                         </div>
                     </div>
                     <div className="service-item">
-                        <span className="service-icon">🔄</span>
+                        <span className="service-icon"></span>
                         <div className="service-text">
                             <strong>15-day Return</strong>
                             <small>If manufacturer defect</small>
                         </div>
                     </div>
                     <div className="service-item">
-                        <span className="service-icon">🛡️</span>
+                        <span className="service-icon"></span>
                         <div className="service-text">
                             <strong>Official Warranty</strong>
                             <small>12-24 months</small>
                         </div>
                     </div>
                     <div className="service-item">
-                        <span className="service-icon">💳</span>
+                        <span className="service-icon"></span>
                         <div className="service-text">
                             <strong>0% Installment</strong>
                             <small>Quick approval in 30 min</small>

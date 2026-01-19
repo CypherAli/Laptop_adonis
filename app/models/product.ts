@@ -1,17 +1,18 @@
 import mongoose, { Schema, Types, Document } from 'mongoose'
 
-// Interface for Product Variant
+// Interface for Product Variant (Shoe-specific)
 export interface ProductVariant {
-  variantName: string
+  variantName: string // e.g., "Size 42 - Black"
   sku: string
   price: number
   originalPrice?: number
   stock: number
   specifications: {
-    processor?: string
-    ram?: string
-    storage?: string
-    graphics?: string
+    size?: string // Shoe size: 35, 36, 37...45
+    color?: string // Color: Black, White, Red...
+    material?: string // Material: Leather, Canvas, Mesh...
+    shoeType?: string // Type: Running, Casual, Formal, Sports
+    gender?: string // Gender: Nam, Nữ, Unisex
   }
   isAvailable: boolean
 }
@@ -61,10 +62,11 @@ const ProductSchema = new Schema<ProductDocument>(
         originalPrice: { type: Number, min: 0 },
         stock: { type: Number, default: 0, min: 0 },
         specifications: {
-          processor: String,
-          ram: String,
-          storage: String,
-          graphics: String,
+          size: String, // Shoe size
+          color: String, // Color
+          material: String, // Material
+          shoeType: String, // Type: Running, Casual, etc.
+          gender: String, // Gender: Nam, Nữ, Unisex
         },
         isAvailable: { type: Boolean, default: true },
       },

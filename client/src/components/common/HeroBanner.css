@@ -2,7 +2,7 @@
 .hero-banner {
     position: relative;
     overflow: hidden;
-    background: #f8f9fa;
+    background: #1a1a1a;
     margin-bottom: 0;
 }
 
@@ -27,27 +27,17 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.6s ease;
-    background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+    background: linear-gradient(-45deg, #FF8800, #FF9900, #FFA500, #FF8800);
     background-size: 600% 600%;
     animation: gradientShift 20s ease-in-out infinite;
 }
 
 @keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    25% {
-        background-position: 50% 100%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    75% {
-        background-position: 50% 0%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 100%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 0%; }
+    100% { background-position: 0% 50%; }
 }
 
 .hero-slide.active {
@@ -56,21 +46,15 @@
 }
 
 .hero-content {
-    flex: 1;
+    flex: 0 0 40%;
     z-index: 1;
     color: white;
     animation: slideInLeft 0.8s ease-out;
 }
 
 @keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 .hero-tag {
@@ -109,8 +93,8 @@
 }
 
 .hero-cta {
-    background: white;
-    color: var(--accent-color, #6c4de6);
+    background: #FF8800;
+    color: white;
     padding: 16px 40px;
     border: none;
     border-radius: 50px;
@@ -124,6 +108,7 @@
 }
 
 .hero-cta:hover {
+    background: #ff7500;
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
@@ -145,7 +130,7 @@
 }
 
 .badge-icon {
-    font-size: 2rem;
+    display: none;
 }
 
 .badge-text {
@@ -164,6 +149,273 @@
     opacity: 0.9;
 }
 
+/* ==================== FLIP CARD 3D (ĐÃ FIX) ==================== */
+.hero-image-container {
+    flex: 0 0 60%;
+    position: relative;
+    z-index: 1;
+    animation: slideInRight 0.8s ease-out;
+    perspective: 1500px;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flip-card {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    height: 410px;
+    margin: 0 auto;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.hero-image-container.flipped .flip-card {
+    transform: rotateY(180deg);
+}
+
+/* Cấu hình chung cho cả 2 mặt để đảm bảo chúng khớp nhau */
+.flip-card-front,
+.flip-card-back {
+    position: absolute; /* Quan trọng: Để 2 mặt đè lên nhau */
+    top: 0;
+    left: 0;
+    width: 100%; /* Giãn full chiều rộng khung cha */
+    height: 100%; /* Giãn full chiều cao khung cha */
+    backface-visibility: hidden;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.flip-card-front {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2; /* Mặt trước nằm trên */
+}
+
+.flip-card-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.flip-card-front:hover img {
+    transform: scale(1.05);
+}
+
+/* Cấu hình riêng cho mặt sau nền trắng */
+.flip-card-back {
+    background: #ffffff;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    color: #1a1a1a;
+    z-index: 1;
+}
+
+.back-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 35px;
+    gap: 12px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* Shop Header */
+.shop-header {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.shop-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    color: #1a1a1a;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    line-height: 1.2;
+    font-style: italic;
+}
+
+.shop-tagline {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    color: #666;
+    text-transform: uppercase;
+    font-style: italic;
+}
+
+/* Product Section */
+.product-section {
+    width: 100%;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.product-category {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #FF8800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-style: italic;
+    line-height: 1.2;
+}
+
+.divider {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #FF8800, transparent);
+    margin: 5px auto;
+}
+
+/* Brand Section */
+.brand-section {
+    margin: 5px 0;
+}
+
+.brand-name {
+    font-size: 1.7rem;
+    font-weight: 900;
+    color: #1a1a1a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: 'Georgia', serif;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    line-height: 1.1;
+    font-style: italic;
+}
+
+/* Features Section */
+.features-section {
+    width: 100%;
+    margin: 8px 0;
+}
+
+.features-title {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    text-align: center;
+    font-style: italic;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.features-list li {
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    background: rgba(255, 136, 0, 0.05);
+    border-left: 3px solid #FF8800;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+    font-style: italic;
+}
+
+/* Product Meta */
+.product-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 8px;
+    padding: 10px 0 5px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.meta-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-style: italic;
+}
+
+.meta-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.5px;
+    font-style: italic;
+}
+
+.meta-divider {
+    width: 1px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.meta-item strong {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-bottom: 4px;
+    color: #666666;
+}
+
+.flip-hint {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.flip-card-front:hover .flip-hint,
+.flip-card-back:hover .flip-hint {
+    opacity: 1;
+}
+
 .hero-image {
     flex: 1;
     position: relative;
@@ -175,28 +427,8 @@
 }
 
 @keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.hero-image img {
-    width: 100%;
-    max-width: 550px;
-    height: auto;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    transform: perspective(1000px) rotateY(-5deg);
-    transition: transform 0.6s ease;
-}
-
-.hero-image img:hover {
-    transform: perspective(1000px) rotateY(0deg) scale(1.05);
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 .slider-dots {
@@ -220,13 +452,14 @@
 }
 
 .dot.active {
-    background: white;
+    background: #FF8800;
     width: 30px;
     border-radius: 6px;
 }
 
+/* ==================== BRAND SHOWCASE ==================== */
 .brand-showcase {
-    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    background: linear-gradient(180deg, #1a1a1a 0%, #242424 100%);
     padding: 60px 0;
     border-top: 1px solid #e5e7eb;
     position: relative;
@@ -258,7 +491,7 @@
 .brand-title {
     text-align: center;
     font-size: 1.6rem;
-    color: #111827;
+    color: #ffffff;
     margin-bottom: 45px;
     font-weight: 800;
     text-transform: uppercase;
@@ -295,9 +528,9 @@
     justify-content: center;
     width: 160px;
     height: 90px;
-    background: white;
+    background: #242424;
     border-radius: 16px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid #333333;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
@@ -328,22 +561,25 @@
     max-width: 70%;
     max-height: 60%;
     object-fit: contain;
-    filter: grayscale(100%);
-    opacity: 0.7;
+    filter: brightness(0) invert(1);
+    opacity: 1;
     transition: all 0.4s ease;
     position: relative;
     z-index: 1;
 }
 
 .brand-logo:hover img {
-    filter: grayscale(0%);
+    filter: brightness(0) invert(1);
     opacity: 1;
     transform: scale(1.1);
 }
 
+/* ==================== SERVICES ==================== */
 .service-highlights {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    background: #FF8800;
     padding: 40px 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 -2px 15px rgba(255, 255, 255, 0.4);
 }
 
 .service-container {
@@ -359,10 +595,10 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    background: white;
+    background: #242424;
     padding: 20px 25px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     transition: all 0.3s;
 }
 
@@ -372,7 +608,7 @@
 }
 
 .service-icon {
-    font-size: 2.5rem;
+    display: none;
 }
 
 .service-text {
@@ -382,16 +618,17 @@
 }
 
 .service-text strong {
-    color: #2c3e50;
+    color: #ffffff;
     font-size: 1rem;
     font-weight: 700;
 }
 
 .service-text small {
-    color: #7f8c8d;
+    color: #ffffff;
     font-size: 0.85rem;
 }
 
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
     .hero-slider {
         height: auto;

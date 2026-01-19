@@ -163,9 +163,9 @@ const OrderDetailPage = () => {
                                 {order.items?.map((item, index) => (
                                     <div key={index} className="product-item">
                                         <img 
-                                            src={item.imageUrl || '/placeholder-laptop.png'} 
+                                            src={item.imageUrl || '/placeholder-shoe.png'} 
                                             alt={item.name}
-                                            onError={(e) => e.target.src = '/placeholder-laptop.png'}
+                                            onError={(e) => e.target.src = '/placeholder-shoe.png'}
                                         />
                                         <div className="product-info">
                                             <h3>{item.name}</h3>
@@ -178,14 +178,14 @@ const OrderDetailPage = () => {
                                             <p className="product-brand">{item.brand}</p>
                                             {item.specifications && (
                                                 <div className="product-specs">
-                                                    {item.specifications.processor && (
-                                                        <span>💻 {item.specifications.processor}</span>
+                                                    {item.specifications.size && (
+                                                        <span>👟 Size: {item.specifications.size}</span>
                                                     )}
-                                                    {item.specifications.ram && (
-                                                        <span>🎯 {item.specifications.ram}</span>
+                                                    {item.specifications.color && (
+                                                        <span>🎨 Color: {item.specifications.color}</span>
                                                     )}
-                                                    {item.specifications.storage && (
-                                                        <span>💾 {item.specifications.storage}</span>
+                                                    {item.specifications.material && (
+                                                        <span>✨ Material: {item.specifications.material}</span>
                                                     )}
                                                 </div>
                                             )}

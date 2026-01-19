@@ -306,9 +306,9 @@ const PartnerOrders = () => {
                                     {myItems.map(item => (
                                         <div key={item._id} className="order-item my-item">
                                             <img 
-                                                src={item.imageUrl || '/default-laptop.png'} 
+                                                src={item.imageUrl || '/default-shoe.png'} 
                                                 alt={item.name}
-                                                onError={(e) => e.target.src = '/default-laptop.png'}
+                                                onError={(e) => e.target.src = '/default-shoe.png'}
                                             />
                                             <div className="item-details">
                                                 <h5>{item.name}</h5>
@@ -378,7 +378,7 @@ const PartnerOrders = () => {
                                                 {otherItems.map(item => (
                                                     <div key={item._id} className="order-item">
                                                         <img 
-                                                            src={item.imageUrl || '/default-laptop.png'} 
+                                                            src={item.imageUrl || '/default-shoe.png'} 
                                                             alt={item.name}
                                                         />
                                                         <div className="item-details">

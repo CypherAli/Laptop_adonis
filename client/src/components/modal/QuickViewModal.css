@@ -16,7 +16,7 @@
 }
 
 .quickview-modal-container {
-    background: white;
+    background: #1a1a1a;
     border-radius: 16px;
     max-width: 950px;
     width: 100%;
@@ -53,7 +53,7 @@
 }
 
 .quickview-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FF8800 0%, #ff7500 100%);
     padding: 20px 60px 20px 30px;
 }
 
@@ -74,7 +74,7 @@
     width: 60%;
     display: flex;
     flex-direction: column;
-    background: #f8f9fa;
+    background: #242424;
     padding: 30px;
 }
 
@@ -83,11 +83,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
+    background: #1a1a1a;
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     overflow: hidden;
 }
 
@@ -133,7 +133,7 @@
     cursor: pointer;
     border: 3px solid transparent;
     transition: all 0.3s ease;
-    background: #f8f9fa;
+    background: #242424;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -159,53 +159,72 @@
 
 .quickview-right {
     width: 40%;
-    background: white;
-    padding: 30px;
+    background: #1a1a1a;
+    padding: 0;
     overflow-y: auto;
-    border-left: 1px solid #e9ecef;
+    border-left: 1px solid #333333;
+    display: flex;
+    flex-direction: column;
 }
 
 .quickview-brand-badge {
     display: inline-block;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .quickview-product-name {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
-    color: #212529;
-    margin: 0 0 20px 0;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
 }
 
 .quickview-price-section {
-    margin-bottom: 25px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid #e9ecef;
+    position: sticky;
+    top: 0;
+    background: #1a1a1a;
+    z-index: 100;
+    margin: 0;
+    padding: 16px 30px;
+    border-bottom: 2px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.quickview-scrollable-content {
+    padding: 0 30px;
+    padding-top: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.quickview-scrollable-content > div:last-of-type {
+    padding-bottom: 20px;
 }
 
 .quickview-current-price {
     font-size: 28px;
     font-weight: 700;
-    color: #667eea;
+    color: #FF8800;
     margin-bottom: 8px;
 }
 
 .quickview-original-price {
     font-size: 18px;
-    color: #868e96;
+    color: #cccccc;
     text-decoration: line-through;
 }
 
 .quickview-specs h4 {
     font-size: 16px;
     font-weight: 700;
-    color: #212529;
+    color: #ffffff;
     margin: 0 0 15px 0;
 }
 
@@ -220,19 +239,20 @@
     display: flex;
     justify-content: space-between;
     padding: 12px;
-    background: #f8f9fa;
+    background: #242424;
     border-radius: 8px;
+    border: 1px solid #333333;
 }
 
 .quickview-spec-item .spec-label {
     font-weight: 600;
-    color: #495057;
+    color: #ffffff;
     font-size: 14px;
 }
 
 .quickview-spec-item .spec-value {
     font-weight: 500;
-    color: #212529;
+    color: #ffffff;
     font-size: 14px;
 }
 
@@ -246,13 +266,13 @@
 .quickview-description h4 {
     font-size: 16px;
     font-weight: 700;
-    color: #212529;
+    color: #ffffff;
     margin: 0 0 12px 0;
 }
 
 .quickview-description .description-text {
     font-size: 14px;
-    color: #495057;
+    color: #ffffff;
     line-height: 1.6;
     margin: 0;
 }
@@ -267,7 +287,7 @@
 .quickview-features h4 {
     font-size: 16px;
     font-weight: 700;
-    color: #212529;
+    color: #ffffff;
     margin: 0 0 12px 0;
 }
 
@@ -279,19 +299,19 @@
 
 .quickview-features .features-list li {
     font-size: 14px;
-    color: #495057;
+    color: #ffffff;
     padding: 8px 0;
     padding-left: 8px;
     line-height: 1.5;
-    border-left: 3px solid #667eea;
+    border-left: 3px solid #FF8800;
     margin-bottom: 8px;
-    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(255, 136, 0, 0.05) 0%, transparent 100%);
     border-radius: 4px;
 }
 
 .quickview-features .features-list li::before {
     content: '✓';
-    color: #667eea;
+    color: #FF8800;
     font-weight: 700;
     margin-right: 8px;
 }
@@ -299,7 +319,11 @@
 .quickview-actions {
     display: flex;
     gap: 12px;
-    margin-top: 25px;
+    margin-top: 0;
+    padding: 20px 30px 30px 30px;
+    background: #1a1a1a;
+    border-top: 1px solid #333333;
+    flex-shrink: 0;
 }
 
 .quickview-btn-cart,
@@ -319,15 +343,15 @@
 }
 
 .quickview-btn-cart {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FF8800 0%, #ff7500 100%);
     color: white;
     border: none;
 }
 
 .quickview-btn-detail {
-    background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    background: transparent;
+    color: #FF8800;
+    border: 2px solid #FF8800;
 }
 
 @media (max-width: 968px) {
@@ -337,4 +361,54 @@
     .quickview-left, .quickview-right {
         width: 100%;
     }
+}
+
+/* Custom Range Slider Styles */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #6366f1;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    transition: all 0.2s;
+    border: 3px solid white;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: #4f46e5;
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #6366f1;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    transition: all 0.2s;
+    border: 3px solid white;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    background: #4f46e5;
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+}
+
+input[type="range"]::-moz-range-thumb:active {
+    transform: scale(1.1);
 }

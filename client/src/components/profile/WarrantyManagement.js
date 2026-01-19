@@ -213,14 +213,14 @@ const WarrantyManagement = () => {
                                         <div className="product-specs">
                                             <h4>Thông số kỹ thuật:</h4>
                                             <div className="specs-grid">
-                                                {warranty.specifications.processor && (
-                                                    <span className="spec-item">CPU: {warranty.specifications.processor}</span>
+                                                {warranty.specifications.size && (
+                                                    <span className="spec-item">Size: {warranty.specifications.size}</span>
                                                 )}
-                                                {warranty.specifications.ram && (
-                                                    <span className="spec-item">RAM: {warranty.specifications.ram}</span>
+                                                {warranty.specifications.color && (
+                                                    <span className="spec-item">Màu: {warranty.specifications.color}</span>
                                                 )}
-                                                {warranty.specifications.storage && (
-                                                    <span className="spec-item">Ổ cứng: {warranty.specifications.storage}</span>
+                                                {warranty.specifications.material && (
+                                                    <span className="spec-item">Chất liệu: {warranty.specifications.material}</span>
                                                 )}
                                             </div>
                                         </div>

@@ -9,18 +9,17 @@ const Footer = () => {
                 {/* Company Info */}
                 <div className="footer-section">
                     <h3 className="footer-title">
-                        <span className="footer-logo">💻</span>
-                        Laptop Store
+                        Shoe Store
                     </h3>
                     <p className="footer-description">
-                        Vietnam's leading trusted laptop retail system. 
-                        Specializing in genuine laptops at the best market prices.
+                        Vietnam's leading trusted shoe retail system. 
+                        Specializing in genuine shoes at the best market prices.
                     </p>
                     <div className="footer-contact">
-                        <p><strong>📍 Address:</strong> Hanoi, Vietnam</p>
-                        <p><strong>📞 Hotline:</strong> <a href="tel:0846865650">084.686.5650</a></p>
-                        <p><strong>📧 Email:</strong> <a href="mailto:trinhviethoangawm@gmail.com">trinhviethoangawm@gmail.com</a></p>
-                        <p><strong>🕐 Business hours:</strong> 8:00 - 21:00 (Every day)</p>
+                        <p><strong>Address:</strong> Hanoi, Vietnam</p>
+                        <p><strong>Hotline:</strong> <a href="tel:0846865650">084.686.5650</a></p>
+                        <p><strong>Email:</strong> <a href="mailto:trinhviethoangawm@gmail.com">trinhviethoangawm@gmail.com</a></p>
+                        <p><strong>Business hours:</strong> 8:00 - 21:00 (Every day)</p>
                     </div>
                 </div>
 
@@ -54,12 +53,12 @@ const Footer = () => {
                 <div className="footer-section">
                     <h4 className="footer-section-title">Payment Methods</h4>
                     <div className="payment-methods">
-                        <div className="payment-icon">💳 Visa</div>
-                        <div className="payment-icon">💳 MasterCard</div>
-                        <div className="payment-icon">🏦 ATM</div>
-                        <div className="payment-icon">💰 MoMo</div>
-                        <div className="payment-icon">💙 ZaloPay</div>
-                        <div className="payment-icon">💵 COD</div>
+                        <div className="payment-icon">Visa</div>
+                        <div className="payment-icon">MasterCard</div>
+                        <div className="payment-icon">ATM</div>
+                        <div className="payment-icon">MoMo</div>
+                        <div className="payment-icon">ZaloPay</div>
+                        <div className="payment-icon">COD</div>
                     </div>
 
                     <h4 className="footer-section-title" style={{marginTop: '25px'}}>Subscribe to Newsletter</h4>
@@ -80,11 +79,11 @@ const Footer = () => {
             <div className="footer-bottom">
                 <div className="footer-bottom-content">
                     <p className="copyright">
-                        © 2025 Laptop Store. All rights reserved. | Designed with ❤️
+                        © 2025 Shoe Store. All rights reserved. | Designed with love
                     </p>
                     <div className="footer-certifications">
-                        <span className="cert-badge">🏅 Registered with Ministry of Industry and Trade</span>
-                        <span className="cert-badge">✓ DMCA Protected</span>
+                        <span className="cert-badge">Registered with Ministry of Industry and Trade</span>
+                        <span className="cert-badge">DMCA Protected</span>
                     </div>
                 </div>
             </div>

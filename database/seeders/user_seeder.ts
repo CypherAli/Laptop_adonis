@@ -14,7 +14,7 @@ export default class UserSeeder {
     // Admin account
     await User.create({
       username: 'admin',
-      email: 'admin@laptopstore.com',
+      email: 'admin@shoestore.com',
       password: 'Admin@123', // Will be hashed by pre-save hook
       role: 'admin',
       isActive: true,
@@ -24,12 +24,12 @@ export default class UserSeeder {
     // Partner account (Seller)
     await User.create({
       username: 'partner1',
-      email: 'partner@laptopstore.com',
+      email: 'partner@shoestore.com',
       password: 'Partner@123',
       role: 'partner',
-      shopName: 'Premium Laptop Store',
+      shopName: 'Premium Shoe Store',
       shopAddress: '123 Tech Street, Ho Chi Minh City',
-      shopDescription: 'Official laptop distributor',
+      shopDescription: 'Official shoe retailer',
       isActive: true,
       isApproved: true,
     })
@@ -46,8 +46,8 @@ export default class UserSeeder {
     })
 
     console.log('✅ Seeded 3 default users:')
-    console.log('1. Admin: admin@laptopstore.com / Admin@123')
-    console.log('2. Partner: partner@laptopstore.com / Partner@123')
+    console.log('1. Admin: admin@shoestore.com / Admin@123')
+    console.log('2. Partner: partner@shoestore.com / Partner@123')
     console.log('3. Customer: customer@example.com / Customer@123')
   }
 }

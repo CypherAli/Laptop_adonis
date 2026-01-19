@@ -67,13 +67,13 @@ const RegisterPage = () => {
             <div className="auth-container">
                 <div className="auth-left" data-role={role}>
                     <div className="auth-brand">
-                        <div className="brand-icon">💻</div>
-                        <h1>Laptop Store</h1>
+                        <div className="brand-icon">�</div>
+                        <h1>Shoe Store</h1>
                         <p>{role === 'partner' ? 'Start Selling Today!' : 'Join us today!'}</p>
                     </div>
                     <div className="auth-illustration">
-                        <div className="floating-laptop">
-                            <span className="laptop-emoji">🚀</span>
+                        <div className="floating-shoe">
+                            <span className="shoe-emoji">👟</span>
                         </div>
                         <div className="floating-circle circle-1"></div>
                         <div className="floating-circle circle-2"></div>
@@ -165,7 +165,7 @@ const RegisterPage = () => {
                                         type="text" 
                                         value={shopName} 
                                         onChange={(e) => setShopName(e.target.value)} 
-                                        placeholder="Laptop Store Pro"
+                                        placeholder="My Shoe Store"
                                         required 
                                         disabled={loading}
                                         className="form-input"

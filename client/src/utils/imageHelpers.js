@@ -3,7 +3,7 @@
  * Xử lý URL ảnh từ backend
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://web2-laptop-marketplace.onrender.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3333/api';
 const SERVER_URL = process.env.REACT_APP_SERVER_URL || API_BASE_URL.replace('/api', '');
 
 /**

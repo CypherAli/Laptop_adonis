@@ -20,12 +20,23 @@
     justify-content: center;
     box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
     transition: all 0.3s ease;
-    z-index: 9998;
+    z-index: 100000;
+    animation: partnerChatPulse 2s ease-in-out infinite;
+}
+
+@keyframes partnerChatPulse {
+    0%, 100% { 
+        box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
+    }
+    50% { 
+        box-shadow: 0 6px 40px rgba(102, 126, 234, 0.7), 0 0 0 8px rgba(102, 126, 234, 0.2);
+    }
 }
 
 .partner-chat-toggle-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 8px 40px rgba(102, 126, 234, 0.6);
+    animation: none;
 }
 
 .partner-chat-toggle-btn .chat-label {

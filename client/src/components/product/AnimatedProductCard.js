@@ -14,9 +14,28 @@ const AnimatedProductCard = ({
     onToggleWishlist, 
     isInWishlist 
 }) => {
-    const isOnSale = product.salePrice && product.salePrice < product.price;
+    // Helper function to get price range from variants
+    const getPriceRange = () => {
+        if (!product.variants || product.variants.length === 0) {
+            return { min: product.price || 0, max: product.price || 0 };
+        }
+        const prices = product.variants.map(v => v.price);
+        return { min: Math.min(...prices), max: Math.max(...prices) };
+    };
+
+    // Helper function to calculate total stock
+    const getTotalStock = () => {
+        if (!product.variants || product.variants.length === 0) {
+            return product.stock || 0;
+        }
+        return product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+    };
+
+    const priceRange = getPriceRange();
+    const totalStock = getTotalStock();
+    const isOnSale = product.salePrice && product.salePrice < priceRange.min;
     const discountPercent = isOnSale 
-        ? Math.round(((product.price - product.salePrice) / product.price) * 100) 
+        ? Math.round(((priceRange.min - product.salePrice) / priceRange.min) * 100) 
         : 0;
 
     // Animation variants
@@ -225,23 +244,28 @@ const AnimatedProductCard = ({
                 >
                     {isOnSale && (
                         <span className="animated-original-price">
-                            {product.price.toLocaleString('vi-VN')} VND
+                            {priceRange.min.toLocaleString('vi-VN')} VND
                         </span>
                     )}
                     <span className={`animated-current-price ${isOnSale ? 'sale-price' : ''}`}>
-                        {(product.salePrice || product.price).toLocaleString('vi-VN')} VND
+                        {product.salePrice ? 
+                            `${product.salePrice.toLocaleString('vi-VN')} VND` :
+                            priceRange.min === priceRange.max ?
+                                `${priceRange.min.toLocaleString('vi-VN')} VND` :
+                                `${priceRange.min.toLocaleString('vi-VN')} - ${priceRange.max.toLocaleString('vi-VN')} VND`
+                        }
                     </span>
                 </motion.div>
 
                 {/* Footer */}
                 <div className="animated-product-footer">
                     <span className="animated-stock-status" style={{
-                        color: (product.stock && product.stock > 0) ? '#10b981' : '#e74c3c'
+                        color: totalStock > 0 ? '#10b981' : '#e74c3c'
                     }}>
-                        {(product.stock && product.stock > 0) ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
+                        {totalStock > 0 ? `Còn ${totalStock} sản phẩm` : 'Hết hàng'}
                     </span>
 
-                    {(product.stock && product.stock > 0) ? (
+                    {totalStock > 0 ? (
                         <motion.button
                             className="animated-add-btn"
                             onClick={() => onAddToCart(product)}

@@ -1,46 +1,75 @@
 /**
- * Centralized constants file
+ * Centralized constants file - Shoe Shop
  * Giúp dễ maintain và update data
  */
 
-// Brand list
+// Brand list - Shoe brands
 export const BRANDS = [
     'All', 
-    'Dell', 
-    'HP', 
-    'Lenovo', 
-    'ASUS', 
-    'Acer', 
-    'MSI', 
-    'Apple', 
-    'Microsoft', 
-    'Razer'
+    'Nike', 
+    'Adidas', 
+    'Puma', 
+    'Converse', 
+    'Vans', 
+    'New Balance', 
+    'Reebok',
+    'Skechers', 
+    'Under Armour'
 ];
 
-// RAM options
-export const RAM_OPTIONS = [
+// Size options for shoes
+export const SIZE_OPTIONS = [
     'All', 
-    '4GB', 
-    '8GB', 
-    '16GB', 
-    '32GB', 
-    '64GB'
+    '35', 
+    '36', 
+    '37', 
+    '38', 
+    '39', 
+    '40',
+    '41',
+    '42',
+    '43',
+    '44',
+    '45'
 ];
 
-// Processor options
-export const PROCESSOR_OPTIONS = [
+// Color options
+export const COLOR_OPTIONS = [
     'All',
-    'Intel Core i3',
-    'Intel Core i5',
-    'Intel Core i7',
-    'Intel Core i9',
-    'AMD Ryzen 3',
-    'AMD Ryzen 5',
-    'AMD Ryzen 7',
-    'AMD Ryzen 9',
-    'Apple M1',
-    'Apple M2',
-    'Apple M3'
+    'Black',
+    'White',
+    'Red',
+    'Blue',
+    'Green',
+    'Yellow',
+    'Pink',
+    'Grey',
+    'Brown',
+    'Navy',
+    'Orange'
+];
+
+// Material options
+export const MATERIAL_OPTIONS = [
+    'All',
+    'Leather',
+    'Canvas',
+    'Mesh',
+    'Synthetic',
+    'Suede',
+    'Rubber'
+];
+
+// Shoe Type options
+export const SHOE_TYPE_OPTIONS = [
+    'All',
+    'Running',
+    'Casual',
+    'Formal',
+    'Sports',
+    'Sneakers',
+    'Sandals',
+    'Boots'
 ];
 
 // Sort options
@@ -51,13 +80,13 @@ export const SORT_OPTIONS = [
     { value: 'popularity', label: 'Phổ biến nhất' }
 ];
 
-// Product categories
+// Product categories - Shoes
 export const CATEGORIES = [
-    { name: 'Gaming', icon: '🎮', label: 'Gaming Laptops' },
-    { name: 'Business', icon: '💼', label: 'Business Laptops' },
-    { name: 'Creator', icon: '🎨', label: 'Creator Laptops' },
-    { name: 'Ultrabook', icon: '⚡', label: 'Ultrabooks' },
-    { name: 'Budget', icon: '💰', label: 'Budget Laptops' }
+    { name: 'Running', icon: '🏃', label: 'Running Shoes' },
+    { name: 'Casual', icon: '👟', label: 'Casual Shoes' },
+    { name: 'Sports', icon: '⚽', label: 'Sports Shoes' },
+    { name: 'Formal', icon: '👞', label: 'Formal Shoes' },
+    { name: 'Sneakers', icon: '👟', label: 'Sneakers' }
 ];
 
 // API Endpoints
@@ -84,8 +113,10 @@ export const DEFAULT_FILTERS = {
     maxPrice: '',
     minPrice: '',
     brand: 'All',
-    ram: 'All',
-    processor: 'All',
+    size: 'All',
+    color: 'All',
+    material: 'All',
+    shoeType: 'All',
     inStock: true,
     sortBy: ''
 };
