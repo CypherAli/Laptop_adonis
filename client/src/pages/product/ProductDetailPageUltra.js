@@ -33,6 +33,12 @@ const ProductDetailPageUltra = () => {
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImageIndex, setModalImageIndex] = useState(0);
+    
+    // Variant selection states
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedGender, setSelectedGender] = useState(null);
+    const [currentVariant, setCurrentVariant] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -69,6 +75,15 @@ const ProductDetailPageUltra = () => {
                 
                 setProduct(processedProduct);
                 
+                // Initialize variant selections
+                if (processedProduct.variants && processedProduct.variants.length > 0) {
+                    const firstVariant = processedProduct.variants[0];
+                    setSelectedSize(firstVariant.specifications?.size || null);
+                    setSelectedColor(firstVariant.specifications?.color || null);
+                    setSelectedGender(firstVariant.specifications?.gender || null);
+                    setCurrentVariant(firstVariant);
+                }
+                
                 // Fetch related products
                 if (response.data?.brand) {
                     try {
@@ -94,6 +109,80 @@ const ProductDetailPageUltra = () => {
         }
     }, [id]);
 
+    // Update current variant when selections change
+    useEffect(() => {
+        if (!product?.variants || product.variants.length === 0) return;
+        
+        // Filter variants based on current selections
+        let filteredVariants = product.variants;
+        
+        if (selectedGender) {
+            filteredVariants = filteredVariants.filter(v => v.specifications?.gender === selectedGender);
+        }
+        
+        if (selectedSize) {
+            filteredVariants = filteredVariants.filter(v => v.specifications?.size === selectedSize);
+        }
+        
+        if (selectedColor) {
+            filteredVariants = filteredVariants.filter(v => v.specifications?.color === selectedColor);
+        }
+        
+        // Find exact match or best available variant
+        const matchingVariant = filteredVariants.find(v => v.stock > 0);
+        
+        if (matchingVariant) {
+            setCurrentVariant(matchingVariant);
+            
+            // Auto-select missing attributes from the matching variant
+            if (!selectedSize && matchingVariant.specifications?.size) {
+                setSelectedSize(matchingVariant.specifications.size);
+            }
+            if (!selectedColor && matchingVariant.specifications?.color) {
+                setSelectedColor(matchingVariant.specifications.color);
+            }
+        } else if (filteredVariants.length > 0) {
+            // If no variant with stock, use the first one
+            const firstVariant = filteredVariants[0];
+            setCurrentVariant(firstVariant);
+        }
+    }, [selectedSize, selectedColor, selectedGender, product]);
+
+    // Reset size and color when gender changes
+    useEffect(() => {
+        if (!selectedGender || !product?.variants) return;
+        
+        // Get available options for the selected gender
+        const genderVariants = product.variants.filter(v => v.specifications?.gender === selectedGender);
+        
+        if (genderVariants.length === 0) return;
+        
+        // Check if current size is available for this gender
+        const sizeAvailable = genderVariants.some(v => v.specifications?.size === selectedSize && v.stock > 0);
+        if (!sizeAvailable) {
+            const firstAvailableSize = [...new Set(genderVariants
+                .filter(v => v.stock > 0)
+                .map(v => v.specifications?.size)
+                .filter(Boolean)
+                .sort((a, b) => parseInt(a) - parseInt(b)))][0];
+            setSelectedSize(firstAvailableSize || null);
+        }
+        
+        // Check if current color is available
+        const colorAvailable = genderVariants.some(v => 
+            v.specifications?.color === selectedColor && 
+            (!selectedSize || v.specifications?.size === selectedSize) &&
+            v.stock > 0
+        );
+        if (!colorAvailable) {
+            const firstAvailableColor = [...new Set(genderVariants
+                .filter(v => (!selectedSize || v.specifications?.size === selectedSize) && v.stock > 0)
+                .map(v => v.specifications?.color)
+                .filter(Boolean))][0];
+            setSelectedColor(firstAvailableColor || null);
+        }
+    }, [selectedGender, product]);
+
     const handleMouseMove = (e) => {
         if (!isZoomed) return;
         const rect = e.currentTarget.getBoundingClientRect();
@@ -103,11 +192,29 @@ const ProductDetailPageUltra = () => {
     };
 
     const handleAddToCart = () => {
-        if (product && product.stock > 0) {
+        const stockToCheck = currentVariant ? currentVariant.stock : product.stock;
+        const priceToUse = currentVariant ? currentVariant.price : product.price;
+        
+        if (stockToCheck > 0) {
+            const productToAdd = {
+                ...product,
+                price: priceToUse,
+                selectedVariant: currentVariant,
+                variantInfo: currentVariant ? {
+                    size: currentVariant.specifications?.size,
+                    color: currentVariant.specifications?.color,
+                    gender: currentVariant.specifications?.gender
+                } : null
+            };
+            
             for (let i = 0; i < quantity; i++) {
-                addToCart(product);
+                addToCart(productToAdd);
             }
-            toast.success(`✅ Added ${quantity}x ${product.name} to cart!`);
+            
+            const variantText = currentVariant 
+                ? ` (${[currentVariant.specifications?.gender, currentVariant.specifications?.size, currentVariant.specifications?.color].filter(Boolean).join(', ')})`
+                : '';
+            toast.success(`✅ Added ${quantity}x ${product.name}${variantText} to cart!`);
         } else {
             toast.error('❌ Product is out of stock!');
         }
@@ -183,8 +290,14 @@ const ProductDetailPageUltra = () => {
     }
 
     const displayImage = selectedImage || product.imageUrl || PLACEHOLDER_IMAGES.product;
-    const discount = product.originalPrice && product.originalPrice > product.price 
-        ? Math.round((1 - product.price / product.originalPrice) * 100)
+    
+    // Use current variant price and stock if available
+    const displayPrice = currentVariant?.price || product.price;
+    const displayOriginalPrice = currentVariant?.originalPrice || product.originalPrice;
+    const displayStock = currentVariant?.stock ?? product.stock;
+    
+    const discount = displayOriginalPrice && displayOriginalPrice > displayPrice 
+        ? Math.round((1 - displayPrice / displayOriginalPrice) * 100)
         : 0;
 
     // Prepare all images for modal
@@ -229,14 +342,14 @@ const ProductDetailPageUltra = () => {
                                 -{discount}%
                             </motion.div>
                         )}
-                        {product.stock > 0 && product.stock < 10 && (
+                        {displayStock > 0 && displayStock < 10 && (
                             <motion.div 
                                 className="ultra-badge stock"
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.4, type: "spring" }}
                             >
-                                Chỉ còn {product.stock}
+                                Chỉ còn {displayStock}
                             </motion.div>
                         )}
                     </div>
@@ -353,22 +466,22 @@ const ProductDetailPageUltra = () => {
                     >
                         <div className="ultra-price-box">
                             <div className="current-price">
-                                {product.price.toLocaleString()}₫
+                                {displayPrice.toLocaleString()}₫
                             </div>
-                            {product.originalPrice && product.originalPrice > product.price && (
+                            {displayOriginalPrice && displayOriginalPrice > displayPrice && (
                                 <>
                                     <div className="original-price">
-                                        {product.originalPrice.toLocaleString()}₫
+                                        {displayOriginalPrice.toLocaleString()}₫
                                     </div>
                                     <div className="savings">
-                                        Save: {(product.originalPrice - product.price).toLocaleString()}₫
+                                        Save: {(displayOriginalPrice - displayPrice).toLocaleString()}₫
                                     </div>
                                 </>
                             )}
                         </div>
                     </motion.div>
 
-                    {/* Key Specs */}
+                    {/* Key Specs with Variant Selectors */}
                     <motion.div 
                         className="ultra-key-specs"
                         initial={{ opacity: 0, y: 20 }}
@@ -376,29 +489,151 @@ const ProductDetailPageUltra = () => {
                         transition={{ delay: 0.6 }}
                     >
                         <h3>Thông số chính</h3>
+                        
+                        {/* Gender Selection */}
+                        {product.variants && product.variants.length > 0 && (() => {
+                            const genders = [...new Set(product.variants.map(v => v.specifications?.gender).filter(Boolean))];
+                            return genders.length > 0 && (
+                                <div className="variant-selector">
+                                    <label>GIỚI TÍNH</label>
+                                    <div className="variant-options">
+                                        {genders.map(gender => (
+                                            <motion.button
+                                                key={gender}
+                                                className={`variant-option ${selectedGender === gender ? 'active' : ''}`}
+                                                onClick={() => setSelectedGender(gender)}
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                {gender}
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Size Slider */}
+                        {product.variants && product.variants.length > 0 && (() => {
+                            const availableSizes = [...new Set(product.variants
+                                .filter(v => !selectedGender || v.specifications?.gender === selectedGender)
+                                .map(v => v.specifications?.size)
+                                .filter(Boolean))].sort((a, b) => parseInt(a) - parseInt(b));
+                            
+                            if (availableSizes.length === 0) return null;
+                            
+                            const minSize = 34;
+                            const maxSize = 44;
+                            const currentSize = selectedSize ? parseInt(selectedSize) : parseInt(availableSizes[0]);
+                            
+                            return (
+                                <div className="variant-selector">
+                                    <label>SIZE: {selectedSize || availableSizes[0]}</label>
+                                    <div className="size-slider-container">
+                                        <input
+                                            type="range"
+                                            min={minSize}
+                                            max={maxSize}
+                                            value={currentSize}
+                                            onChange={(e) => {
+                                                const newSize = e.target.value;
+                                                // Check if this size is available
+                                                const isAvailable = product.variants.some(v => 
+                                                    v.specifications?.size === newSize &&
+                                                    (!selectedGender || v.specifications?.gender === selectedGender) &&
+                                                    v.stock > 0
+                                                );
+                                                if (isAvailable) {
+                                                    setSelectedSize(newSize);
+                                                }
+                                            }}
+                                            className="size-slider"
+                                            style={{
+                                                background: `linear-gradient(to right, #FF8800 0%, #FF8800 ${((currentSize - minSize) / (maxSize - minSize)) * 100}%, #e0e0e0 ${((currentSize - minSize) / (maxSize - minSize)) * 100}%, #e0e0e0 100%)`
+                                            }}
+                                        />
+                                        <div className="size-labels">
+                                            <span>{minSize}</span>
+                                            <span>{maxSize}</span>
+                                        </div>
+                                        <div className="available-sizes">
+                                            Sizes có sẵn: {availableSizes.join(', ')}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* Color Selection */}
+                        {product.variants && product.variants.length > 0 && (() => {
+                            const colors = [...new Set(product.variants
+                                .filter(v => 
+                                    (!selectedGender || v.specifications?.gender === selectedGender) &&
+                                    (!selectedSize || v.specifications?.size === selectedSize)
+                                )
+                                .map(v => v.specifications?.color)
+                                .filter(Boolean))];
+                            
+                            // Map Vietnamese color names to hex codes
+                            const colorMap = {
+                                'Đen': '#000000',
+                                'Trắng': '#FFFFFF',
+                                'Xanh Navy': '#001f3f',
+                                'Đỏ': '#FF4136',
+                                'Xám': '#AAAAAA',
+                                'Nâu': '#8B4513',
+                                'Xanh Dương': '#0074D9',
+                                'Hồng': '#FF69B4',
+                                'Vàng': '#FFDC00'
+                            };
+                            
+                            return colors.length > 0 && (
+                                <div className="variant-selector">
+                                    <label>MÀU SẮC</label>
+                                    <div className="variant-options color-options">
+                                        {colors.map(color => {
+                                            const isAvailable = product.variants.some(v => 
+                                                v.specifications?.color === color &&
+                                                (!selectedGender || v.specifications?.gender === selectedGender) &&
+                                                (!selectedSize || v.specifications?.size === selectedSize) &&
+                                                v.stock > 0
+                                            );
+                                            return (
+                                                <motion.button
+                                                    key={color}
+                                                    className={`variant-option color-option ${selectedColor === color ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
+                                                    onClick={() => isAvailable && setSelectedColor(color)}
+                                                    disabled={!isAvailable}
+                                                    whileHover={isAvailable ? { scale: 1.05 } : {}}
+                                                    whileTap={isAvailable ? { scale: 0.95 } : {}}
+                                                >
+                                                    <span 
+                                                        className="color-preview" 
+                                                        style={{ 
+                                                            backgroundColor: colorMap[color] || '#CCCCCC',
+                                                            border: color === 'Trắng' ? '1px solid #ddd' : 'none'
+                                                        }}
+                                                    />
+                                                    <span className="color-name">{color}</span>
+                                                </motion.button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         <div className="specs-grid">
                             <div className="spec-card">
                                 <div className="spec-content">
-                                    <span className="label">Size</span>
-                                    <span className="value">{product.size || product.variants?.[0]?.size || 'Nhiều size'}</span>
-                                </div>
-                            </div>
-                            <div className="spec-card">
-                                <div className="spec-content">
-                                    <span className="label">Màu sắc</span>
-                                    <span className="value">{product.color || product.variants?.[0]?.color || 'Nhiều màu'}</span>
-                                </div>
-                            </div>
-                            <div className="spec-card">
-                                <div className="spec-content">
                                     <span className="label">Chất liệu</span>
-                                    <span className="value">{product.material || product.variants?.[0]?.material || 'Đang cập nhật'}</span>
+                                    <span className="value">{currentVariant?.specifications?.material || product.variants?.[0]?.specifications?.material || 'Đang cập nhật'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
                                 <div className="spec-content">
                                     <span className="label">Loại giày</span>
-                                    <span className="value">{product.screen || product.specifications?.display || 'Đang cập nhật'}</span>
+                                    <span className="value">{currentVariant?.specifications?.shoeType || product.variants?.[0]?.specifications?.shoeType || 'Đang cập nhật'}</span>
                                 </div>
                             </div>
                         </div>
@@ -460,19 +695,19 @@ const ProductDetailPageUltra = () => {
                                     value={quantity}
                                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                                     min="1"
-                                    max={product.stock}
+                                    max={displayStock}
                                 />
                                 <motion.button
-                                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                                    onClick={() => setQuantity(Math.min(displayStock, quantity + 1))}
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
-                                    disabled={quantity >= product.stock}
+                                    disabled={quantity >= displayStock}
                                 >
                                     +
                                 </motion.button>
                             </div>
                             <span className="stock-info">
-                                {(product.stock && product.stock > 0) ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
+                                {(displayStock && displayStock > 0) ? `Còn ${displayStock} sản phẩm` : 'Hết hàng'}
                             </span>
                         </div>
 
@@ -480,7 +715,7 @@ const ProductDetailPageUltra = () => {
                             <motion.button
                                 className="btn-add-cart"
                                 onClick={handleAddToCart}
-                                disabled={!product.stock || product.stock <= 0}
+                                disabled={!displayStock || displayStock <= 0}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
@@ -489,7 +724,7 @@ const ProductDetailPageUltra = () => {
                             <motion.button
                                 className="btn-buy-now"
                                 onClick={handleBuyNow}
-                                disabled={!product.stock || product.stock <= 0}
+                                disabled={!displayStock || displayStock <= 0}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >

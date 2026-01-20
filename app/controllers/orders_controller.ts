@@ -15,7 +15,7 @@ export default class OrdersController {
       const { page = 1, limit = 10, status } = request.qs()
 
       const filter: any = {}
-      
+
       // Client: chỉ xem orders của mình
       if (user.role === 'client') {
         filter.user = user.id
@@ -25,7 +25,7 @@ export default class OrdersController {
         filter['items.seller'] = user.id
       }
       // Admin: xem tất cả orders (không thêm filter)
-      
+
       if (status) {
         filter.status = status
       }
@@ -71,7 +71,7 @@ export default class OrdersController {
           message: 'ID đơn hàng không hợp lệ',
         })
       }
-      
+
       const order = await Order.findById(params.id)
         .populate('user', 'username email phone')
         .populate('items.product')
@@ -111,7 +111,7 @@ export default class OrdersController {
   async store({ request, response }: HttpContext) {
     const session = await mongoose.startSession()
     session.startTransaction()
-    
+
     try {
       const userId = (request as any).user.id
       const { items, shippingAddress, paymentMethod, notes } = request.only([
@@ -129,9 +129,14 @@ export default class OrdersController {
         })
       }
 
-      if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || 
-          !shippingAddress.address?.street || !shippingAddress.address?.district || 
-          !shippingAddress.address?.city) {
+      if (
+        !shippingAddress ||
+        !shippingAddress.fullName ||
+        !shippingAddress.phone ||
+        !shippingAddress.address?.street ||
+        !shippingAddress.address?.district ||
+        !shippingAddress.address?.city
+      ) {
         await session.abortTransaction()
         return response.status(400).json({
           message: 'Địa chỉ giao hàng không đầy đủ thông tin',
@@ -277,7 +282,7 @@ export default class OrdersController {
           message: 'ID đơn hàng không hợp lệ',
         })
       }
-      
+
       const { status, note } = request.only(['status', 'note'])
       const user = (request as any).user
 
@@ -292,7 +297,7 @@ export default class OrdersController {
       // Check permissions
       const isAdmin = user.role === 'admin'
       const isOrderSeller = order.items.some((item: any) => item.seller.toString() === user.id)
-      
+
       if (!isAdmin && !isOrderSeller) {
         return response.status(403).json({
           message: 'Bạn không có quyền cập nhật đơn hàng này',
@@ -332,7 +337,7 @@ export default class OrdersController {
   async cancel({ params, request, response }: HttpContext) {
     const session = await mongoose.startSession()
     session.startTransaction()
-    
+
     try {
       // Validate ObjectId
       if (!mongoose.Types.ObjectId.isValid(params.id)) {
@@ -341,7 +346,7 @@ export default class OrdersController {
           message: 'ID đơn hàng không hợp lệ',
         })
       }
-      
+
       const { reason } = request.only(['reason'])
       const userId = (request as any).user.id
 
@@ -410,11 +415,6 @@ export default class OrdersController {
       })
     } finally {
       session.endSession()
-    }
-  }
-}
-        error: error.message,
-      })
     }
   }
 }

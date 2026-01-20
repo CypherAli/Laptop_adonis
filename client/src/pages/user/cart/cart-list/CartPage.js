@@ -203,7 +203,7 @@ const CartPage = () => {
                         {selectedItems.length > 0 && (
                             <button 
                                 onClick={() => {
-                                    if (window.confirm(`Delete {selectedItems.length} selected items?`)) {
+                                    if (window.confirm(`Delete ${selectedItems.length} selected items?`)) {
                                         selectedItems.forEach(id => removeFromCart(id));
                                         setSelectedItems([]);
                                     }

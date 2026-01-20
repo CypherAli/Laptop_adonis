@@ -1,8 +1,34 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { Conversation } from '#models/conversation'
 import { Message } from '#models/message'
+import { User } from '#models/user'
 
 export default class ChatController {
+  /**
+   * Get all active partners (for guest to see available partners)
+   */
+  async getActivePartners({ response }: HttpContext) {
+    try {
+      const partners = await User.find({
+        role: 'partner',
+        isActive: true,
+      })
+        .select('_id username shopName email')
+        .lean()
+
+      return response.json({
+        success: true,
+        partners,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+  }
+
   /**
    * Create or get conversation
    */
@@ -16,7 +42,7 @@ export default class ChatController {
       if (!targetUserId) {
         return response.status(400).json({
           success: false,
-          message: 'Target user ID is required'
+          message: 'Target user ID is required',
         })
       }
 
@@ -26,20 +52,20 @@ export default class ChatController {
         // Logged in user
         conversation = await Conversation.findOne({
           participants: { $all: [user.id, targetUserId] },
-          anonymousUser: { $exists: false }
+          anonymousUser: { $exists: false },
         })
 
         if (!conversation) {
           conversation = await Conversation.create({
             participants: [user.id, targetUserId],
-            subject: subject || 'Product Consultation'
+            subject: subject || 'Product Consultation',
           })
         }
       } else if (anonymousId) {
         // Anonymous user
         conversation = await Conversation.findOne({
           'anonymousUser.id': anonymousId,
-          participants: targetUserId
+          'participants': targetUserId,
         })
 
         if (!conversation) {
@@ -47,27 +73,61 @@ export default class ChatController {
             participants: [targetUserId],
             anonymousUser: {
               id: anonymousId,
-              name: anonymousName
+              name: anonymousName,
             },
-            subject: subject || 'Product Consultation'
+            subject: subject || 'Product Consultation',
           })
         }
       } else {
         return response.status(401).json({
           success: false,
-          message: 'Authentication required'
+          message: 'Authentication required',
         })
       }
 
       return response.json({
         success: true,
-        conversation
+        conversation,
       })
     } catch (error) {
       return response.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Get conversations for guest (based on anonymousId)
+   */
+  async getGuestConversations({ request, response }: HttpContext) {
+    try {
+      const anonymousId = request.header('X-Anonymous-Id')
+
+      if (!anonymousId) {
+        return response.status(400).json({
+          success: false,
+          message: 'Anonymous ID is required',
+        })
+      }
+
+      const conversations = await Conversation.find({
+        'anonymousUser.id': anonymousId,
+      })
+        .populate('participants', 'username shopName role')
+        .sort({ updatedAt: -1 })
+        .lean()
+
+      return response.json({
+        success: true,
+        conversations,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
     }
   }
@@ -86,13 +146,13 @@ export default class ChatController {
 
       return response.json({
         success: true,
-        messages
+        messages,
       })
     } catch (error) {
       return response.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: error.message,
       })
     }
   }
@@ -110,13 +170,13 @@ export default class ChatController {
       if (!conversationId || !content) {
         return response.status(400).json({
           success: false,
-          message: 'Conversation ID and content are required'
+          message: 'Conversation ID and content are required',
         })
       }
 
       const messageData: any = {
         conversation: conversationId,
-        content
+        content,
       }
 
       if (user) {
@@ -126,12 +186,12 @@ export default class ChatController {
         messageData.senderType = 'anonymous'
         messageData.anonymousSender = {
           id: anonymousId,
-          name: anonymousName
+          name: anonymousName,
         }
       } else {
         return response.status(401).json({
           success: false,
-          message: 'Authentication required'
+          message: 'Authentication required',
         })
       }
 
@@ -142,8 +202,8 @@ export default class ChatController {
         lastMessage: {
           content,
           timestamp: new Date(),
-          sender: user ? user.username : anonymousName
-        }
+          sender: user ? user.username : anonymousName,
+        },
       })
 
       const populatedMessage = await Message.findById(message._id)
@@ -152,13 +212,64 @@ export default class ChatController {
 
       return response.json({
         success: true,
-        message: populatedMessage
+        message: populatedMessage,
       })
     } catch (error) {
       return response.status(500).json({
         success: false,
         message: 'Server error',
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+  }
+
+  /**
+   * Get customers/conversations for a partner
+   */
+  async getPartnerCustomers({ params, response }: HttpContext) {
+    try {
+      const { partnerId } = params
+
+      const conversations = await Conversation.find({
+        participants: partnerId,
+        isActive: true,
+      })
+        .populate('participants', 'username email role')
+        .sort({ updatedAt: -1 })
+        .lean()
+
+      // Format conversations for partner view
+      const customers = conversations.map((conv: any) => {
+        const isAnonymous = !!conv.anonymousUser
+
+        return {
+          conversationId: conv._id,
+          customerId: isAnonymous
+            ? conv.anonymousUser.id
+            : conv.participants.find((p: any) => p._id.toString() !== partnerId)._id,
+          customerName: isAnonymous
+            ? conv.anonymousUser.name
+            : conv.participants.find((p: any) => p._id.toString() !== partnerId)?.username ||
+              'Unknown',
+          customerEmail: isAnonymous
+            ? null
+            : conv.participants.find((p: any) => p._id.toString() !== partnerId)?.email,
+          isAnonymous,
+          lastMessage: conv.lastMessage,
+          subject: conv.subject,
+          updatedAt: conv.updatedAt,
+        }
+      })
+
+      return response.json({
+        success: true,
+        customers,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
     }
   }

@@ -77,8 +77,8 @@ const PartnerLiveChat = () => {
         console.log('🔌 PartnerLiveChat: Initializing socket for partner:', partnerId);
 
         // Initialize Socket.IO
-        const newSocket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000', {
-            transports: ['polling', 'websocket'],
+        const newSocket = io(process.env.REACT_APP_API_URL || 'http://localhost:3333', {
+            transports: ['websocket', 'polling'],
             reconnection: true,
         });
         
@@ -98,39 +98,38 @@ const PartnerLiveChat = () => {
             setIsConnected(false);
         });
 
-        // Receive new message (new conversation system)
-        newSocket.on('message:received', (message) => {
-            console.log('📩 Partner received message:', message);
+        // Receive new message (updated for new socket system)
+        newSocket.on('message:received', (data) => {
+            console.log('📩 Partner received message:', data);
+            
+            const message = data.message;
+            const conversationId = data.conversationId;
             
             // If currently viewing this conversation, add message
-            if (selectedCustomer && selectedCustomer.conversationId === message.conversation) {
+            if (selectedCustomer && selectedCustomer.conversationId === conversationId) {
                 setMessages(prev => {
-                    // Check for duplicates by ID or temp ID
+                    // Check for duplicates by ID or content+timestamp
                     const exists = prev.some(m => 
                         m._id === message._id ||
-                        (m.isTemp && m.message === message.message)
+                        (m.temp && m.content === message.content && 
+                         Math.abs(new Date(m.createdAt) - new Date(message.createdAt)) < 1000)
                     );
                     
                     if (exists) {
                         console.log('⚠️ Duplicate message detected, replacing temp with real');
                         // Replace temp message with real one
                         return prev.map(m => 
-                            (m.isTemp && m.message === message.message) ? { ...message, isTemp: false } : m
+                            (m.temp && m.content === message.content) ? { ...message, temp: false } : m
                         );
                     }
                     
                     console.log('✅ Adding new message');
                     return [...prev, message];
                 });
+            } else {
+                // Message for another conversation - reload customer list
+                loadCustomers();
             }
-        });
-        
-        // Receive notification of new message in other conversations
-        newSocket.on('notification:new_message', ({ conversationId, message }) => {
-            console.log('🔔 New message notification for conversation:', conversationId);
-            
-            // Reload customer list to update last message and unread counts
-            loadCustomers();
         });
 
         return () => {
@@ -195,63 +194,41 @@ const PartnerLiveChat = () => {
     };
 
     const sendMessage = async () => {
-        if (!newMessage.trim() || !selectedCustomer) return;
+        if (!newMessage.trim() || !selectedCustomer || !socket) return;
 
         const tempId = `temp_${Date.now()}`;
+        const messageContent = newMessage.trim();
+        
+        // Add optimistic message
         const messageData = {
             _id: tempId,
-            message: newMessage.trim(),
-            senderRole: 'partner',
+            content: messageContent,
+            senderType: 'user',
             sender: { 
                 username: user?.shopName || user?.name || 'Partner',
-                _id: partnerId 
+                _id: partnerId,
+                role: 'partner'
             },
+            conversation: selectedCustomer.conversationId,
             createdAt: new Date(),
-            isTemp: true
+            temp: true
         };
 
         setMessages(prev => [...prev, messageData]);
-        const messageCopy = newMessage.trim();
         setNewMessage('');
 
         try {
-            const token = localStorage.getItem('token');
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+            // Send via socket
+            socket.emit('message:send', {
+                conversationId: selectedCustomer.conversationId,
+                content: messageContent,
+                senderId: partnerId,
+                senderType: 'user'
+            });
             
-            // Send via new conversation API
-            const response = await fetch(
-                `${apiUrl}/chat/conversations/${selectedCustomer.conversationId}/messages`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: messageCopy })
-                }
-            );
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                console.log('✅ Partner message sent successfully');
-                // Replace temp message with real one
-                setMessages(prev => 
-                    prev.map(msg => 
-                        msg._id === tempId ? { ...data.message, isTemp: false } : msg
-                    )
-                );
-                
-                // Emit via socket for real-time delivery to other participants
-                if (socket?.connected) {
-                    socket.emit('message:send', {
-                        conversationId: selectedCustomer.conversationId,
-                        messageId: data.message._id
-                    });
-                }
-            }
+            console.log('✅ Partner message sent via socket');
         } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('❌ Error sending message:', error);
             // Remove temp message on error
             setMessages(prev => prev.filter(msg => msg._id !== tempId));
             alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
@@ -384,25 +361,31 @@ const PartnerLiveChat = () => {
                                                 </div>
                                             ) : (
                                                 messages.map(msg => {
-                                                    const isPartnerMessage = msg.senderRole === 'partner' || 
-                                                                           (msg.sender && msg.sender._id === partnerId);
+                                                    const isPartnerMessage = msg.senderType === 'user' && 
+                                                                           msg.sender?.role === 'partner';
+                                                    
+                                                    const senderName = isPartnerMessage 
+                                                        ? (msg.sender?.shopName || msg.sender?.username || 'Shop')
+                                                        : msg.senderType === 'anonymous'
+                                                            ? (msg.anonymousSender?.name || 'Guest')
+                                                            : (msg.sender?.username || 'Khách');
+                                                    
                                                     return (
                                                         <motion.div
                                                             key={msg._id}
-                                                            className={`message ${isPartnerMessage ? 'partner' : 'customer'}`}
+                                                            className={`message ${isPartnerMessage ? 'partner' : 'customer'} ${msg.temp ? 'temp' : ''}`}
                                                             initial={{ opacity: 0, y: 10 }}
                                                             animate={{ opacity: 1, y: 0 }}
                                                         >
                                                             <div className="message-sender">
-                                                                {isPartnerMessage 
-                                                                    ? (msg.sender?.username || user?.shopName || 'Shop')
-                                                                    : (msg.anonymousName || msg.sender?.username || 'Khách')}
+                                                                {senderName}
+                                                                {msg.senderType === 'anonymous' && ' 👻'}
                                                             </div>
                                                             <div className="message-content">
-                                                                <p>{msg.message}</p>
+                                                                <p>{msg.content || msg.message}</p>
                                                                 <span className="message-time">
                                                                     <FiClock size={12} /> {formatTime(msg.createdAt)}
-                                                                    {msg.isTemp && ' • Đang gửi...'}
+                                                                    {msg.temp && ' • Đang gửi...'}
                                                                 </span>
                                                             </div>
                                                         </motion.div>

@@ -42,6 +42,7 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
       // Import API routes
       await import('#start/api_routes')
     })
+    
     app.listen('SIGTERM', () => app.terminate())
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
   })

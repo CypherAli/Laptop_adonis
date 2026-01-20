@@ -130,12 +130,19 @@ router
       .use(middleware.admin())
 
     // ==================== CHAT ROUTES ====================
+    // Public routes for guests
+    router.get('/chat/partners', [ChatController, 'getActivePartners'])
+    router.get('/chat/guest/conversations', [ChatController, 'getGuestConversations'])
+
     router
       .group(() => {
         // Support both authenticated and anonymous users
         router.post('/conversations', [ChatController, 'createConversation'])
         router.get('/messages/:conversationId', [ChatController, 'getMessages'])
         router.post('/messages', [ChatController, 'sendMessage'])
+
+        // Partner routes
+        router.get('/partner/:partnerId/customers', [ChatController, 'getPartnerCustomers'])
       })
       .prefix('/chat')
 

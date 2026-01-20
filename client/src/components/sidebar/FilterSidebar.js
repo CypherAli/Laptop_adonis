@@ -16,12 +16,12 @@ const FilterSidebar = ({
 }) => {
     // State quản lý sections
     const [expandedSections, setExpandedSections] = React.useState({
-        brand: true,
-        size: true,
-        color: true,
-        material: true,
-        price: true,
-        sort: true
+        brand: false,
+        size: false,
+        color: false,
+        material: false,
+        price: false,
+        sort: false
     });
 
     // Brand data với icons (shoe brands)

@@ -125,11 +125,7 @@ export default class ProductsController {
 
       // Execute query
       const [products, total] = await Promise.all([
-        Product.find(filter)
-          .sort(sort)
-          .skip(skip)
-          .limit(limitNum)
-          .lean(),
+        Product.find(filter).sort(sort).skip(skip).limit(limitNum).lean(),
         Product.countDocuments(filter),
       ])
 
@@ -190,21 +186,21 @@ export default class ProductsController {
   async store({ request, response }: HttpContext) {
     try {
       const user = (request as any).user
-      
+
       // Check role: chỉ partner và admin mới tạo được sản phẩm
       if (!['partner', 'admin'].includes(user.role)) {
         return response.status(403).json({
           message: 'Bạn không có quyền tạo sản phẩm. Chỉ Partner và Admin mới được phép.',
         })
       }
-      
+
       // Check partner approved
       if (user.role === 'partner' && !user.isApproved) {
         return response.status(403).json({
           message: 'Tài khoản Partner của bạn đang chờ phê duyệt.',
         })
       }
-      
+
       const productData = request.only([
         'name',
         'description',
@@ -273,7 +269,7 @@ export default class ProductsController {
           message: 'ID sản phẩm không hợp lệ',
         })
       }
-      
+
       const product = await Product.findById(params.id)
 
       if (!product) {
@@ -348,7 +344,7 @@ export default class ProductsController {
           message: 'ID sản phẩm không hợp lệ',
         })
       }
-      
+
       const product = await Product.findById(params.id)
 
       if (!product) {

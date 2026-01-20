@@ -28,7 +28,7 @@ export default class DashboardController {
     const lowStockProducts = await Product.find({
       'variants.stock': { $lt: 5 },
       'variants.isAvailable': true,
-      isActive: true,
+      'isActive': true,
     }).limit(10)
 
     return view.render('pages/admin/dashboard', {

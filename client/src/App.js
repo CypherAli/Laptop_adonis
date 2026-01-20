@@ -14,6 +14,7 @@ import AuthContext from './context/AuthContext';
 import PartnerLiveChat from './components/chat/PartnerLiveChat';
 import AdminChatWidget from './components/chat/AdminChatWidget';
 import AnonymousChatWidget from './components/chat/AnonymousChatWidget';
+import GuestChatWidget from './components/chat/GuestChatWidget';
 
 // Import ALL pages directly - NO LAZY LOADING for maximum stability
 import HomePage from './pages/home/HomePage';
@@ -140,6 +141,8 @@ function App() {
         <PartnerLiveChat />
       ) : user?.role === 'admin' ? (
         <AdminChatWidget />
+      ) : !user ? (
+        <GuestChatWidget />
       ) : (
         <AnonymousChatWidget />
       )}

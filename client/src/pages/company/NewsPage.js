@@ -26,7 +26,7 @@ const NewsPage = () => {
 
     const categories = [
         { id: 'all', name: 'Tất cả', icon: '📰' },
-        { id: 'products', name: 'Sản phẩm mới', icon: '💻' },
+        { id: 'products', name: 'Sản phẩm mới', icon: '�' },
         { id: 'promotions', name: 'Khuyến mãi', icon: '🎁' },
         { id: 'events', name: 'Sự kiện', icon: '🎉' },
         { id: 'tips', name: 'Mẹo hay', icon: '💡' },
@@ -36,68 +36,68 @@ const NewsPage = () => {
     const newsArticles = [
         {
             id: 1,
-            title: 'Ra mắt Dell XPS 15 2025 - Hiệu năng vượt trội với Intel Core Ultra',
-            excerpt: 'Dell vừa chính thức giới thiệu dòng laptop XPS 15 thế hệ mới với chip Intel Core Ultra mạnh mẽ, màn hình OLED 4K tuyệt đẹp...',
+            title: 'Nike Air Max 2025 - Công nghệ đệm khí thế hệ mới',
+            excerpt: 'Nike vừa chính thức ra mắt dòng Air Max 2025 với công nghệ đệm khí Air Max hoàn toàn mới, thiết kế đột phá và màu sắc ấn tượng...',
             category: 'products',
             author: 'Nguyễn Văn A',
-            date: '2025-11-10',
-            image: '💻',
-            tags: ['Dell', 'XPS', 'Intel', 'Flagship'],
+            date: '2026-01-15',
+            image: '👟',
+            tags: ['Nike', 'Air Max', 'Sneakers', 'Mới'],
             views: 1250
         },
         {
             id: 2,
-            title: 'Black Friday 2025: Giảm đến 50% cho hàng ngàn sản phẩm laptop',
-            excerpt: 'Chương trình Black Friday lớn nhất năm với ưu đãi cực sốc, giảm giá sập sàn cho hơn 5000 sản phẩm laptop...',
+            title: 'Black Friday 2026: Giảm đến 50% cho hàng ngàn đôi giày',
+            excerpt: 'Chương trình Black Friday lớn nhất năm với ưu đãi cực sốc, giảm giá sập sàn cho Nike, Adidas, Puma và nhiều thương hiệu nổi tiếng...',
             category: 'promotions',
             author: 'Trần Thị B',
-            date: '2025-11-08',
+            date: '2026-01-12',
             image: '🎁',
             tags: ['Sale', 'Black Friday', 'Khuyến mãi'],
             views: 3420
         },
         {
             id: 3,
-            title: 'MacBook Pro M4 2025: Đánh giá chi tiết hiệu năng và thiết kế',
-            excerpt: 'Cùng khám phá MacBook Pro M4 mới nhất của Apple với chip M4 cực mạnh, màn hình Mini-LED và nhiều nâng cấp đáng chú ý...',
+            title: 'Adidas Ultraboost 24: Đánh giá chi tiết công nghệ Boost mới nhất',
+            excerpt: 'Cùng khám phá Ultraboost 24 của Adidas với công nghệ đệm Boost cải tiến, upper Primeknit+ thoáng khí và nhiều nâng cấp đáng chú ý...',
             category: 'reviews',
             author: 'Lê Văn C',
-            date: '2025-11-05',
+            date: '2026-01-10',
             image: '⭐',
-            tags: ['Apple', 'MacBook', 'Review', 'M4'],
+            tags: ['Adidas', 'Ultraboost', 'Review', 'Boost'],
             views: 2100
         },
         {
             id: 4,
-            title: '10 mẹo tối ưu laptop để làm việc hiệu quả hơn',
-            excerpt: 'Chia sẻ 10 mẹo hay giúp bạn tối ưu hóa laptop, tăng hiệu suất làm việc và kéo dài tuổi thọ pin...',
+            title: '10 mẹo bảo quản giày để giữ form và màu sắc lâu dài',
+            excerpt: 'Chia sẻ 10 mẹo hay giúp bạn bảo quản giày sneaker, giữ form đẹp, màu sắc tươi mới và kéo dài tuổi thọ sản phẩm...',
             category: 'tips',
             author: 'Phạm Thị D',
-            date: '2025-11-03',
+            date: '2026-01-08',
             image: '💡',
-            tags: ['Tips', 'Tutorial', 'Tối ưu'],
+            tags: ['Tips', 'Bảo quản', 'Chăm sóc giày'],
             views: 890
         },
         {
             id: 5,
-            title: 'Sự kiện Tech Expo 2025: Laptop Store trưng bày hơn 500 mẫu laptop',
-            excerpt: 'Laptop Store tham gia Tech Expo 2025 với không gian triển lãm hoành tráng, giới thiệu hơn 500 mẫu laptop mới nhất...',
+            title: 'Sự kiện Sneaker Fest 2026: Shoe Store trưng bày hơn 500 mẫu giày',
+            excerpt: 'Shoe Store tham gia Sneaker Fest 2026 với không gian triển lãm hoành tráng, giới thiệu hơn 500 mẫu giày từ các thương hiệu nổi tiếng...',
             category: 'events',
             author: 'Hoàng Văn E',
-            date: '2025-11-01',
+            date: '2026-01-05',
             image: '🎉',
-            tags: ['Event', 'Tech Expo', 'Triển lãm'],
+            tags: ['Event', 'Sneaker Fest', 'Triển lãm'],
             views: 670
         },
         {
             id: 6,
-            title: 'Lenovo ThinkPad X1 Carbon Gen 12: Laptop doanh nhân hoàn hảo',
-            excerpt: 'ThinkPad X1 Carbon thế hệ 12 với thiết kế siêu mỏng nhẹ, bàn phím tuyệt vời và hiệu năng ổn định...',
+            title: 'Vans Old Skool: Biểu tượng thời trang đường phố bất hủ',
+            excerpt: 'Old Skool - mẫu giày kinh điển của Vans với thiết kế sọc đặc trưng, chất liệu canvas bền bỉ và phong cách streetwear không bao giờ lỗi mốt...',
             category: 'products',
             author: 'Nguyễn Văn A',
-            date: '2025-10-28',
-            image: '💻',
-            tags: ['Lenovo', 'ThinkPad', 'Business'],
+            date: '2026-01-03',
+            image: '👟',
+            tags: ['Vans', 'Old Skool', 'Streetwear'],
             views: 1580
         }
     ];
@@ -134,7 +134,7 @@ const NewsPage = () => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.4 }}
                     >
-                        Cập nhật thông tin công nghệ mới nhất, ưu đãi hấp dẫn và sự kiện đặc biệt
+                        Cập nhật tin tức giày sneaker mới nhất, ưu đãi hấp dẫn và sự kiện đặc biệt
                     </motion.p>
                 </div>
             </motion.section>

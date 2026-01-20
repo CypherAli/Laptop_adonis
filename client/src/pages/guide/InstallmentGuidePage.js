@@ -7,7 +7,7 @@ const InstallmentGuidePage = () => {
         <div className="installment-guide-page">
             <div className="installment-hero">
                 <div className="container">
-                    <h1>💳 Hướng Dẫn Trả Góp 0%</h1>
+                    <h1>Hướng Dẫn Trả Góp 0%</h1>
                     <p className="hero-subtitle">
                         Sở hữu laptop mơ ước ngay hôm nay với chương trình trả góp 0% lãi suất
                     </p>
@@ -24,22 +24,18 @@ const InstallmentGuidePage = () => {
                         </div>
                         <div className="benefits-grid">
                             <div className="benefit-card">
-                                <div className="benefit-icon">🎯</div>
                                 <h3>Không lãi suất</h3>
                                 <p>0% lãi suất trong toàn bộ thời gian trả góp</p>
                             </div>
                             <div className="benefit-card">
-                                <div className="benefit-icon">⚡</div>
                                 <h3>Duyệt nhanh</h3>
                                 <p>Chỉ 30 phút nhận kết quả phê duyệt</p>
                             </div>
                             <div className="benefit-card">
-                                <div className="benefit-icon">📱</div>
                                 <h3>Thủ tục đơn giản</h3>
                                 <p>Chỉ cần CMND/CCCD và thẻ tín dụng</p>
                             </div>
                             <div className="benefit-card">
-                                <div className="benefit-icon">💰</div>
                                 <h3>Linh hoạt</h3>
                                 <p>Kỳ hạn từ 3-12 tháng tùy chọn</p>
                             </div>
@@ -88,17 +84,16 @@ const InstallmentGuidePage = () => {
                         </div>
                         <div className="banks-grid">
                             {[
-                                { name: 'Techcombank', logo: '🏦' },
-                                { name: 'VPBank', logo: '🏦' },
-                                { name: 'Sacombank', logo: '🏦' },
-                                { name: 'MB Bank', logo: '🏦' },
-                                { name: 'Vietcombank', logo: '🏦' },
-                                { name: 'ACB', logo: '🏦' },
-                                { name: 'BIDV', logo: '🏦' },
-                                { name: 'VietinBank', logo: '🏦' },
+                                { name: 'Techcombank' },
+                                { name: 'VPBank' },
+                                { name: 'Sacombank' },
+                                { name: 'MB Bank' },
+                                { name: 'Vietcombank' },
+                                { name: 'ACB' },
+                                { name: 'BIDV' },
+                                { name: 'VietinBank' },
                             ].map((bank, index) => (
                                 <div key={index} className="bank-card">
-                                    <div className="bank-logo">{bank.logo}</div>
                                     <div className="bank-name">{bank.name}</div>
                                 </div>
                             ))}
@@ -195,7 +190,7 @@ const InstallmentGuidePage = () => {
                     {/* Ví dụ tính toán */}
                     <section className="installment-section highlight-section">
                         <div className="section-header">
-                            <h2>📊 Ví Dụ Tính Toán</h2>
+                            <h2>Ví Dụ Tính Toán</h2>
                         </div>
                         <div className="calculation-example">
                             <div className="example-box">
@@ -223,7 +218,7 @@ const InstallmentGuidePage = () => {
                                     </div>
                                 </div>
                                 <div className="saving-note">
-                                    ✅ Tiết kiệm 100% lãi suất - Không phụ thu
+                                    Tiết kiệm 100% lãi suất - Không phụ thu
                                 </div>
                             </div>
                         </div>
@@ -232,7 +227,7 @@ const InstallmentGuidePage = () => {
                     {/* Lưu ý */}
                     <section className="installment-section">
                         <div className="note-box">
-                            <h3>📌 Lưu Ý Quan Trọng</h3>
+                            <h3>Lưu Ý Quan Trọng</h3>
                             <ul className="note-list">
                                 <li>Thanh toán đúng hạn để tránh phí phạt từ ngân hàng</li>
                                 <li>Kiểm tra hạn mức thẻ tín dụng trước khi đăng ký</li>
@@ -246,14 +241,14 @@ const InstallmentGuidePage = () => {
                     {/* Call to Action */}
                     <section className="cta-section">
                         <div className="cta-box">
-                            <h2>🎉 Sẵn sàng sở hữu laptop mơ ước?</h2>
+                            <h2>Sẵn sàng sở hữu laptop mơ ước?</h2>
                             <p>Liên hệ ngay với chúng tôi để được tư vấn chi tiết về chương trình trả góp 0%</p>
                             <div className="cta-buttons">
                                 <a href="tel:0846865650" className="cta-btn primary">
-                                    📞 Gọi ngay: 084.686.5650
+                                    Gọi ngay: 084.686.5650
                                 </a>
                                 <a href="/lien-he" className="cta-btn secondary">
-                                    💬 Chat tư vấn
+                                    Chat tư vấn
                                 </a>
                             </div>
                         </div>

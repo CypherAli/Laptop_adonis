@@ -46,7 +46,7 @@ export const ChatProvider = ({ children }) => {
     // Initialize Socket.IO connection
     useEffect(() => {
         if (user && token) {
-            const newSocket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
+            const newSocket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:3333', {
                 auth: { token },
                 transports: ['websocket', 'polling']
             });
