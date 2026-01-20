@@ -14,6 +14,11 @@ import { middleware } from './kernel.js'
 const AuthController = () => import('#controllers/auth_controller')
 const ProductsController = () => import('#controllers/products_controller')
 const OrdersController = () => import('#controllers/orders_controller')
+const CartsController = () => import('#controllers/carts_controller')
+const ReviewsController = () => import('#controllers/reviews_controller')
+const WishlistController = () => import('#controllers/wishlist_controller')
+const AdminController = () => import('#controllers/admin_controller')
+const ChatController = () => import('#controllers/chat_controller')
 
 // API routes with /api prefix
 router
@@ -59,41 +64,70 @@ router
       .use(middleware.jwtAuth())
 
     // ==================== CART ROUTES ====================
-    // TODO: Implement CartController
-    // router
-    //   .group(() => {
-    //     router.get('/', [CartController, 'index'])
-    //     router.post('/items', [CartController, 'addItem'])
-    //     router.put('/items/:itemId', [CartController, 'updateItem'])
-    //     router.delete('/items/:itemId', [CartController, 'removeItem'])
-    //     router.delete('/', [CartController, 'clear'])
-    //   })
-    //   .prefix('/cart')
-    //   .use(middleware.auth())
+    router
+      .group(() => {
+        router.get('/', [CartsController, 'index'])
+        router.post('/', [CartsController, 'addItem'])
+        router.put('/:itemId', [CartsController, 'updateItem'])
+        router.delete('/:itemId', [CartsController, 'removeItem'])
+        router.delete('/clear', [CartsController, 'clear'])
+      })
+      .prefix('/cart')
+      .use(middleware.jwtAuth())
 
     // ==================== REVIEWS ROUTES ====================
-    // TODO: Implement ReviewController
-    // router
-    //   .group(() => {
-    //     router.get('/product/:productId', [ReviewController, 'getByProduct'])
-    //     router.post('/', [ReviewController, 'create']).use(middleware.auth())
-    //     router.put('/:id', [ReviewController, 'update']).use(middleware.auth())
-    //     router.delete('/:id', [ReviewController, 'destroy']).use(middleware.auth())
-    //   })
-    //   .prefix('/reviews')
+    router
+      .group(() => {
+        router.get('/product/:productId', [ReviewsController, 'getByProduct'])
+        router.post('/', [ReviewsController, 'create']).use(middleware.jwtAuth())
+        router.put('/:id', [ReviewsController, 'update']).use(middleware.jwtAuth())
+        router.delete('/:id', [ReviewsController, 'destroy']).use(middleware.jwtAuth())
+        router.post('/:id/helpful', [ReviewsController, 'markHelpful']).use(middleware.jwtAuth())
+      })
+      .prefix('/reviews')
+
+    // ==================== WISHLIST ROUTES ====================
+    router
+      .group(() => {
+        router.get('/', [WishlistController, 'index'])
+        router.post('/', [WishlistController, 'add'])
+        router.delete('/:productId', [WishlistController, 'remove'])
+        router.delete('/clear/all', [WishlistController, 'clear'])
+        router.get('/check/:productId', [WishlistController, 'check'])
+      })
+      .prefix('/user/wishlist')
+      .use(middleware.jwtAuth())
 
     // ==================== ADMIN ROUTES ====================
-    // TODO: Implement AdminController
-    // router
-    //   .group(() => {
-    //     router.get('/dashboard', [AdminController, 'dashboard'])
-    //     router.get('/users', [AdminController, 'getUsers'])
-    //     router.put('/users/:id/approve', [AdminController, 'approvePartner'])
-    //     router.get('/analytics', [AdminController, 'analytics'])
-    //   })
-    //   .prefix('/admin')
-    //   .use(middleware.auth())
-    //   .use(middleware.admin())
+    router
+      .group(() => {
+        router.get('/dashboard', [AdminController, 'dashboard'])
+        router.get('/users', [AdminController, 'getUsers'])
+        router.put('/users/:userId/approve', [AdminController, 'approvePartner'])
+        router.put('/users/:userId/reject', [AdminController, 'rejectPartner'])
+        router.put('/users/:userId/toggle-status', [AdminController, 'toggleUserStatus'])
+        router.get('/products', [AdminController, 'getProducts'])
+        router.put(
+          '/products/:productId/toggle-featured',
+          [AdminController, 'toggleProductFeatured']
+        )
+        router.get('/reviews', [AdminController, 'getReviews'])
+        router.put('/reviews/:reviewId/moderate', [AdminController, 'moderateReview'])
+        router.get('/analytics', [AdminController, 'analytics'])
+      })
+      .prefix('/admin')
+      .use(middleware.jwtAuth())
+      .use(middleware.admin())
+
+    // ==================== CHAT ROUTES ====================
+    router
+      .group(() => {
+        // Support both authenticated and anonymous users
+        router.post('/conversations', [ChatController, 'createConversation'])
+        router.get('/messages/:conversationId', [ChatController, 'getMessages'])
+        router.post('/messages', [ChatController, 'sendMessage'])
+      })
+      .prefix('/chat')
 
     // Test route
     router.get('/test', async () => {

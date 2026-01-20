@@ -6,6 +6,7 @@
     justify-content: center;
     gap: 20px;
     padding: 40px 20px;
+    min-height: 400px;
 }
 
 .loading-container.loading-small {
@@ -13,7 +14,7 @@
 }
 
 .loading-container.loading-large {
-    min-height: 400px;
+    min-height: 100vh;
     padding: 60px 20px;
 }
 
@@ -76,9 +77,10 @@
 /* Loading Message */
 .loading-message {
     color: var(--text-primary, #1f2937);
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 18px;
+    font-weight: 600;
     text-align: center;
+    margin: 0;
     animation: fadeInOut 2s ease-in-out infinite;
 }
 

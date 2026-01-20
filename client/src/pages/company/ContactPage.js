@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from '../../api/axiosConfig';
 import './ContactPage.css';
 
 const ContactPage = () => {
@@ -9,6 +11,21 @@ const ContactPage = () => {
         subject: '',
         message: ''
     });
+    const [popularProducts, setPopularProducts] = useState([]);
+
+    useEffect(() => {
+        const fetchPopularProducts = async () => {
+            try {
+                const res = await axios.get('/products', {
+                    params: { limit: 3, inStock: true }
+                });
+                setPopularProducts(res.data.products || []);
+            } catch (err) {
+                console.error('Error fetching products:', err);
+            }
+        };
+        fetchPopularProducts();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -28,9 +45,9 @@ const ContactPage = () => {
             {/* Hero */}
             <div className="contact-hero">
                 <div className="contact-hero-content">
-                    <h1 className="contact-title">📧 Contact Us</h1>
+                    <h1 className="contact-title">📧 Liên Hệ Chúng Tôi</h1>
                     <p className="contact-subtitle">
-                        We are always ready to support you 24/7
+                        Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7
                     </p>
                 </div>
             </div>
@@ -170,23 +187,23 @@ const ContactPage = () => {
                         </div>
 
                         <div className="faq-section">
-                            <h3>❓ Frequently Asked Questions</h3>
+                            <h3>❓ Câu Hỏi Thường Gặp</h3>
                             <div className="faq-list">
                                 <div className="faq-item">
-                                    <h4>Delivery time?</h4>
-                                    <p>2-4 hours in city, 1-3 days nationwide</p>
+                                    <h4>Thời gian giao hàng?</h4>
+                                    <p>2-4 giờ nội thành, 1-3 ngày toàn quốc</p>
                                 </div>
                                 <div className="faq-item">
-                                    <h4>Return policy?</h4>
-                                    <p>15-day return for manufacturer defects</p>
+                                    <h4>Chính sách đổi trả?</h4>
+                                    <p>Đổi trả trong 15 ngày nếu lỗi nhà sản xuất</p>
                                 </div>
                                 <div className="faq-item">
-                                    <h4>How about warranty?</h4>
-                                    <p>Official warranty 12-24 months</p>
+                                    <h4>Bảo hành như thế nào?</h4>
+                                    <p>Bảo hành chính hãng 6-12 tháng</p>
                                 </div>
                                 <div className="faq-item">
-                                    <h4>0% installment available?</h4>
-                                    <p>Yes, fast approval in 30 minutes</p>
+                                    <h4>Có hỗ trợ trả góp?</h4>
+                                    <p>Có, duyệt nhanh trong 30 phút</p>
                                 </div>
                             </div>
                         </div>
@@ -197,7 +214,7 @@ const ContactPage = () => {
             {/* Store Locations */}
             <div className="stores-section">
                 <div className="stores-container">
-                    <h2>🏪 Store System</h2>
+                    <h2>🏪 Hệ Thống Cửa Hàng</h2>
                     <div className="stores-grid">
                         <div className="store-card">
                             <h4>District 1 Branch</h4>
@@ -226,6 +243,90 @@ const ContactPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Popular Products */}
+            {popularProducts.length > 0 && (
+                <div className="contact-products">
+                    <div className="products-container">
+                        <h2>🔥 Giày Hot Nhất</h2>
+                        <p style={{ textAlign: 'center', marginBottom: '30px', color: '#666' }}>
+                            Xem ngay các sản phẩm bán chạy nhất
+                        </p>
+                        <div className="products-grid" style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gap: '25px',
+                            maxWidth: '1000px',
+                            margin: '0 auto'
+                        }}>
+                            {popularProducts.map(product => (
+                                <Link 
+                                    key={product._id} 
+                                    to={`/product/${product._id}`}
+                                    style={{
+                                        textDecoration: 'none',
+                                        padding: '25px',
+                                        border: '2px solid #e0e0e0',
+                                        borderRadius: '12px',
+                                        transition: 'all 0.3s',
+                                        backgroundColor: 'white',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.transform = 'translateY(-8px)';
+                                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '100%',
+                                        height: '220px',
+                                        backgroundColor: '#f8f9fa',
+                                        borderRadius: '10px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '70px',
+                                        marginBottom: '18px'
+                                    }}>
+                                        👟
+                                    </div>
+                                    <h4 style={{ 
+                                        color: '#2c3e50', 
+                                        marginBottom: '12px', 
+                                        fontSize: '17px',
+                                        fontWeight: '600',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        {product.name}
+                                    </h4>
+                                    <p style={{ 
+                                        color: '#7f8c8d',
+                                        fontSize: '14px',
+                                        marginBottom: '12px'
+                                    }}>
+                                        {product.brand || 'Brand'}
+                                    </p>
+                                    <p style={{ 
+                                        color: '#e74c3c', 
+                                        fontWeight: 'bold',
+                                        fontSize: '20px',
+                                        margin: 0
+                                    }}>
+                                        {new Intl.NumberFormat('vi-VN', { 
+                                            style: 'currency', 
+                                            currency: 'VND' 
+                                        }).format(product.basePrice || product.variants?.[0]?.price || 0)}
+                                    </p>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

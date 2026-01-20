@@ -73,25 +73,44 @@ const DealsPage = () => {
     const fetchDeals = async () => {
         try {
             setLoading(true);
-            // Lấy tất cả sản phẩm và lọc những sản phẩm có discount
+            // Lấy tất cả sản phẩm có variants với discount
             const res = await axios.get('/products', {
                 params: {
-                    limit: 50,
+                    limit: 100,
                     inStock: true
                 }
             });
             
             const productsData = res.data.products || res.data;
-            // Lọc sản phẩm có discount và sắp xếp theo % giảm giá
+            // Lọc sản phẩm có discount từ variants
             const dealsProducts = productsData
-                .filter(p => p.originalPrice && p.originalPrice > p.price)
-                .map(p => ({
-                    ...p,
-                    discountPercent: Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100),
-                    soldCount: Math.floor(Math.random() * 500) + 50, // Mock data
-                    rating: (Math.random() * 1.5 + 3.5).toFixed(1), // Rating 3.5-5.0
-                    reviewCount: Math.floor(Math.random() * 200) + 20
-                }))
+                .filter(p => {
+                    if (!p.variants || p.variants.length === 0) return false;
+                    // Kiểm tra có ít nhất 1 variant có originalPrice > price
+                    return p.variants.some(v => v.originalPrice && v.originalPrice > v.price && v.stock > 0);
+                })
+                .map(p => {
+                    // Tính discount từ variant có % giảm cao nhất
+                    const variantsWithDiscount = p.variants
+                        .filter(v => v.originalPrice && v.originalPrice > v.price && v.stock > 0)
+                        .map(v => ({
+                            ...v,
+                            discountPercent: Math.round(((v.originalPrice - v.price) / v.originalPrice) * 100)
+                        }));
+                    
+                    const maxDiscount = Math.max(...variantsWithDiscount.map(v => v.discountPercent));
+                    const bestDealVariant = variantsWithDiscount.find(v => v.discountPercent === maxDiscount);
+                    
+                    return {
+                        ...p,
+                        price: bestDealVariant.price,
+                        originalPrice: bestDealVariant.originalPrice,
+                        discountPercent: maxDiscount,
+                        soldCount: p.soldCount || Math.floor(Math.random() * 500) + 50,
+                        rating: (Math.random() * 1.5 + 3.5).toFixed(1),
+                        reviewCount: Math.floor(Math.random() * 200) + 20
+                    };
+                })
                 .sort((a, b) => b.discountPercent - a.discountPercent);
             
             setProducts(dealsProducts);

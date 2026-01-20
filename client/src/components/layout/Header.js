@@ -43,14 +43,14 @@ const Header = () => {
                         <Link to="/" className="logo">
                             <div className="logo-icon-wrapper">
                                 <img 
-                                    src="https://img.freepik.com/premium-vector/shoes-shop-logo-template-design_316488-861.jpg" 
+                                    src="https://cdn-icons-png.flaticon.com/512/2589/2589903.png" 
                                     alt="Shoe Store Logo" 
                                     className="logo-image"
                                 />
                             </div>
                             <div className="logo-text-wrapper">
-                                <span className="logo-text">Shoe Store</span>
-                                <span className="logo-tagline">Premium Quality</span>
+                                <span className="logo-text">SHOE STORE</span>
+                                <span className="logo-tagline">PREMIUM QUALITY</span>
                             </div>
                         </Link>
                         

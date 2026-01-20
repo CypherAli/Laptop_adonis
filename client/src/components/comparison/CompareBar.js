@@ -1,56 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { FiX, FiEye } from 'react-icons/fi';
+import ComparisonContext from '../../context/ComparisonContext';
 import ProductComparison from '../product/ProductComparison';
 import './CompareBar.css';
 
 const CompareBar = () => {
-    const [compareList, setCompareList] = useState([]);
+    const { compareList, removeFromCompare, clearCompare } = useContext(ComparisonContext);
     const [showComparison, setShowComparison] = useState(false);
-
-    useEffect(() => {
-        // Load initial compare list
-        updateCompareList();
-
-        // Listen for compare list updates
-        const handleCompareListUpdate = (event) => {
-            setCompareList(event.detail.compareList || []);
-        };
-
-        window.addEventListener('compareListUpdated', handleCompareListUpdate);
-
-        return () => {
-            window.removeEventListener('compareListUpdated', handleCompareListUpdate);
-        };
-    }, []);
-
-    const updateCompareList = () => {
-        const list = JSON.parse(localStorage.getItem('compareList') || '[]');
-        setCompareList(list);
-    };
-
-    const handleRemoveProduct = (productId) => {
-        const newList = compareList.filter(p => p._id !== productId);
-        localStorage.setItem('compareList', JSON.stringify(newList));
-        setCompareList(newList);
-        
-        // Dispatch event to update other components
-        window.dispatchEvent(new CustomEvent('compareListUpdated', { 
-            detail: { compareList: newList } 
-        }));
-    };
-
-    const handleClearAll = () => {
-        localStorage.removeItem('compareList');
-        setCompareList([]);
-        
-        window.dispatchEvent(new CustomEvent('compareListUpdated', { 
-            detail: { compareList: [] } 
-        }));
-    };
 
     const handleCompare = () => {
         if (compareList.length < 2) {
-            alert('Please select at least 2 products to compare');
+            alert('Vui lòng chọn ít nhất 2 sản phẩm để so sánh');
             return;
         }
         setShowComparison(true);
@@ -65,9 +25,9 @@ const CompareBar = () => {
             <div className="compare-bar">
                 <div className="compare-bar-content">
                     <div className="compare-info">
-                        <h3>Compare Products ({compareList.length}/4)</h3>
-                        <button className="clear-all-btn" onClick={handleClearAll}>
-                            Clear All
+                        <h3>So sánh sản phẩm ({compareList.length}/4)</h3>
+                        <button className="clear-all-btn" onClick={clearCompare}>
+                            Xóa tất cả
                         </button>
                     </div>
 
@@ -75,7 +35,7 @@ const CompareBar = () => {
                         {compareList.map((product) => (
                             <div key={product._id} className="compare-item">
                                 <img 
-                                    src={product.imageUrl} 
+                                    src={product.images?.[0] || '/placeholder.jpg'} 
                                     alt={product.name}
                                 />
                                 <div className="item-info">
@@ -84,8 +44,8 @@ const CompareBar = () => {
                                 </div>
                                 <button
                                     className="remove-item-btn"
-                                    onClick={() => handleRemoveProduct(product._id)}
-                                    title="Remove"
+                                    onClick={() => removeFromCompare(product._id)}
+                                    title="Xóa"
                                 >
                                     <FiX />
                                 </button>
@@ -95,7 +55,7 @@ const CompareBar = () => {
                         {/* Empty slots */}
                         {[...Array(4 - compareList.length)].map((_, i) => (
                             <div key={`empty-${i}`} className="compare-item empty">
-                                <p>Add product to compare</p>
+                                <p>Thêm sản phẩm để so sánh</p>
                             </div>
                         ))}
                     </div>
@@ -105,7 +65,7 @@ const CompareBar = () => {
                         onClick={handleCompare}
                         disabled={compareList.length < 2}
                     >
-                        <FiEye /> Compare Now
+                        <FiEye /> So sánh ngay
                     </button>
                 </div>
             </div>

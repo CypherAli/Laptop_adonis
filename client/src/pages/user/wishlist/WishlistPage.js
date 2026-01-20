@@ -48,7 +48,7 @@ const WishlistPage = () => {
                     <span className="wishlist-count">{wishlist.length} items</span>
                 </div>
                 <button className="btn-clear-all" onClick={clearWishlist}>
-                    🗑️ Delete all
+                    Delete all
                 </button>
             </div>
 
@@ -104,13 +104,13 @@ const WishlistPage = () => {
                                     onClick={() => handleMoveToCart(product)}
                                     disabled={!product.stock || product.stock <= 0}
                                 >
-                                    🛒 Thêm vào giỏ
+                                    Add to cart
                                 </button>
                                 <button
                                     className="btn-remove"
                                     onClick={() => removeFromWishlist(product._id)}
                                 >
-                                    🗑️ Xóa
+                                    Remove
                                 </button>
                             </div>
                         </div>

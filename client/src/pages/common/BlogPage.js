@@ -6,61 +6,61 @@ const BlogPage = () => {
     const blogPosts = [
         {
             id: 1,
-            title: "Top 10 Laptop Tốt Nhất Năm 2025",
-            excerpt: "Tổng hợp những mẫu laptop được đánh giá cao nhất trong năm với hiệu năng vượt trội và giá cả hợp lý...",
-            image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600",
-            author: "Tech Expert",
-            date: "9 Tháng 11, 2025",
+            title: "Top 10 Giày Sneaker Hot Nhất 2025",
+            excerpt: "Điểm danh những mẫu sneaker được săn đón nhiều nhất năm nay với thiết kế độc đáo và chất lượng vượt trội...",
+            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600",
+            author: "Sneaker Expert",
+            date: "20 Tháng 1, 2026",
             category: "Review",
             readTime: "5 phút đọc"
         },
         {
             id: 2,
-            title: "Hướng Dẫn Chọn Laptop Gaming Phù Hợp",
-            excerpt: "Những tiêu chí quan trọng khi lựa chọn laptop gaming: GPU, CPU, RAM, màn hình... để có trải nghiệm chơi game tốt nhất...",
-            image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=600",
-            author: "Gaming Pro",
-            date: "8 Tháng 11, 2025",
+            title: "Hướng Dẫn Chọn Giày Chạy Bộ Phù Hợp",
+            excerpt: "Những tiêu chí quan trọng khi lựa chọn giày chạy bộ: đế giày, chất liệu, độ êm ái... để bảo vệ đôi chân của bạn...",
+            image: "https://images.unsplash.com/photo-1539185441755-769473a23570?w=600",
+            author: "Running Coach",
+            date: "18 Tháng 1, 2026",
             category: "Hướng dẫn",
             readTime: "8 phút đọc"
         },
         {
             id: 3,
-            title: "So Sánh: MacBook Air M2 vs MacBook Pro M2",
-            excerpt: "Phân tích chi tiết sự khác biệt giữa hai dòng MacBook mới nhất của Apple, giúp bạn đưa ra quyết định đúng đắn...",
-            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600",
-            author: "Apple Insider",
-            date: "7 Tháng 11, 2025",
+            title: "So Sánh: Nike Air Max vs Adidas Ultraboost",
+            excerpt: "Phân tích chi tiết sự khác biệt giữa hai dòng giày iconic nhất, giúp bạn đưa ra quyết định đúng đắn...",
+            image: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600",
+            author: "Sneaker Insider",
+            date: "15 Tháng 1, 2026",
             category: "So sánh",
             readTime: "10 phút đọc"
         },
         {
             id: 4,
-            title: "5 Mẹo Tăng Tuổi Thọ Pin Laptop",
-            excerpt: "Cách bảo quản và sử dụng laptop đúng cách để pin luôn hoạt động ở trạng thái tốt nhất trong thời gian dài...",
-            image: "https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600",
-            author: "Tech Tips",
-            date: "6 Tháng 11, 2025",
+            title: "5 Mẹo Bảo Quản Giày Sneaker Lâu Bền",
+            excerpt: "Cách vệ sinh và bảo quản giày đúng cách để đôi giày luôn sạch đẹp và bền lâu như mới...",
+            image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=600",
+            author: "Care Tips",
+            date: "12 Tháng 1, 2026",
             category: "Tips & Tricks",
             readTime: "4 phút đọc"
         },
         {
             id: 5,
-            title: "Xu Hướng Laptop 2025: AI và Hiệu Năng",
-            excerpt: "Khám phá những xu hướng công nghệ laptop mới nhất với tích hợp AI, NPU, và hiệu năng vượt trội...",
-            image: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=600",
-            author: "Future Tech",
-            date: "5 Tháng 11, 2025",
+            title: "Xu Hướng Giày 2026: Sustainable & Tech",
+            excerpt: "Khám phá những xu hướng giày mới nhất với công nghệ thân thiện môi trường và vật liệu tái chế...",
+            image: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600",
+            author: "Fashion Trends",
+            date: "8 Tháng 1, 2026",
             category: "Tin tức",
             readTime: "7 phút đọc"
         },
         {
             id: 6,
-            title: "Laptop Cho Sinh Viên: Lựa Chọn Thông Minh",
-            excerpt: "Gợi ý các dòng laptop phù hợp với sinh viên về cả tính năng và giá cả, đáp ứng nhu cầu học tập và giải trí...",
-            image: "https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=600",
-            author: "Student Guide",
-            date: "4 Tháng 11, 2025",
+            title: "Giày Cho Người Mới: Lựa Chọn Thông Minh",
+            excerpt: "Gợi ý các dòng giày phù hợp cho người mới bắt đầu về cả phong cách và giá cả...",
+            image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600",
+            author: "Beginner Guide",
+            date: "5 Tháng 1, 2026",
             category: "Hướng dẫn",
             readTime: "6 phút đọc"
         }
@@ -73,9 +73,9 @@ const BlogPage = () => {
             {/* Hero Section */}
             <div className="blog-hero">
                 <div className="blog-hero-content">
-                    <h1 className="blog-title">📰 Tin Tức & Đánh Giá</h1>
+                    <h1 className="blog-title">� Tin Tức & Đánh Giá</h1>
                     <p className="blog-subtitle">
-                        Tin tức công nghệ mới nhất, đánh giá chi tiết và hướng dẫn sử dụng
+                        Tin tức thời trang giày mới nhất, đánh giá chi tiết và hướng dẫn chọn giày
                     </p>
                 </div>
             </div>
@@ -196,14 +196,14 @@ const BlogPage = () => {
                         <div className="sidebar-widget tags-widget">
                             <h4 className="widget-title">🏷️ Tags phổ biến</h4>
                             <div className="tags-list">
-                                <span className="tag">Laptop Gaming</span>
-                                <span className="tag">MacBook</span>
-                                <span className="tag">Windows 11</span>
-                                <span className="tag">Dell XPS</span>
-                                <span className="tag">Asus ROG</span>
-                                <span className="tag">HP Pavilion</span>
-                                <span className="tag">Lenovo ThinkPad</span>
-                                <span className="tag">MSI</span>
+                                <span className="tag">Nike</span>
+                                <span className="tag">Adidas</span>
+                                <span className="tag">Sneakers</span>
+                                <span className="tag">Running Shoes</span>
+                                <span className="tag">Basketball</span>
+                                <span className="tag">Vans</span>
+                                <span className="tag">Converse</span>
+                                <span className="tag">Limited Edition</span>
                             </div>
                         </div>
                     </aside>
@@ -213,7 +213,7 @@ const BlogPage = () => {
             {/* CTA Section */}
             <div className="blog-cta">
                 <div className="cta-content">
-                    <h2>Bạn cần tư vấn chọn laptop?</h2>
+                    <h2>Bạn cần tư vấn chọn giày?</h2>
                     <p>Đội ngũ chuyên gia của chúng tôi sẵn sàng hỗ trợ bạn 24/7</p>
                     <div className="cta-actions">
                         <Link to="/" className="cta-btn primary">

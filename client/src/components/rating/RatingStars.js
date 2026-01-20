@@ -1,6 +1,4 @@
 import React from 'react';
-import { FiStar } from 'react-icons/fi';
-import { FaStar, FaStarHalfAlt } from 'react-icons/fa';
 import './RatingStars.css';
 
 const RatingStars = ({ 
@@ -49,11 +47,11 @@ const RatingStars = ({
                     onMouseLeave={handleMouseLeave}
                 >
                     {filled ? (
-                        <FaStar className="star-icon filled" />
+                        <span className="star-icon filled">★</span>
                     ) : halfFilled ? (
-                        <FaStarHalfAlt className="star-icon half-filled" />
+                        <span className="star-icon half-filled">☆</span>
                     ) : (
-                        <FiStar className="star-icon empty" />
+                        <span className="star-icon empty">☆</span>
                     )}
                 </span>
             );

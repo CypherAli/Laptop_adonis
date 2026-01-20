@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiEye, FiShoppingCart } from 'react-icons/fi';
 import ProductImage from './ProductImage';
 import CompareButton from '../comparison/CompareButton';
 import './AnimatedProductCard.css';
@@ -159,7 +158,7 @@ const AnimatedProductCard = ({
                     </motion.div>
                 )}
 
-                {(!product.stock || product.stock <= 0) && (
+                {totalStock <= 0 && (
                     <motion.div 
                         className="animated-sold-out-badge"
                         variants={badgeVariants}
@@ -181,7 +180,7 @@ const AnimatedProductCard = ({
                     whileHover="hover"
                     whileTap="tap"
                 >
-                    <FiEye />
+                    ×
                 </motion.button>
             </Link>
 
@@ -194,7 +193,7 @@ const AnimatedProductCard = ({
                     whileHover="hover"
                     whileTap="tap"
                 >
-                    <FiHeart />
+                    {isInWishlist(product._id) ? '❤' : '♡'}
                 </motion.button>
 
                 <CompareButton product={product} />
@@ -273,7 +272,7 @@ const AnimatedProductCard = ({
                             whileHover="hover"
                             whileTap="tap"
                         >
-                            <FiShoppingCart /> Thêm
+                            Thêm
                         </motion.button>
                     ) : (
                         <motion.button

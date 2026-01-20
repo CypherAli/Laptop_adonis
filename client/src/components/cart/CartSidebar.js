@@ -26,13 +26,32 @@ const CartSidebar = ({ isOpen, onClose }) => {
         }
     };
 
-    const handleQuantityChange = (productId, newQuantity) => {
+    const handleQuantityChange = (productId, variantSku, newQuantity) => {
         if (newQuantity < 1) return;
-        updateQuantity(productId, newQuantity);
+        updateQuantity(productId, newQuantity, variantSku);
+    };
+
+    const handleRemoveFromCart = (productId, variantSku) => {
+        removeFromCart(productId, variantSku);
     };
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN').format(price);
+    };
+
+    // Get price from item, fallback to variants or basePrice
+    const getItemPrice = (item) => {
+        if (item.price && !isNaN(item.price)) {
+            return parseFloat(item.price);
+        }
+        // Try to get from variants
+        if (item.variants && item.variants.length > 0) {
+            const variant = item.variants.find(v => v.isAvailable && v.stock > 0) || item.variants[0];
+            if (variant?.price) return parseFloat(variant.price);
+        }
+        // Fallback to basePrice
+        if (item.basePrice) return parseFloat(item.basePrice);
+        return 0;
     };
 
     // Safety check - nếu cartItems undefined, return empty sidebar
@@ -72,7 +91,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                         </div>
                     ) : (
                         cartItems.map((item) => (
-                            <div key={item._id} className="cart-sidebar-item">
+                            <div key={`${item._id}-${item.variantSku || ''}`} className="cart-sidebar-item">
                                 {/* Product Image */}
                                 <div className="item-image">
                                     <ProductImage 
@@ -85,11 +104,20 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                 <div className="item-details">
                                     <h4 className="item-name">{item.name}</h4>
                                     
+                                    {/* Variant Info */}
+                                    {item.selectedOptions && (
+                                        <div className="item-variant-info" style={{fontSize: '12px', color: '#666', marginBottom: '5px'}}>
+                                            {item.selectedOptions.gender && <span>{item.selectedOptions.gender}</span>}
+                                            {item.selectedOptions.size && <span> • Size {item.selectedOptions.size}</span>}
+                                            {item.selectedOptions.color && <span> • {item.selectedOptions.color}</span>}
+                                        </div>
+                                    )}
+                                    
                                     {/* Quantity Controls */}
                                     <div className="item-quantity">
                                         <button 
                                             className="qty-btn"
-                                            onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                                            onClick={() => handleQuantityChange(item._id, item.variantSku, item.quantity - 1)}
                                             disabled={item.quantity <= 1}
                                         >
                                             <FiMinus />
@@ -97,7 +125,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                         <span className="qty-value">{item.quantity}</span>
                                         <button 
                                             className="qty-btn"
-                                            onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                                            onClick={() => handleQuantityChange(item._id, item.variantSku, item.quantity + 1)}
                                         >
                                             <FiPlus />
                                         </button>
@@ -106,7 +134,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                     {/* Price */}
                                     <div className="item-price">
                                         <span className="price-value">
-                                            {formatPrice(item.price * item.quantity)} EGP
+                                            {formatPrice(getItemPrice(item) * item.quantity)} VND
                                         </span>
                                     </div>
                                 </div>
@@ -114,7 +142,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                 {/* Remove Button */}
                                 <button 
                                     className="remove-btn"
-                                    onClick={() => removeFromCart(item._id)}
+                                    onClick={() => handleRemoveFromCart(item._id, item.variantSku)}
                                     title="Xóa sản phẩm"
                                 >
                                     <FiTrash2 />
@@ -129,7 +157,9 @@ const CartSidebar = ({ isOpen, onClose }) => {
                     <div className="cart-sidebar-footer">
                         <div className="subtotal-row">
                             <span className="subtotal-label">SUBTOTAL:</span>
-                            <span className="subtotal-value">{formatPrice(getCartTotal())} EGP</span>
+                            <span className="subtotal-value">
+                                {formatPrice(cartItems.reduce((sum, item) => sum + (getItemPrice(item) * item.quantity), 0))} VND
+                            </span>
                         </div>
 
                         <div className="footer-actions">

@@ -53,10 +53,20 @@ export const CartProvider = ({ children }) => {
                 console.log('🔍 ITEM:', item);
                 console.log('   - sellerName from API:', item.sellerName);
                 console.log('   - seller object:', item.seller);
+                console.log('   - price from cart item:', item.price);
+                console.log('   - product:', item.product);
                 
                 const mappedItem = {
                     _id: item.product._id,
-                    ...item.product,
+                    name: item.product.name,
+                    brand: item.product.brand,
+                    category: item.product.category,
+                    images: item.product.images,
+                    imageUrl: item.product.images?.[0],
+                    variants: item.product.variants,
+                    price: item.price, // Use price from cart item, not product
+                    variantSku: item.variantSku,
+                    stock: item.product.variants?.find(v => v.sku === item.variantSku)?.stock || 0,
                     quantity: item.quantity,
                     cartItemId: item._id, // Store cart item ID for updates
                     seller: item.seller, // Include seller object
@@ -64,6 +74,7 @@ export const CartProvider = ({ children }) => {
                 };
                 
                 console.log('   - MAPPED sellerName:', mappedItem.sellerName);
+                console.log('   - MAPPED price:', mappedItem.price);
                 return mappedItem;
             });
             
@@ -107,7 +118,15 @@ export const CartProvider = ({ children }) => {
                     console.log('🔍 Mapping item after add:', item);
                     return {
                         _id: item.product._id,
-                        ...item.product,
+                        name: item.product.name,
+                        brand: item.product.brand,
+                        category: item.product.category,
+                        images: item.product.images,
+                        imageUrl: item.product.images?.[0],
+                        variants: item.product.variants,
+                        price: item.price,
+                        variantSku: item.variantSku,
+                        stock: item.product.variants?.find(v => v.sku === item.variantSku)?.stock || 0,
                         quantity: item.quantity,
                         cartItemId: item._id,
                         seller: item.seller,
@@ -125,50 +144,82 @@ export const CartProvider = ({ children }) => {
                 throw error;
             }
         } else {
-            // Add to localStorage
+            // Add to localStorage (guest user)
             setCartItems(prevItems => {
-                const existingItem = prevItems.find(item => item._id === product._id);
+                // Use variantSku to identify unique cart items (same product, different variant)
+                const variantSku = product.selectedVariant?.sku || product.variantSku || null;
+                
+                const existingItem = prevItems.find(item => 
+                    item._id === product._id && 
+                    (item.variantSku || null) === variantSku
+                );
                 
                 if (existingItem) {
                     return prevItems.map(item =>
-                        item._id === product._id
+                        item._id === product._id && (item.variantSku || null) === variantSku
                             ? { ...item, quantity: item.quantity + quantity }
                             : item
                     );
                 } else {
-                    return [...prevItems, { ...product, quantity }];
+                    // Priority: finalPrice > selectedVariant.price > price > first variant price > basePrice
+                    let price = product.finalPrice 
+                        || product.displayPrice 
+                        || product.selectedVariant?.price 
+                        || product.price;
+                    
+                    if (!price && product.variants && product.variants.length > 0) {
+                        const firstVariant = product.variants.find(v => v.isAvailable && v.stock > 0) || product.variants[0];
+                        price = firstVariant?.price || product.basePrice || 0;
+                    }
+                    
+                    return [...prevItems, { 
+                        ...product, 
+                        price: price || 0,
+                        variantSku: variantSku,
+                        quantity 
+                    }];
                 }
             });
         }
     };
 
-    const removeFromCart = async (productId) => {
+    const removeFromCart = async (productId, variantSku = null) => {
         if (user) {
-            // Find the cart item ID
-            const item = cartItems.find(i => i._id === productId);
+            // Find the cart item ID - match both productId and variantSku
+            const item = cartItems.find(i => 
+                i._id === productId && 
+                (i.variantSku || null) === variantSku
+            );
             if (!item || !item.cartItemId) return;
             
             try {
                 await axios.delete(`/cart/${item.cartItemId}`);
-                setCartItems(prevItems => prevItems.filter(item => item._id !== productId));
+                setCartItems(prevItems => prevItems.filter(i => 
+                    !(i._id === productId && (i.variantSku || null) === variantSku)
+                ));
             } catch (error) {
                 console.error('Failed to remove from cart:', error);
                 throw error;
             }
         } else {
-            setCartItems(prevItems => prevItems.filter(item => item._id !== productId));
+            setCartItems(prevItems => prevItems.filter(item => 
+                !(item._id === productId && (item.variantSku || null) === variantSku)
+            ));
         }
     };
 
-    const updateQuantity = async (productId, quantity) => {
+    const updateQuantity = async (productId, quantity, variantSku = null) => {
         if (quantity <= 0) {
-            await removeFromCart(productId);
+            await removeFromCart(productId, variantSku);
             return;
         }
 
         if (user) {
-            // Find the cart item ID
-            const item = cartItems.find(i => i._id === productId);
+            // Find the cart item ID - match both productId and variantSku
+            const item = cartItems.find(i => 
+                i._id === productId && 
+                (i.variantSku || null) === variantSku
+            );
             if (!item || !item.cartItemId) return;
             
             try {
@@ -179,7 +230,15 @@ export const CartProvider = ({ children }) => {
                 // Update local state from API response WITH seller info
                 const apiCart = response.data.items.map(item => ({
                     _id: item.product._id,
-                    ...item.product,
+                    name: item.product.name,
+                    brand: item.product.brand,
+                    category: item.product.category,
+                    images: item.product.images,
+                    imageUrl: item.product.images?.[0],
+                    variants: item.product.variants,
+                    price: item.price,
+                    variantSku: item.variantSku,
+                    stock: item.product.variants?.find(v => v.sku === item.variantSku)?.stock || 0,
                     quantity: item.quantity,
                     cartItemId: item._id,
                     seller: item.seller,
@@ -197,7 +256,7 @@ export const CartProvider = ({ children }) => {
         } else {
             setCartItems(prevItems =>
                 prevItems.map(item =>
-                    item._id === productId
+                    item._id === productId && (item.variantSku || null) === variantSku
                         ? { ...item, quantity }
                         : item
                 )
@@ -218,7 +277,12 @@ export const CartProvider = ({ children }) => {
     };
 
     const getCartTotal = () => {
-        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+        return cartItems.reduce((total, item) => {
+            // Ensure price is a valid number
+            const price = parseFloat(item.price) || 0;
+            const quantity = parseInt(item.quantity) || 0;
+            return total + (price * quantity);
+        }, 0);
     };
 
     const getCartCount = () => {

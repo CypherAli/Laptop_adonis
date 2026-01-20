@@ -135,7 +135,7 @@ function App() {
       </Routes>
       <Footer />
       
-      {/* Chat Widget - Different for each role */}
+      {/* Chat Widget - Support cả guest và logged-in users */}
       {user?.role === 'partner' ? (
         <PartnerLiveChat />
       ) : user?.role === 'admin' ? (

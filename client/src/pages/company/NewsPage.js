@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import axios from '../../api/axiosConfig';
 import { FiClock, FiUser, FiTag, FiTrendingUp, FiSearch } from 'react-icons/fi';
 import './NewsPage.css';
 
 const NewsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [relatedProducts, setRelatedProducts] = useState([]);
+
+    useEffect(() => {
+        const fetchRelatedProducts = async () => {
+            try {
+                const res = await axios.get('/products', {
+                    params: { limit: 4, inStock: true }
+                });
+                setRelatedProducts(res.data.products || []);
+            } catch (err) {
+                console.error('Error fetching products:', err);
+            }
+        };
+        fetchRelatedProducts();
+    }, []);
 
     const categories = [
         { id: 'all', name: 'Tất cả', icon: '📰' },
@@ -226,6 +242,90 @@ const NewsPage = () => {
                     )}
                 </div>
             </section>
+
+            {/* Related Products */}
+            {relatedProducts.length > 0 && (
+                <section className="news-products" style={{
+                    padding: '60px 0',
+                    backgroundColor: '#f8f9fa'
+                }}>
+                    <div className="container">
+                        <h2 style={{ textAlign: 'center', marginBottom: '40px', fontSize: '32px' }}>
+                            🛍️ Products You May Like
+                        </h2>
+                        <div className="products-grid" style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                            gap: '25px',
+                            maxWidth: '1200px',
+                            margin: '0 auto'
+                        }}>
+                            {relatedProducts.map((product, index) => (
+                                <motion.div
+                                    key={product._id}
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                >
+                                    <Link 
+                                        to={`/product/${product._id}`}
+                                        style={{
+                                            textDecoration: 'none',
+                                            display: 'block',
+                                            padding: '20px',
+                                            border: '1px solid #e0e0e0',
+                                            borderRadius: '12px',
+                                            transition: 'all 0.3s',
+                                            backgroundColor: 'white'
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.transform = 'translateY(-5px)';
+                                            e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: '100%',
+                                            height: '200px',
+                                            backgroundColor: '#f5f5f5',
+                                            borderRadius: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '60px',
+                                            marginBottom: '15px'
+                                        }}>
+                                            👟
+                                        </div>
+                                        <h4 style={{ 
+                                            color: '#333', 
+                                            marginBottom: '10px', 
+                                            fontSize: '16px',
+                                            fontWeight: '600'
+                                        }}>
+                                            {product.name}
+                                        </h4>
+                                        <p style={{ 
+                                            color: '#e74c3c', 
+                                            fontWeight: 'bold',
+                                            fontSize: '18px',
+                                            margin: 0
+                                        }}>
+                                            {new Intl.NumberFormat('vi-VN', { 
+                                                style: 'currency', 
+                                                currency: 'VND' 
+                                            }).format(product.basePrice || product.variants?.[0]?.price || 0)}
+                                        </p>
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
         </div>
     );
 };

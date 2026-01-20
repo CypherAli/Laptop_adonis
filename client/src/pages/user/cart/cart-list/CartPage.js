@@ -76,7 +76,11 @@ const CartPage = () => {
     const getSelectedTotal = () => {
         return cartItems
             .filter(item => selectedItems.includes(item._id))
-            .reduce((total, item) => total + (item.price * item.quantity), 0);
+            .reduce((total, item) => {
+                const price = parseFloat(item.price) || 0;
+                const quantity = parseInt(item.quantity) || 0;
+                return total + (price * quantity);
+            }, 0);
     };
 
     // Calculate shipping fee
@@ -148,12 +152,11 @@ const CartPage = () => {
         return (
             <div className="cart-empty-container">
                 <div className="empty-cart-illustration">
-                    <div className="empty-cart-icon">🛒</div>
+                    <div className="empty-cart-icon">×</div>
                     <h2>Giỏ hàng trống</h2>
                     <p>Add products to cart to continue shopping!</p>
                     <button onClick={() => navigate('/')} className="btn-continue-shopping">
-                        <span>🏠</span>
-                        <span>Continue Shopping</span>
+                        Continue Shopping
                     </button>
                 </div>
             </div>
@@ -166,7 +169,7 @@ const CartPage = () => {
             {success && (
                 <div className="success-modal-overlay">
                     <div className="success-modal">
-                        <div className="success-icon">✅</div>
+                        <div className="success-icon">✓</div>
                         <h2>Order placed successfully!</h2>
                         <p>Your order is being processed</p>
                         <div className="success-animation"></div>
@@ -176,7 +179,6 @@ const CartPage = () => {
 
             <div className="cart-header">
                 <h1>
-                    <span className="cart-icon">🛒</span>
                     Your Shopping Cart
                 </h1>
                 <div className="cart-count">
@@ -221,7 +223,6 @@ const CartPage = () => {
                                 {/* Seller Header */}
                                 <div className="seller-header">
                                     <div className="seller-info">
-                                        <span className="shop-icon">🏪</span>
                                         <h3>{sellerGroup.sellerName}</h3>
                                     </div>
                                     <span className="items-count">
@@ -230,7 +231,12 @@ const CartPage = () => {
                                 </div>
 
                                 {/* Items in this shop */}
-                                {sellerGroup.items.map(item => (
+                                {sellerGroup.items.map(item => {
+                                    console.log('🔍 RENDERING ITEM:', item);
+                                    console.log('   - price:', item.price);
+                                    console.log('   - name:', item.name);
+                                    
+                                    return (
                             <div 
                                 key={item._id} 
                                 className={`cart-item-card ${selectedItems.includes(item._id) ? 'selected' : ''}`}
@@ -257,12 +263,12 @@ const CartPage = () => {
                                 <div className="item-details">
                                     <h3 className="item-name">{item.name}</h3>
                                     <div className="item-meta">
-                                        <span className="item-brand">🏷️ {item.brand}</span>
-                                        <span className="item-stock">📦 Stock: {item.stock}</span>
+                                        <span className="item-brand">{item.brand}</span>
+                                        <span className="item-stock">Stock: {item.stock || 'N/A'}</span>
                                     </div>
                                     <div className="item-price-section">
                                         <div className="current-price">
-                                            {item.price.toLocaleString('vi-VN')} đ
+                                            {(item.price || 0).toLocaleString('vi-VN')} đ
                                         </div>
                                         {item.discountedPrice && (
                                             <div className="original-price">
@@ -304,7 +310,7 @@ const CartPage = () => {
                                     </div>
 
                                     <div className="item-subtotal">
-                                        {(item.price * item.quantity).toLocaleString('vi-VN')} đ
+                                        {((item.price || 0) * item.quantity).toLocaleString('vi-VN')} đ
                                     </div>
 
                                     <button 
@@ -317,11 +323,12 @@ const CartPage = () => {
                                         className="btn-remove-item"
                                         title="Remove product"
                                     >
-                                        🗑️
+                                        ×
                                     </button>
                                 </div>
                             </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>
@@ -350,7 +357,7 @@ const CartPage = () => {
 
                             {getSelectedTotal() < 15000000 && getSelectedTotal() > 0 && (
                                 <div className="shipping-notice">
-                                    💡 Add {(15000000 - getSelectedTotal()).toLocaleString('vi-VN')} đ more for free shipping
+                                    Add {(15000000 - getSelectedTotal()).toLocaleString('vi-VN')} đ more for free shipping
                                 </div>
                             )}
 
@@ -382,21 +389,6 @@ const CartPage = () => {
                             <span>Checkout ({selectedItems.length})</span>
                             <span>→</span>
                         </button>
-
-                        <div className="security-badges">
-                            <div className="badge">
-                                <span>🔒</span>
-                                <span>Secure payment</span>
-                            </div>
-                            <div className="badge">
-                                <span>📦</span>
-                                <span>Nationwide delivery</span>
-                            </div>
-                            <div className="badge">
-                                <span>↩️</span>
-                                <span>Easy returns</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -503,7 +495,6 @@ const CartPage = () => {
                                             onChange={(e) => setPaymentMethod(e.target.value)}
                                         />
                                         <div className="payment-content">
-                                            <span className="payment-icon">💵</span>
                                             <div>
                                                 <div className="payment-name">Cash on Delivery (COD)</div>
                                                 <div className="payment-desc">Pay with cash upon receiving goods</div>
@@ -520,7 +511,6 @@ const CartPage = () => {
                                             onChange={(e) => setPaymentMethod(e.target.value)}
                                         />
                                         <div className="payment-content">
-                                            <span className="payment-icon">🏦</span>
                                             <div>
                                                 <div className="payment-name">Bank Transfer</div>
                                                 <div className="payment-desc">Pay before receiving goods</div>

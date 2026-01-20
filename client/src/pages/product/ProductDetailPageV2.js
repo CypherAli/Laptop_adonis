@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../../api/axiosConfig';
 import CartContext from '../../context/CartContext';
@@ -24,6 +24,114 @@ const ProductDetailPageV2 = () => {
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    
+    // Variant selection states
+    const [selectedSize, setSelectedSize] = useState('39');
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedGender, setSelectedGender] = useState('Unisex');
+    const [selectedVariant, setSelectedVariant] = useState(null);
+    
+    // Additional options that affect price
+    const [selectedEdition, setSelectedEdition] = useState('Standard');
+    const [selectedSoleType, setSelectedSoleType] = useState('Regular');
+    const [selectedBoxType, setSelectedBoxType] = useState('Standard');
+    const [selectedWarranty, setSelectedWarranty] = useState('12');
+    const [hasPersonalization, setHasPersonalization] = useState(false);
+
+    // Pricing for additional options
+    const editionPricing = {
+        'Standard': 0,
+        'Premium': 500000,
+        'Limited Edition': 1200000
+    };
+    
+    const soleTypePricing = {
+        'Regular': 0,
+        'Air Max': 800000,
+        'Boost Technology': 1000000
+    };
+    
+    const boxPricing = {
+        'Standard': 0,
+        'Premium Box': 200000,
+        'Collector Edition': 500000
+    };
+    
+    const warrantyPricing = {
+        '12': 0,
+        '24': 300000,
+        '36': 600000
+    };
+    
+    const personalizationPrice = 400000;
+
+    // Get unique genders from variants
+    const genderOptions = useMemo(() => {
+        if (!product?.variants) return ['Nam', 'Nữ', 'Unisex'];
+        const genders = [...new Set(product.variants.map(v => v.specifications?.gender || v.gender))].filter(Boolean);
+        return genders.length > 0 ? genders : ['Nam', 'Nữ', 'Unisex'];
+    }, [product]);
+
+    // Get ALL available colors
+    const availableColors = useMemo(() => {
+        if (!product?.variants) return [];
+        const colors = [...new Set(product.variants.map(v => v.specifications?.color || v.color))];
+        return colors.filter(Boolean);
+    }, [product]);
+
+    // Update selected variant when size/color/gender changes
+    useEffect(() => {
+        if (!product?.variants || !selectedSize || !selectedColor || !selectedGender) return;
+        
+        const matchedVariant = product.variants.find(v => {
+            const vSize = v.specifications?.size || v.size;
+            const vColor = v.specifications?.color || v.color;
+            const vGender = v.specifications?.gender || v.gender;
+            return vSize === selectedSize && vColor === selectedColor && vGender === selectedGender;
+        });
+        
+        if (matchedVariant) {
+            setSelectedVariant(matchedVariant);
+            console.log('✅ Matched variant:', matchedVariant.variantName, '- Price:', matchedVariant.price.toLocaleString() + 'đ');
+        } else {
+            setSelectedVariant(null);
+            console.warn('⚠️ No variant found for:', { gender: selectedGender, size: selectedSize, color: selectedColor });
+        }
+    }, [selectedSize, selectedColor, selectedGender, product]);
+
+    // Calculate current price and stock
+    const currentPrice = selectedVariant?.price || product?.price || 0;
+    const currentStock = selectedVariant?.stock || 0;
+    const isOutOfStock = !selectedVariant || currentStock === 0;
+    const currentOriginalPrice = selectedVariant?.originalPrice || product?.originalPrice;
+    
+    // Calculate final price with all options
+    const finalPrice = currentPrice + 
+                      editionPricing[selectedEdition] + 
+                      soleTypePricing[selectedSoleType] + 
+                      boxPricing[selectedBoxType] + 
+                      warrantyPricing[selectedWarranty] + 
+                      (hasPersonalization ? personalizationPrice : 0);
+
+    // Color hex mapping
+    const getColorHex = (colorName) => {
+        const name = colorName?.toLowerCase() || '';
+        if (name.includes('black') || name.includes('đen')) return '#1f2937';
+        if (name.includes('white') || name.includes('trắng')) return '#ffffff';
+        if (name.includes('red') || name.includes('đỏ')) return '#ef4444';
+        if (name.includes('navy')) return '#1e3a8a';
+        if (name.includes('blue') || name.includes('xanh dương')) return '#3b82f6';
+        if (name.includes('green') || name.includes('xanh lá')) return '#10b981';
+        if (name.includes('yellow') || name.includes('vàng')) return '#fbbf24';
+        if (name.includes('pink') || name.includes('hồng')) return '#ec4899';
+        if (name.includes('purple') || name.includes('tím')) return '#a855f7';
+        if (name.includes('gray') || name.includes('grey') || name.includes('xám')) return '#6b7280';
+        if (name.includes('orange') || name.includes('cam')) return '#f97316';
+        if (name.includes('silver') || name.includes('bạc')) return '#c0c0c0';
+        if (name.includes('turquoise')) return '#14b8a6';
+        if (name.includes('brown') || name.includes('nâu')) return '#92400e';
+        return '#9ca3af';
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -35,6 +143,18 @@ const ProductDetailPageV2 = () => {
                 const response = await axios.get(`/products/${id}`);
                 console.log('✅ Product loaded:', response.data.name);
                 setProduct(response.data);
+                
+                // Auto-select first variant or defaults
+                if (response.data.variants && response.data.variants.length > 0) {
+                    const firstVariant = response.data.variants[0];
+                    setSelectedSize(firstVariant.specifications?.size || firstVariant.size || '39');
+                    setSelectedColor(firstVariant.specifications?.color || firstVariant.color);
+                    setSelectedGender(firstVariant.specifications?.gender || firstVariant.gender || 'Unisex');
+                    setSelectedVariant(firstVariant);
+                } else {
+                    setSelectedSize('39');
+                    setSelectedGender('Unisex');
+                }
                 
                 // Fetch related products
                 if (response.data?.brand) {
@@ -62,20 +182,56 @@ const ProductDetailPageV2 = () => {
     }, [id]);
 
     const handleAddToCart = () => {
-        if (product && product.stock > 0) {
+        // Validate selection
+        if (!selectedGender || !selectedSize || !selectedColor) {
+            toast.error('⚠️ Vui lòng chọn đầy đủ giới tính, size và màu sắc!');
+            return;
+        }
+        
+        if (isOutOfStock) {
+            toast.error('❌ Sản phẩm đã hết hàng với tùy chọn này!');
+            return;
+        }
+        
+        if (currentStock > 0) {
+            // Create product with selected options
+            const productToAdd = {
+                ...product,
+                selectedVariant: selectedVariant,
+                selectedOptions: {
+                    gender: selectedGender,
+                    size: selectedSize,
+                    color: selectedColor,
+                    edition: selectedEdition,
+                    soleType: selectedSoleType,
+                    boxType: selectedBoxType,
+                    warranty: selectedWarranty,
+                    personalization: hasPersonalization
+                },
+                finalPrice: finalPrice,
+                displayPrice: finalPrice
+            };
+            
             for (let i = 0; i < quantity; i++) {
-                addToCart(product);
+                addToCart(productToAdd);
             }
-            toast.success(`✅ Đã thêm ${quantity}x ${product.name} vào giỏ hàng!`);
+            toast.success(`✅ Đã thêm ${quantity}x ${product.name} (${selectedGender}, Size ${selectedSize}, ${selectedColor}) vào giỏ hàng!`);
         } else {
             toast.error('❌ Sản phẩm đã hết hàng!');
         }
     };
 
     const handleBuyNow = () => {
-        if (product && product.stock > 0) {
+        if (!selectedGender || !selectedSize || !selectedColor) {
+            toast.error('⚠️ Vui lòng chọn đầy đủ giới tính, size và màu sắc!');
+            return;
+        }
+        
+        if (!isOutOfStock && currentStock > 0) {
             handleAddToCart();
             setTimeout(() => navigate('/cart'), 300);
+        } else {
+            toast.error('❌ Sản phẩm đã hết hàng!');
         }
     };
 
@@ -398,7 +554,7 @@ const ProductDetailPageV2 = () => {
 
                             {/* Price */}
                             <div style={{marginBottom: '25px'}}>
-                                {product.originalPrice && product.originalPrice > product.price ? (
+                                {currentOriginalPrice && currentOriginalPrice > currentPrice ? (
                                     <div>
                                         <div style={{
                                             fontSize: '1.2rem',
@@ -406,14 +562,14 @@ const ProductDetailPageV2 = () => {
                                             textDecoration: 'line-through',
                                             marginBottom: '5px'
                                         }}>
-                                            {product.originalPrice.toLocaleString()} VND
+                                            {currentOriginalPrice.toLocaleString()}đ
                                         </div>
                                         <div style={{
                                             fontSize: '2.2rem',
                                             fontWeight: 'bold',
                                             color: '#e74c3c'
                                         }}>
-                                            {product.price.toLocaleString()} VND
+                                            {finalPrice.toLocaleString()}đ
                                         </div>
                                         <span style={{
                                             display: 'inline-block',
@@ -425,7 +581,7 @@ const ProductDetailPageV2 = () => {
                                             fontSize: '0.9rem',
                                             fontWeight: 'bold'
                                         }}>
-                                            Tiết kiệm {(product.originalPrice - product.price).toLocaleString()} VND
+                                            Tiết kiệm {(currentOriginalPrice - currentPrice).toLocaleString()}đ
                                         </span>
                                     </div>
                                 ) : (
@@ -434,7 +590,21 @@ const ProductDetailPageV2 = () => {
                                         fontWeight: 'bold',
                                         color: '#2c3e50'
                                     }}>
-                                        {product.price.toLocaleString()} VND
+                                        {finalPrice.toLocaleString()}đ
+                                    </div>
+                                )}
+                                {finalPrice !== currentPrice && (
+                                    <div style={{
+                                        fontSize: '11px',
+                                        color: '#6366f1',
+                                        background: '#eef2ff',
+                                        padding: '4px 8px',
+                                        borderRadius: '6px',
+                                        fontWeight: '600',
+                                        marginTop: '8px',
+                                        display: 'inline-block'
+                                    }}>
+                                        +{(finalPrice - currentPrice).toLocaleString()}đ từ options
                                     </div>
                                 )}
                             </div>
@@ -442,18 +612,330 @@ const ProductDetailPageV2 = () => {
                             {/* Stock Status */}
                             <div style={{
                                 padding: '15px',
-                                background: (product.stock && product.stock > 0) ? '#d4edda' : '#f8d7da',
+                                background: (!isOutOfStock && currentStock > 0) ? '#d4edda' : '#f8d7da',
                                 borderRadius: '8px',
                                 marginBottom: '25px'
                             }}>
                                 <span style={{
-                                    color: (product.stock && product.stock > 0) ? '#155724' : '#721c24',
+                                    color: (!isOutOfStock && currentStock > 0) ? '#155724' : '#721c24',
                                     fontWeight: 'bold',
                                     fontSize: '1rem'
                                 }}>
-                                    {(product.stock && product.stock > 0) ? `✓ Còn hàng (${product.stock} sản phẩm)` : '✗ Hết hàng'}
+                                    {(!isOutOfStock && currentStock > 0) ? `✓ Còn hàng (${currentStock} sản phẩm)` : '✗ Hết hàng'}
                                 </span>
                             </div>
+
+                            {/* ===== OPTIONS SECTION ===== */}
+                            <div style={{
+                                background: '#f8f9fa',
+                                padding: '25px',
+                                borderRadius: '12px',
+                                marginBottom: '25px',
+                                maxHeight: '600px',
+                                overflowY: 'auto'
+                            }}>
+                                {/* Gender Selector */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#374151', fontWeight: '600' }}>
+                                        🚻 Giới tính <span style={{ color: '#ef4444' }}>*</span>
+                                    </h4>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        {genderOptions.map(gender => (
+                                            <button
+                                                key={gender}
+                                                onClick={() => setSelectedGender(gender)}
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '10px 16px',
+                                                    border: selectedGender === gender ? '2px solid #6366f1' : '2px solid #e5e7eb',
+                                                    borderRadius: '8px',
+                                                    background: selectedGender === gender ? '#eef2ff' : 'white',
+                                                    color: selectedGender === gender ? '#6366f1' : '#6b7280',
+                                                    fontSize: '14px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {gender}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Size Selector - Slider 34-44 */}
+                                <div style={{ marginBottom: '25px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                        <h4 style={{ fontSize: '14px', color: '#374151', fontWeight: '600', margin: 0 }}>
+                                            👟 Chọn size <span style={{ color: '#ef4444' }}>*</span>
+                                        </h4>
+                                        <div style={{
+                                            fontSize: '20px',
+                                            fontWeight: '700',
+                                            color: '#6366f1',
+                                            background: '#eef2ff',
+                                            padding: '8px 20px',
+                                            borderRadius: '12px',
+                                            border: '2px solid #6366f1'
+                                        }}>
+                                            Size {selectedSize || '39'}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Range Slider 34-44 */}
+                                    <div style={{ position: 'relative', paddingTop: '10px' }}>
+                                        {/* Size markers */}
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between',
+                                            marginBottom: '8px',
+                                            paddingLeft: '5px',
+                                            paddingRight: '5px'
+                                        }}>
+                                            {[34, 36, 38, 40, 42, 44].map(size => (
+                                                <span key={size} style={{ 
+                                                    fontSize: '11px', 
+                                                    color: parseFloat(selectedSize) === size ? '#6366f1' : '#9ca3af',
+                                                    fontWeight: parseFloat(selectedSize) === size ? '700' : '500'
+                                                }}>
+                                                    {size}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        
+                                        <input
+                                            type="range"
+                                            min="34"
+                                            max="44"
+                                            step="0.5"
+                                            value={parseFloat(selectedSize) || 39}
+                                            onChange={(e) => {
+                                                const size = parseFloat(e.target.value);
+                                                setSelectedSize(size.toString());
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                height: '8px',
+                                                borderRadius: '8px',
+                                                background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${((parseFloat(selectedSize || 39) - 34) / 10) * 100}%, #e5e7eb ${((parseFloat(selectedSize || 39) - 34) / 10) * 100}%, #e5e7eb 100%)`,
+                                                outline: 'none',
+                                                WebkitAppearance: 'none',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Color Selector - Circular Color Buttons */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '12px', color: '#374151', fontWeight: '600' }}>
+                                        🎨 Chọn màu sắc <span style={{ color: '#ef4444' }}>*</span>
+                                    </h4>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                                        {availableColors.length > 0 ? availableColors.map(color => {
+                                            const hexColor = getColorHex(color);
+                                            const isWhite = hexColor === '#ffffff';
+                                            return (
+                                                <div
+                                                    key={color}
+                                                    onClick={() => setSelectedColor(color)}
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        width: '48px',
+                                                        height: '48px',
+                                                        borderRadius: '50%',
+                                                        background: hexColor,
+                                                        border: selectedColor === color 
+                                                            ? '3px solid #6366f1' 
+                                                            : isWhite 
+                                                                ? '2px solid #e5e7eb' 
+                                                                : '2px solid transparent',
+                                                        boxShadow: selectedColor === color 
+                                                            ? '0 0 0 4px #eef2ff' 
+                                                            : '0 2px 4px rgba(0,0,0,0.1)',
+                                                        transition: 'all 0.2s',
+                                                        transform: selectedColor === color ? 'scale(1.1)' : 'scale(1)'
+                                                    }} />
+                                                    <span style={{
+                                                        fontSize: '10px',
+                                                        marginTop: '4px',
+                                                        color: selectedColor === color ? '#6366f1' : '#6b7280',
+                                                        fontWeight: selectedColor === color ? '600' : '400',
+                                                        maxWidth: '60px',
+                                                        textAlign: 'center',
+                                                        wordWrap: 'break-word'
+                                                    }}>
+                                                        {color}
+                                                    </span>
+                                                </div>
+                                            );
+                                        }) : (
+                                            <div style={{
+                                                padding: '12px',
+                                                background: '#fff3cd',
+                                                borderRadius: '8px',
+                                                color: '#856404',
+                                                fontSize: '13px'
+                                            }}>
+                                                Không có màu sắc nào khả dụng
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Edition Selector */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#374151', fontWeight: '600' }}>
+                                        ⭐ Edition
+                                    </h4>
+                                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                        {Object.keys(editionPricing).map(edition => (
+                                            <button
+                                                key={edition}
+                                                onClick={() => setSelectedEdition(edition)}
+                                                style={{
+                                                    padding: '8px 14px',
+                                                    border: selectedEdition === edition ? '2px solid #6366f1' : '2px solid #e5e7eb',
+                                                    borderRadius: '8px',
+                                                    background: selectedEdition === edition ? '#eef2ff' : 'white',
+                                                    color: selectedEdition === edition ? '#6366f1' : '#6b7280',
+                                                    fontSize: '13px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {edition} {editionPricing[edition] > 0 && `(+${(editionPricing[edition] / 1000).toFixed(0)}k)`}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sole Type Selector */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#374151', fontWeight: '600' }}>
+                                        👟 Công nghệ đế
+                                    </h4>
+                                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                        {Object.keys(soleTypePricing).map(soleType => (
+                                            <button
+                                                key={soleType}
+                                                onClick={() => setSelectedSoleType(soleType)}
+                                                style={{
+                                                    padding: '8px 14px',
+                                                    border: selectedSoleType === soleType ? '2px solid #6366f1' : '2px solid #e5e7eb',
+                                                    borderRadius: '8px',
+                                                    background: selectedSoleType === soleType ? '#eef2ff' : 'white',
+                                                    color: selectedSoleType === soleType ? '#6366f1' : '#6b7280',
+                                                    fontSize: '13px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {soleType} {soleTypePricing[soleType] > 0 && `(+${(soleTypePricing[soleType] / 1000).toFixed(0)}k)`}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Box Type Selector */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#374151', fontWeight: '600' }}>
+                                        📦 Loại hộp
+                                    </h4>
+                                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                        {Object.keys(boxPricing).map(boxType => (
+                                            <button
+                                                key={boxType}
+                                                onClick={() => setSelectedBoxType(boxType)}
+                                                style={{
+                                                    padding: '8px 14px',
+                                                    border: selectedBoxType === boxType ? '2px solid #6366f1' : '2px solid #e5e7eb',
+                                                    borderRadius: '8px',
+                                                    background: selectedBoxType === boxType ? '#eef2ff' : 'white',
+                                                    color: selectedBoxType === boxType ? '#6366f1' : '#6b7280',
+                                                    fontSize: '13px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {boxType} {boxPricing[boxType] > 0 && `(+${(boxPricing[boxType] / 1000).toFixed(0)}k)`}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Warranty Selector */}
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#374151', fontWeight: '600' }}>
+                                        🛡️ Bảo hành
+                                    </h4>
+                                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                        {Object.keys(warrantyPricing).map(warranty => (
+                                            <button
+                                                key={warranty}
+                                                onClick={() => setSelectedWarranty(warranty)}
+                                                style={{
+                                                    padding: '8px 14px',
+                                                    border: selectedWarranty === warranty ? '2px solid #6366f1' : '2px solid #e5e7eb',
+                                                    borderRadius: '8px',
+                                                    background: selectedWarranty === warranty ? '#eef2ff' : 'white',
+                                                    color: selectedWarranty === warranty ? '#6366f1' : '#6b7280',
+                                                    fontSize: '13px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                {warranty} tháng {warrantyPricing[warranty] > 0 && `(+${(warrantyPricing[warranty] / 1000).toFixed(0)}k)`}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Personalization Toggle */}
+                                <div style={{ marginBottom: '0' }}>
+                                    <label style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        cursor: 'pointer',
+                                        padding: '12px',
+                                        background: hasPersonalization ? '#eef2ff' : 'white',
+                                        borderRadius: '8px',
+                                        border: hasPersonalization ? '2px solid #6366f1' : '2px solid #e5e7eb',
+                                        transition: 'all 0.2s'
+                                    }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={hasPersonalization}
+                                            onChange={(e) => setHasPersonalization(e.target.checked)}
+                                            style={{
+                                                width: '18px',
+                                                height: '18px',
+                                                cursor: 'pointer'
+                                            }}
+                                        />
+                                        <span style={{
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            color: hasPersonalization ? '#6366f1' : '#374151'
+                                        }}>
+                                            ✨ Tùy chỉnh cá nhân hóa (+{(personalizationPrice / 1000).toFixed(0)}k)
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            {/* ===== END OPTIONS SECTION ===== */}
 
                             {/* Description */}
                             <p style={{
@@ -517,7 +999,7 @@ const ProductDetailPageV2 = () => {
                             )}
 
                             {/* Quantity & Actions */}
-                            {(product.stock && product.stock > 0) && (
+                            {(!isOutOfStock && currentStock > 0) && (
                                 <>
                                     <div style={{
                                         display: 'flex',
@@ -550,7 +1032,7 @@ const ProductDetailPageV2 = () => {
                                             {quantity}
                                         </span>
                                         <button
-                                            onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                                            onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
                                             style={{
                                                 width: '40px',
                                                 height: '40px',
@@ -622,7 +1104,7 @@ const ProductDetailPageV2 = () => {
                                 </>
                             )}
 
-                            {(!product.stock || product.stock <= 0) && (
+                            {(isOutOfStock || currentStock <= 0) && (
                                 <button
                                     disabled
                                     style={{
@@ -637,7 +1119,7 @@ const ProductDetailPageV2 = () => {
                                         cursor: 'not-allowed'
                                     }}
                                 >
-                                    Hết hàng
+                                    ❌ Hết hàng
                                 </button>
                             )}
                         </div>

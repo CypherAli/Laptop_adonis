@@ -115,14 +115,30 @@ const AnonymousChatWidget = () => {
     const fetchPartners = async () => {
         try {
             setLoading(true);
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            const response = await axios.get(`${apiUrl}/partner/list-active`, {
-                headers: user ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}
-            });
-            
-            if (response.data.success) {
-                setPartners(response.data.partners || []);
-            }
+            // Sử dụng dummy partners vì API chưa có
+            setPartners([
+                {
+                    _id: 'admin-001',
+                    username: 'Shoe Store Support',
+                    shopName: 'Official Support',
+                    role: 'admin',
+                    isActive: true
+                },
+                {
+                    _id: 'partner-001',
+                    username: 'Nike Store',
+                    shopName: 'Nike Official',
+                    role: 'partner',
+                    isActive: true
+                },
+                {
+                    _id: 'partner-002',
+                    username: 'Adidas Store',
+                    shopName: 'Adidas Official',
+                    role: 'partner',
+                    isActive: true
+                }
+            ]);
         } catch (error) {
             console.error('Error fetching partners:', error);
         } finally {

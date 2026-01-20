@@ -4,10 +4,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { ComparisonProvider } from './context/ComparisonContext';
 // import { ChatProvider } from './context/ChatContext'; // Not needed for LiveChat
 import { ToastProvider } from './components/common/Toast';
 import './index.css';
 import App from './App';
+import './utils/autoClearStorage'; // Auto clear old data
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -22,8 +24,10 @@ root.render(
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
-              {/* ChatProvider not needed - LiveChat uses direct Socket.IO */}
-              <App />
+              <ComparisonProvider>
+                {/* ChatProvider not needed - LiveChat uses direct Socket.IO */}
+                <App />
+              </ComparisonProvider>
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

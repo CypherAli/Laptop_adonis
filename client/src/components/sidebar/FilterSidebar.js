@@ -1,21 +1,4 @@
 import React from 'react';
-import { 
-    FiSearch, 
-    FiX,
-    FiChevronDown,
-    FiCheck
-} from 'react-icons/fi';
-import { 
-    MdBrandingWatermark, 
-    MdMoney, 
-    MdSort, 
-    MdHome
-} from 'react-icons/md';
-import { 
-    GiConverseShoe,
-    GiRunningShoe,
-    GiSonicShoes
-} from 'react-icons/gi';
 import './FilterSidebar.css';
 
 const FilterSidebar = ({
@@ -43,14 +26,14 @@ const FilterSidebar = ({
 
     // Brand data với icons (shoe brands)
     const brandData = {
-        'Nike': { icon: <GiRunningShoe />, count: 12 },
-        'Adidas': { icon: <GiSonicShoes />, count: 15 },
-        'Puma': { icon: <GiConverseShoe />, count: 8 },
-        'Converse': { icon: <GiConverseShoe />, count: 6 },
-        'Vans': { icon: <GiConverseShoe />, count: 9 },
-        'New Balance': { icon: <GiRunningShoe />, count: 7 },
-        'Reebok': { icon: <GiSonicShoes />, count: 5 },
-        'Skechers': { icon: <GiRunningShoe />, count: 4 },
+        'Nike': { count: 12 },
+        'Adidas': { count: 15 },
+        'Puma': { count: 8 },
+        'Converse': { count: 6 },
+        'Vans': { count: 9 },
+        'New Balance': { count: 7 },
+        'Reebok': { count: 5 },
+        'Skechers': { count: 4 },
     };
 
     const toggleSection = (section) => {
@@ -66,7 +49,6 @@ const FilterSidebar = ({
                 {/* Header */}
                 <div className="filter-header-new">
                     <h3>
-                        <FiSearch className="header-icon" />
                         SEARCH & FILTER
                     </h3>
                     {activeFiltersCount > 0 && (
@@ -79,7 +61,6 @@ const FilterSidebar = ({
                 {/* Search Bar */}
                 <div className="filter-group-new">
                     <div className="search-box-new">
-                        <FiSearch className="search-icon" />
                         <input 
                             type="text" 
                             placeholder="Search shoes..."
@@ -93,7 +74,7 @@ const FilterSidebar = ({
                                 className="clear-btn"
                                 onClick={() => handleTempFilterChange('searchQuery', '')}
                             >
-                                <FiX />
+                                ×
                             </button>
                         )}
                     </div>
@@ -106,16 +87,15 @@ const FilterSidebar = ({
                         onClick={() => toggleSection('brand')}
                     >
                         <div className="header-left">
-                            <MdBrandingWatermark className="section-icon" />
                             <span>BRAND</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.brand ? 'expanded' : ''}`} />
+                        <span className={`chevron-icon ${expandedSections.brand ? 'expanded' : ''}`}>▼</span>
                     </div>
                     {expandedSections.brand && (
                         <div className="filter-brand-scroll-container">
                             <div className="filter-brand-list">
                                 {brands.map(brand => {
-                                    const data = brandData[brand] || { icon: <MdBrandingWatermark />, count: 0 };
+                                    const data = brandData[brand] || { count: 0 };
                                     const isSelected = tempFilters.brands.includes(brand);
                                     return (
                                         <div 
@@ -132,7 +112,7 @@ const FilterSidebar = ({
                                             </div>
                                             {isSelected && (
                                                 <div className="check-badge-new">
-                                                    <FiCheck />
+                                                    ✓
                                                 </div>
                                             )}
                                         </div>
@@ -150,10 +130,9 @@ const FilterSidebar = ({
                         onClick={() => toggleSection('size')}
                     >
                         <div className="header-left">
-                            <GiConverseShoe className="section-icon" />
                             <span>SIZE</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.size ? 'expanded' : ''}`} />
+                        <span className={`chevron-icon ${expandedSections.size ? 'expanded' : ''}`}>▼</span>
                     </div>
                     {expandedSections.size && (
                         <div className="filter-options-grid">
@@ -166,7 +145,7 @@ const FilterSidebar = ({
                                         onClick={() => toggleArrayFilter('sizes', size)}
                                     >
                                         <span>{size}</span>
-                                        {isSelected && <FiCheck className="check-icon" />}
+                                        {isSelected && <span className="check-icon">✓</span>}
                                     </div>
                                 );
                             })}
@@ -181,10 +160,9 @@ const FilterSidebar = ({
                         onClick={() => toggleSection('color')}
                     >
                         <div className="header-left">
-                            <span className="section-icon">🎨</span>
                             <span>COLOR</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.color ? 'expanded' : ''}`} />
+                        <span className={`chevron-icon ${expandedSections.color ? 'expanded' : ''}`}>▼</span>
                     </div>
                     {expandedSections.color && (
                         <div className="filter-options-grid">
@@ -197,7 +175,7 @@ const FilterSidebar = ({
                                         onClick={() => toggleArrayFilter('colors', color)}
                                     >
                                         <span>{color}</span>
-                                        {isSelected && <FiCheck className="check-icon" />}
+                                        {isSelected && <span className="check-icon">✓</span>}
                                     </div>
                                 );
                             })}
@@ -212,10 +190,9 @@ const FilterSidebar = ({
                         onClick={() => toggleSection('material')}
                     >
                         <div className="header-left">
-                            <span className="section-icon">✨</span>
                             <span>MATERIAL</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.material ? 'expanded' : ''}`} />
+                        <span className={`chevron-icon ${expandedSections.material ? 'expanded' : ''}`}>▼</span>
                     </div>
                     {expandedSections.material && (
                         <div className="filter-options-grid">
@@ -228,7 +205,7 @@ const FilterSidebar = ({
                                         onClick={() => toggleArrayFilter('materials', material)}
                                     >
                                         <span>{material}</span>
-                                        {isSelected && <FiCheck className="check-icon" />}
+                                        {isSelected && <span className="check-icon">✓</span>}
                                     </div>
                                 );
                             })}
@@ -243,10 +220,9 @@ const FilterSidebar = ({
                         onClick={() => toggleSection('price')}
                     >
                         <div className="header-left">
-                            <MdMoney className="section-icon" />
                             <span>PRICE RANGE</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.price ? 'expanded' : ''}`} />
+                        <span className={`chevron-icon ${expandedSections.price ? 'expanded' : ''}`}>▼</span>
                     </div>
                     {expandedSections.price && (
                         <div className="filter-price-container">
@@ -276,7 +252,6 @@ const FilterSidebar = ({
                                         }}
                                         onKeyPress={handleKeyPress}
                                     />
-                                    <FiChevronDown className="dropdown-icon-new" />
                                 </div>
                             </div>
                         </div>
@@ -291,7 +266,6 @@ const FilterSidebar = ({
                             checked={tempFilters.inStock}
                             onChange={(e) => handleTempFilterChange('inStock', e.target.checked)}
                         />
-                        <MdHome className="checkbox-icon-new" />
                         <span>Only show in-stock products</span>
                     </label>
                 </div>
@@ -303,10 +277,9 @@ const FilterSidebar = ({
                         onClick={() => toggleSection('sort')}
                     >
                         <div className="header-left">
-                            <MdSort className="section-icon" />
                             <span>SORT BY</span>
                         </div>
-                        <FiChevronDown className={`chevron-icon ${expandedSections.sort ? 'expanded' : ''}`} />
+                        <span className={`chevron-icon ${expandedSections.sort ? 'expanded' : ''}`}>▼</span>
                     </div>
                     {expandedSections.sort && (
                         <select 
@@ -330,14 +303,14 @@ const FilterSidebar = ({
                     className="apply-btn-new"
                     onClick={handleApplyFilters}
                 >
-                    <FiCheck /> APPLY
+                    APPLY
                 </button>
 
                 <button 
                     className="clear-btn-new"
                     onClick={handleClearFilters}
                 >
-                    <FiX /> CLEAR
+                    CLEAR
                 </button>
             </div>
         </aside>

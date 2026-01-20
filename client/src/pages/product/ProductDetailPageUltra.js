@@ -11,12 +11,6 @@ import ReviewForm from '../../components/review/ReviewForm';
 import ProductImage from '../../components/product/ProductImage';
 import ImageModal from '../../components/modal/ImageModal';
 import { PLACEHOLDER_IMAGES } from '../../utils/placeholder';
-import { 
-    FiShoppingCart, FiHeart, FiZoomIn, FiZoomOut, 
-    FiCheck, FiX, FiTruck, FiShield, FiRefreshCw,
-    FiAward, FiCpu, FiMonitor, FiHardDrive, FiZap,
-    FiChevronLeft, FiStar, FiPackage, FiGift
-} from 'react-icons/fi';
 import './ProductDetailPageUltra.css';
 
 const ProductDetailPageUltra = () => {
@@ -171,8 +165,9 @@ const ProductDetailPageUltra = () => {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring" }}
+                    className="error-badge"
                 >
-                    <FiX className="error-icon" />
+                    ×
                 </motion.div>
                 <h1>Không thể tải sản phẩm</h1>
                 <p>{error || 'Sản phẩm không tồn tại'}</p>
@@ -181,7 +176,7 @@ const ProductDetailPageUltra = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                 >
-                    <FiChevronLeft /> Back to Home
+                    ← Back to Home
                 </motion.button>
             </div>
         );
@@ -264,7 +259,6 @@ const ProductDetailPageUltra = () => {
                             } : {}}
                         />
                         <div className="ultra-zoom-hint">
-                            {isZoomed ? <FiZoomOut /> : <FiZoomIn />}
                             <span>{isZoomed ? 'Rê chuột để xem chi tiết' : 'Click để xem lớn hơn'}</span>
                         </div>
                     </motion.div>
@@ -341,7 +335,7 @@ const ProductDetailPageUltra = () => {
                         >
                             <div className="stars">
                                 {[...Array(5)].map((_, i) => (
-                                    <FiStar key={i} fill="#FFD700" color="#FFD700" />
+                                    <span key={i} className="star-filled">★</span>
                                 ))}
                             </div>
                             <span className="rating-count">(128 reviews)</span>
@@ -381,31 +375,27 @@ const ProductDetailPageUltra = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
                     >
-                        <h3>⚡ Key Specifications</h3>
+                        <h3>Thông số chính</h3>
                         <div className="specs-grid">
                             <div className="spec-card">
-                                <FiCpu className="spec-icon" />
                                 <div className="spec-content">
                                     <span className="label">Size</span>
                                     <span className="value">{product.size || product.variants?.[0]?.size || 'Nhiều size'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
-                                <FiZap className="spec-icon" />
                                 <div className="spec-content">
                                     <span className="label">Màu sắc</span>
                                     <span className="value">{product.color || product.variants?.[0]?.color || 'Nhiều màu'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
-                                <FiHardDrive className="spec-icon" />
                                 <div className="spec-content">
                                     <span className="label">Chất liệu</span>
                                     <span className="value">{product.material || product.variants?.[0]?.material || 'Đang cập nhật'}</span>
                                 </div>
                             </div>
                             <div className="spec-card">
-                                <FiMonitor className="spec-icon" />
                                 <div className="spec-content">
                                     <span className="label">Loại giày</span>
                                     <span className="value">{product.screen || product.specifications?.display || 'Đang cập nhật'}</span>
@@ -422,28 +412,24 @@ const ProductDetailPageUltra = () => {
                         transition={{ delay: 0.7 }}
                     >
                         <div className="benefit-item">
-                            <FiTruck className="benefit-icon" />
                             <div>
                                 <strong>Miễn phí vận chuyển</strong>
                                 <span>Cho đơn hàng trên 1 triệu</span>
                             </div>
                         </div>
                         <div className="benefit-item">
-                            <FiShield className="benefit-icon" />
                             <div>
                                 <strong>Bảo hành chính hãng</strong>
                                 <span>12-36 tháng</span>
                             </div>
                         </div>
                         <div className="benefit-item">
-                            <FiRefreshCw className="benefit-icon" />
                             <div>
                                 <strong>Đổi trả trong 7 ngày</strong>
                                 <span>Nếu có lỗi từ nhà sản xuất</span>
                             </div>
                         </div>
                         <div className="benefit-item">
-                            <FiAward className="benefit-icon" />
                             <div>
                                 <strong>Chính hãng 100%</strong>
                                 <span>Cam kết hàng chính hãng</span>
@@ -498,7 +484,7 @@ const ProductDetailPageUltra = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <FiShoppingCart /> Add to Cart
+                                Add to Cart
                             </motion.button>
                             <motion.button
                                 className="btn-buy-now"
@@ -507,7 +493,7 @@ const ProductDetailPageUltra = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <FiPackage /> Buy Now
+                                Buy Now
                             </motion.button>
                             <motion.button
                                 className={`btn-wishlist ${isInWishlist(product._id) ? 'active' : ''}`}
@@ -515,7 +501,7 @@ const ProductDetailPageUltra = () => {
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                             >
-                                <FiHeart fill={isInWishlist(product._id) ? 'currentColor' : 'none'} />
+                                {isInWishlist(product._id) ? '❤' : '♡'}
                             </motion.button>
                         </div>
                     </motion.div>
@@ -527,12 +513,12 @@ const ProductDetailPageUltra = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.9 }}
                     >
-                        <h4><FiGift /> Khuyến mãi đặc biệt</h4>
+                        <h4>Khuyến mãi đặc biệt</h4>
                         <ul>
-                            <li><FiCheck /> Giảm thêm 5% khi thanh toán qua VNPay</li>
-                            <li><FiCheck /> Tặng túi đựng giày cao cấp trị giá 500.000đ</li>
-                            <li><FiCheck /> Trả góp 0% lãi suất qua thẻ tín dụng</li>
-                            <li><FiCheck /> Thu cũ đổi mới giá cao</li>
+                            <li>• Giảm thêm 5% khi thanh toán qua VNPay</li>
+                            <li>• Tặng túi đựng giày cao cấp trị giá 500.000đ</li>
+                            <li>• Trả góp 0% lãi suất qua thẻ tín dụng</li>
+                            <li>• Thu cũ đổi mới giá cao</li>
                         </ul>
                     </motion.div>
                 </motion.div>
@@ -643,7 +629,7 @@ const ProductDetailPageUltra = () => {
                                     <h4>✨ Tính năng nổi bật</h4>
                                     <ul className="features-list">
                                         {product.features.map((feature, idx) => (
-                                            <li key={idx}><FiCheck /> {feature}</li>
+                                            <li key={idx}>✓ {feature}</li>
                                         ))}
                                     </ul>
                                 </>

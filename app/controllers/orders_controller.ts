@@ -3,6 +3,7 @@ import { Order } from '#models/order'
 import { Product } from '#models/product'
 import { Cart } from '#models/cart'
 import { User } from '#models/user'
+import mongoose from 'mongoose'
 
 export default class OrdersController {
   /**
@@ -10,10 +11,21 @@ export default class OrdersController {
    */
   async index({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
       const { page = 1, limit = 10, status } = request.qs()
 
-      const filter: any = { user: userId }
+      const filter: any = {}
+      
+      // Client: chỉ xem orders của mình
+      if (user.role === 'client') {
+        filter.user = user.id
+      }
+      // Partner: xem orders có sản phẩm của mình
+      else if (user.role === 'partner') {
+        filter['items.seller'] = user.id
+      }
+      // Admin: xem tất cả orders (không thêm filter)
+      
       if (status) {
         filter.status = status
       }
@@ -52,6 +64,14 @@ export default class OrdersController {
    */
   async show({ params, request, response }: HttpContext) {
     try {
+      // Validate ObjectId
+      const mongoose = (await import('mongoose')).default
+      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        return response.status(400).json({
+          message: 'ID đơn hàng không hợp lệ',
+        })
+      }
+      
       const order = await Order.findById(params.id)
         .populate('user', 'username email phone')
         .populate('items.product')
@@ -89,6 +109,9 @@ export default class OrdersController {
    * Create new order
    */
   async store({ request, response }: HttpContext) {
+    const session = await mongoose.startSession()
+    session.startTransaction()
+    
     try {
       const userId = (request as any).user.id
       const { items, shippingAddress, paymentMethod, notes } = request.only([
@@ -100,14 +123,18 @@ export default class OrdersController {
 
       // Validation
       if (!items || items.length === 0) {
+        await session.abortTransaction()
         return response.status(400).json({
           message: 'Giỏ hàng trống',
         })
       }
 
-      if (!shippingAddress) {
+      if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || 
+          !shippingAddress.address?.street || !shippingAddress.address?.district || 
+          !shippingAddress.address?.city) {
+        await session.abortTransaction()
         return response.status(400).json({
-          message: 'Địa chỉ giao hàng là bắt buộc',
+          message: 'Địa chỉ giao hàng không đầy đủ thông tin',
         })
       }
 
@@ -116,9 +143,11 @@ export default class OrdersController {
       let subtotal = 0
 
       for (const item of items) {
-        const product = await Product.findById(item.product)
+        // Use findOneAndUpdate with session to lock the document
+        const product = await Product.findById(item.product).session(session)
 
         if (!product) {
+          await session.abortTransaction()
           return response.status(404).json({
             message: `Sản phẩm ${item.product} không tồn tại`,
           })
@@ -128,18 +157,22 @@ export default class OrdersController {
         const variant = product.variants.find((v) => v.sku === item.variantSku)
 
         if (!variant) {
+          await session.abortTransaction()
           return response.status(404).json({
             message: `Biến thể ${item.variantSku} không tồn tại`,
           })
         }
 
         if (!variant.isAvailable) {
+          await session.abortTransaction()
           return response.status(400).json({
             message: `Biến thể ${variant.variantName} hiện không khả dụng`,
           })
         }
 
+        // Critical: Check stock
         if (variant.stock < item.quantity) {
+          await session.abortTransaction()
           return response.status(400).json({
             message: `Biến thể ${variant.variantName} không đủ số lượng. Còn ${variant.stock} sản phẩm`,
           })
@@ -171,10 +204,10 @@ export default class OrdersController {
           ],
         })
 
-        // Update variant stock and product soldCount
+        // Update variant stock atomically
         variant.stock -= item.quantity
         product.soldCount = (product.soldCount || 0) + item.quantity
-        await product.save()
+        await product.save({ session })
       }
 
       // Calculate totals
@@ -183,7 +216,7 @@ export default class OrdersController {
       const discount = 0
       const totalAmount = subtotal + shippingFee + tax - discount
 
-      // Create order
+      // Create order with session
       const order = new Order({
         user: userId,
         items: orderItems,
@@ -207,21 +240,28 @@ export default class OrdersController {
         ],
       })
 
-      await order.save()
+      await order.save({ session })
 
-      // Clear cart after order
-      await Cart.findOneAndUpdate({ user: userId }, { items: [] })
+      // Clear cart after order with session
+      await Cart.findOneAndUpdate({ user: userId }, { items: [] }, { session })
+
+      // Commit transaction
+      await session.commitTransaction()
 
       return response.status(201).json({
         message: 'Đặt hàng thành công',
         order,
       })
     } catch (error) {
+      // Rollback on error
+      await session.abortTransaction()
       console.error('Create order error:', error)
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,
       })
+    } finally {
+      session.endSession()
     }
   }
 
@@ -230,7 +270,16 @@ export default class OrdersController {
    */
   async updateStatus({ params, request, response }: HttpContext) {
     try {
+      // Validate ObjectId
+      const mongoose = (await import('mongoose')).default
+      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        return response.status(400).json({
+          message: 'ID đơn hàng không hợp lệ',
+        })
+      }
+      
       const { status, note } = request.only(['status', 'note'])
+      const user = (request as any).user
 
       const order = await Order.findById(params.id)
 
@@ -241,11 +290,10 @@ export default class OrdersController {
       }
 
       // Check permissions
-      const user = (request as any).user
-      if (
-        user?.role !== 'admin' &&
-        !order.items.some((item: any) => item.seller.toString() === user?.id)
-      ) {
+      const isAdmin = user.role === 'admin'
+      const isOrderSeller = order.items.some((item: any) => item.seller.toString() === user.id)
+      
+      if (!isAdmin && !isOrderSeller) {
         return response.status(403).json({
           message: 'Bạn không có quyền cập nhật đơn hàng này',
         })
@@ -282,13 +330,25 @@ export default class OrdersController {
    * Cancel order
    */
   async cancel({ params, request, response }: HttpContext) {
+    const session = await mongoose.startSession()
+    session.startTransaction()
+    
     try {
+      // Validate ObjectId
+      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        await session.abortTransaction()
+        return response.status(400).json({
+          message: 'ID đơn hàng không hợp lệ',
+        })
+      }
+      
       const { reason } = request.only(['reason'])
       const userId = (request as any).user.id
 
-      const order = await Order.findById(params.id)
+      const order = await Order.findById(params.id).session(session)
 
       if (!order) {
+        await session.abortTransaction()
         return response.status(404).json({
           message: 'Không tìm thấy đơn hàng',
         })
@@ -296,6 +356,7 @@ export default class OrdersController {
 
       // Check ownership
       if (order.user.toString() !== userId && (request as any).user.role !== 'admin') {
+        await session.abortTransaction()
         return response.status(403).json({
           message: 'Bạn không có quyền hủy đơn hàng này',
         })
@@ -303,19 +364,23 @@ export default class OrdersController {
 
       // Can only cancel pending/confirmed orders
       if (!['pending', 'confirmed'].includes(order.status)) {
+        await session.abortTransaction()
         return response.status(400).json({
           message: 'Không thể hủy đơn hàng ở trạng thái này',
         })
       }
 
-      // Restore product stock
+      // Restore product stock atomically
       for (const item of order.items) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: {
-            stock: item.quantity,
-            soldCount: -item.quantity,
-          },
-        })
+        const product = await Product.findById(item.product).session(session)
+        if (product) {
+          const variant = product.variants.find((v) => v.sku === item.variantSku)
+          if (variant) {
+            variant.stock += item.quantity
+          }
+          product.soldCount = Math.max(0, (product.soldCount || 0) - item.quantity)
+          await product.save({ session })
+        }
       }
 
       // Update order status
@@ -328,15 +393,26 @@ export default class OrdersController {
         timestamp: new Date(),
       })
 
-      await order.save()
+      await order.save({ session })
+
+      // Commit transaction
+      await session.commitTransaction()
 
       return response.json({
         message: 'Hủy đơn hàng thành công',
         order,
       })
     } catch (error) {
+      await session.abortTransaction()
       return response.status(500).json({
         message: 'Lỗi server',
+        error: error.message,
+      })
+    } finally {
+      session.endSession()
+    }
+  }
+}
         error: error.message,
       })
     }

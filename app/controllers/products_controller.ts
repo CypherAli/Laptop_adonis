@@ -153,9 +153,15 @@ export default class ProductsController {
    */
   async show({ params, response }: HttpContext) {
     try {
-      const product = await Product.findById(params.id)
-        .populate('createdBy', 'username shopName email phone')
-        .lean()
+      // Validate ObjectId
+      const mongoose = (await import('mongoose')).default
+      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        return response.status(400).json({
+          message: 'ID sản phẩm không hợp lệ',
+        })
+      }
+
+      const product = await Product.findById(params.id).lean()
 
       if (!product) {
         return response.status(404).json({
@@ -170,6 +176,7 @@ export default class ProductsController {
 
       return response.json({ product })
     } catch (error) {
+      console.error('Product show error:', error)
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,
@@ -182,7 +189,22 @@ export default class ProductsController {
    */
   async store({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      
+      // Check role: chỉ partner và admin mới tạo được sản phẩm
+      if (!['partner', 'admin'].includes(user.role)) {
+        return response.status(403).json({
+          message: 'Bạn không có quyền tạo sản phẩm. Chỉ Partner và Admin mới được phép.',
+        })
+      }
+      
+      // Check partner approved
+      if (user.role === 'partner' && !user.isApproved) {
+        return response.status(403).json({
+          message: 'Tài khoản Partner của bạn đang chờ phê duyệt.',
+        })
+      }
+      
       const productData = request.only([
         'name',
         'description',
@@ -222,7 +244,7 @@ export default class ProductsController {
       // Create product
       const product = new Product({
         ...productData,
-        createdBy: userId,
+        createdBy: user.id,
       })
 
       await product.save()
@@ -244,6 +266,14 @@ export default class ProductsController {
    */
   async update({ params, request, response }: HttpContext) {
     try {
+      // Validate ObjectId
+      const mongoose = (await import('mongoose')).default
+      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        return response.status(400).json({
+          message: 'ID sản phẩm không hợp lệ',
+        })
+      }
+      
       const product = await Product.findById(params.id)
 
       if (!product) {
@@ -311,6 +341,14 @@ export default class ProductsController {
    */
   async destroy({ params, response, request }: HttpContext) {
     try {
+      // Validate ObjectId
+      const mongoose = (await import('mongoose')).default
+      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        return response.status(400).json({
+          message: 'ID sản phẩm không hợp lệ',
+        })
+      }
+      
       const product = await Product.findById(params.id)
 
       if (!product) {

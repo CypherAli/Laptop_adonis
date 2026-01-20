@@ -1,8 +1,5 @@
 import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-    FiChevronLeft, FiChevronRight 
-} from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import CartContext from '../../context/CartContext';
 import WishlistContext from '../../context/WishlistContext';
@@ -383,7 +380,7 @@ const HomePage = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            <FiChevronLeft /> Prev
+                            ← Prev
                         </motion.button>
 
                         {[...Array(totalPages)].map((_, index) => (
@@ -408,7 +405,7 @@ const HomePage = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            Next <FiChevronRight />
+                            Next →
                         </motion.button>
                     </motion.div>
                 )}
