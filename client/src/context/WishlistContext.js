@@ -46,12 +46,7 @@ export const WishlistProvider = ({ children }) => {
         try {
             const response = await axios.get('/user/wishlist');
             const apiWishlist = response.data.map(item => ({
-                _id: item.product._id,
-                name: item.product.name,
-                price: item.product.price,
-                brand: item.product.brand,
-                imageUrl: item.product.imageUrl,
-                stock: item.product.stock,
+                ...item.product, // Spread all product fields including variants
                 addedAt: item.addedAt
             }));
             setWishlist(apiWishlist);
@@ -81,12 +76,7 @@ export const WishlistProvider = ({ children }) => {
             try {
                 await axios.post('/user/wishlist', { productId: product._id });
                 setWishlist(prev => [...prev, {
-                    _id: product._id,
-                    name: product.name,
-                    price: product.price,
-                    brand: product.brand,
-                    imageUrl: product.imageUrl,
-                    stock: product.stock,
+                    ...product, // Spread all product data
                     addedAt: new Date().toISOString()
                 }]);
             } catch (error) {
@@ -100,12 +90,7 @@ export const WishlistProvider = ({ children }) => {
                     return prev;
                 }
                 return [...prev, {
-                    _id: product._id,
-                    name: product.name,
-                    price: product.price,
-                    brand: product.brand,
-                    imageUrl: product.imageUrl,
-                    stock: product.stock,
+                    ...product, // Spread all product data
                     addedAt: new Date().toISOString()
                 }];
             });

@@ -413,6 +413,10 @@ const ProductDetailPageV2 = () => {
                                     }}
                                     onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                                     onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                    onError={(e) => {
+                                        e.target.src = 'https://via.placeholder.com/450x450?text=Image+Not+Available';
+                                        e.target.style.opacity = '0.6';
+                                    }}
                                 />
                             </div>
 
@@ -457,6 +461,10 @@ const ProductDetailPageV2 = () => {
                                                 height: '80px',
                                                 objectFit: 'contain'
                                             }}
+                                            onError={(e) => {
+                                                e.target.src = 'https://via.placeholder.com/100x100?text=No+Image';
+                                                e.target.style.opacity = '0.6';
+                                            }}
                                         />
                                     </div>
                                     
@@ -492,6 +500,10 @@ const ProductDetailPageV2 = () => {
                                                 src={img} 
                                                 alt={`View ${idx + 1}`}
                                                 style={{
+                                                onError={(e) => {
+                                                    e.target.src = 'https://via.placeholder.com/100x100?text=No+Image';
+                                                    e.target.style.opacity = '0.6';
+                                                }}
                                                     width: '100%',
                                                     height: '80px',
                                                     objectFit: 'contain'
@@ -948,55 +960,55 @@ const ProductDetailPageV2 = () => {
                             </p>
 
                             {/* Specifications */}
-                            {product.specifications && (
-                                <div style={{
-                                    background: '#f8f9fa',
-                                    padding: '20px',
-                                    borderRadius: '12px',
-                                    marginBottom: '25px'
+                            <div style={{
+                                background: '#f8f9fa',
+                                padding: '20px',
+                                borderRadius: '12px',
+                                marginBottom: '25px'
+                            }}>
+                                <h3 style={{
+                                    fontSize: '1.2rem',
+                                    fontWeight: 'bold',
+                                    marginBottom: '15px',
+                                    color: '#2c3e50'
                                 }}>
-                                    <h3 style={{
-                                        fontSize: '1.2rem',
-                                        fontWeight: 'bold',
-                                        marginBottom: '15px',
-                                        color: '#2c3e50'
-                                    }}>
-                                        Thông số kỹ thuật:
-                                    </h3>
-                                    <div style={{display: 'grid', gap: '12px'}}>
-                                        {product.specifications.size && (
-                                            <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>👟 Size:</span>
-                                                <span>{product.specifications.size}</span>
-                                            </div>
-                                        )}
-                                        {product.specifications.color && (
-                                            <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>🎨 Màu:</span>
-                                                <span>{product.specifications.color}</span>
-                                            </div>
-                                        )}
-                                        {product.specifications.material && (
-                                            <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>✨ Chất liệu:</span>
-                                                <span>{product.specifications.material}</span>
-                                            </div>
-                                        )}
-                                        {product.specifications.display && (
-                                            <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>📺 Màn hình:</span>
-                                                <span>{product.specifications.display}</span>
-                                            </div>
-                                        )}
-                                        {product.specifications.graphics && (
-                                            <div style={{display: 'flex', gap: '10px'}}>
-                                                <span style={{fontWeight: 'bold', minWidth: '100px'}}>🎮 GPU:</span>
-                                                <span>{product.specifications.graphics}</span>
-                                            </div>
-                                        )}
+                                    Thông số kỹ thuật:
+                                </h3>
+                                <div style={{display: 'grid', gap: '12px'}}>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Thương hiệu:</span>
+                                        <span>{product.brand || 'Đang cập nhật'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Size:</span>
+                                        <span>{availableColors.length > 0 ? `${Math.min(...product.variants.map(v => parseInt(v.specifications?.size || v.size || 0)))} - ${Math.max(...product.variants.map(v => parseInt(v.specifications?.size || v.size || 0)))}` : 'Đang cập nhật'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Màu sắc:</span>
+                                        <span>{availableColors.join(', ') || 'Đang cập nhật'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Chất liệu:</span>
+                                        <span>{selectedVariant?.specifications?.material || product.specifications?.material || 'Đang cập nhật'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Màn hình:</span>
+                                        <span>{selectedVariant?.specifications?.display || product.specifications?.display || 'Đang cập nhật'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Card đồ họa:</span>
+                                        <span>{selectedVariant?.specifications?.graphics || product.specifications?.graphics || 'Tích hợp'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Hệ điều hành:</span>
+                                        <span>{selectedVariant?.specifications?.operatingSystem || product.specifications?.operatingSystem || 'Windows 11'}</span>
+                                    </div>
+                                    <div style={{display: 'flex', gap: '10px'}}>
+                                        <span style={{fontWeight: 'bold', minWidth: '120px'}}>Trọng lượng:</span>
+                                        <span>{selectedVariant?.specifications?.weight || product.specifications?.weight || '~2kg'}</span>
                                     </div>
                                 </div>
-                            )}
+                            </div>
 
                             {/* Quantity & Actions */}
                             {(!isOutOfStock && currentStock > 0) && (
@@ -1246,6 +1258,10 @@ const ProductDetailPageV2 = () => {
                                             height: '200px',
                                             objectFit: 'contain',
                                             marginBottom: '15px'
+                                        }}
+                                        onError={(e) => {
+                                            e.target.src = 'https://via.placeholder.com/200x200?text=No+Image';
+                                            e.target.style.opacity = '0.6';
                                         }}
                                     />
                                     <h4 style={{

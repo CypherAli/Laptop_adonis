@@ -10,6 +10,27 @@ const WishlistPage = () => {
     const { addToCart } = useContext(CartContext);
     const navigate = useNavigate();
 
+    // Helper to get product price
+    const getProductPrice = (product) => {
+        if (product.finalPrice) return product.finalPrice;
+        if (product.displayPrice) return product.displayPrice;
+        if (product.price) return product.price;
+        if (product.variants && product.variants.length > 0) {
+            return product.variants[0].price || 0;
+        }
+        if (product.basePrice) return product.basePrice;
+        return 0;
+    };
+
+    // Helper to get product stock
+    const getProductStock = (product) => {
+        if (product.stock !== undefined) return product.stock;
+        if (product.variants && product.variants.length > 0) {
+            return product.variants.reduce((total, v) => total + (v.stock || 0), 0);
+        }
+        return 0;
+    };
+
     // eslint-disable-next-line no-unused-vars
     const handleAddToCart = (product) => {
         addToCart(product);
@@ -69,7 +90,7 @@ const WishlistPage = () => {
                                 alt={product.name}
                                 className="wishlist-image"
                             />
-                            {(!product.stock || product.stock <= 0) && (
+                            {(getProductStock(product) <= 0) && (
                                 <div className="out-of-stock-overlay">
                                     <span>Hết hàng</span>
                                 </div>
@@ -82,14 +103,14 @@ const WishlistPage = () => {
                             
                             <div className="wishlist-price">
                                 <span className="price-value">
-                                    {product.price.toLocaleString()} VNĐ
+                                    {getProductPrice(product).toLocaleString()} VNĐ
                                 </span>
                             </div>
 
                             <div className="wishlist-stock">
-                                {(product.stock && product.stock > 0) ? (
+                                {(getProductStock(product) > 0) ? (
                                     <span className="in-stock">
-                                        ✓ Còn {product.stock} sản phẩm
+                                        ✓ Còn {getProductStock(product)} sản phẩm
                                     </span>
                                 ) : (
                                     <span className="out-of-stock">
@@ -102,7 +123,7 @@ const WishlistPage = () => {
                                 <button
                                     className="btn-move-to-cart"
                                     onClick={() => handleMoveToCart(product)}
-                                    disabled={!product.stock || product.stock <= 0}
+                                    disabled={getProductStock(product) <= 0}
                                 >
                                     Add to cart
                                 </button>

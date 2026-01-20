@@ -17,6 +17,7 @@ const OrdersController = () => import('#controllers/orders_controller')
 const CartsController = () => import('#controllers/carts_controller')
 const ReviewsController = () => import('#controllers/reviews_controller')
 const WishlistController = () => import('#controllers/wishlist_controller')
+const ComparisonsController = () => import('#controllers/comparisons_controller')
 const AdminController = () => import('#controllers/admin_controller')
 const ChatController = () => import('#controllers/chat_controller')
 
@@ -98,6 +99,15 @@ router
       .prefix('/user/wishlist')
       .use(middleware.jwtAuth())
 
+    // ==================== COMPARISON ROUTES ====================
+    router
+      .group(() => {
+        router.post('/compare', [ComparisonsController, 'compare'])
+        router.post('/save', [ComparisonsController, 'save'])
+        router.get('/:slug', [ComparisonsController, 'getBySlug'])
+      })
+      .prefix('/comparisons')
+
     // ==================== ADMIN ROUTES ====================
     router
       .group(() => {
@@ -107,10 +117,10 @@ router
         router.put('/users/:userId/reject', [AdminController, 'rejectPartner'])
         router.put('/users/:userId/toggle-status', [AdminController, 'toggleUserStatus'])
         router.get('/products', [AdminController, 'getProducts'])
-        router.put(
-          '/products/:productId/toggle-featured',
-          [AdminController, 'toggleProductFeatured']
-        )
+        router.put('/products/:productId/toggle-featured', [
+          AdminController,
+          'toggleProductFeatured',
+        ])
         router.get('/reviews', [AdminController, 'getReviews'])
         router.put('/reviews/:reviewId/moderate', [AdminController, 'moderateReview'])
         router.get('/analytics', [AdminController, 'analytics'])

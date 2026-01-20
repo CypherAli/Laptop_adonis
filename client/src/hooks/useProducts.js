@@ -22,7 +22,7 @@ export const useProducts = (initialFilters = {}, initialPage = 1) => {
     useEffect(() => {
         fetchProducts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, filters.search, filters.brand, filters.ram, filters.processor, debouncedMinPrice, debouncedMaxPrice, filters.inStock, filters.sortBy]);
+    }, [currentPage, filters.search, filters.brand, filters.size, filters.color, filters.material, debouncedMinPrice, debouncedMaxPrice, filters.inStock, filters.sortBy]);
 
     const fetchProducts = async () => {
         try {
