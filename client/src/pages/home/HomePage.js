@@ -85,7 +85,7 @@ const HomePage = () => {
                 }
             }, 500);
         }
-    }, [location.search]);
+    }, [location.search, updateFilter]);
 
     // Calculate active filters count
     const activeFiltersCount = useMemo(() => {

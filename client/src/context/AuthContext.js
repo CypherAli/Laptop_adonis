@@ -61,21 +61,8 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('userDetails');
             setLoading(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
-
-    const fetchUserDetails = async () => {
-        try {
-            const res = await axios.get('/auth/me');
-            if (res.data) {
-                setUserDetails(res.data);
-                localStorage.setItem('userDetails', JSON.stringify(res.data));
-                console.log('✅ User details fetched from server:', res.data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch user details:', error);
-            // Keep using cached userDetails if fetch fails
-        }
-    };
 
     const login = async (email, password) => {
         try {

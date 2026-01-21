@@ -23,7 +23,7 @@ const ProductDetailPage = () => {
     const { toggleWishlist, isInWishlist } = useContext(WishlistContext);
     
     // Debug logs
-    console.log('🎯 ProductDetailPage RENDER - ID:', id, 'Loading:', loading, 'Product:', product ? 'Loaded' : 'null', 'Error:', error);
+  // Component render
 
     useEffect(() => {
         console.log('📦 useEffect triggered - Product ID:', id);

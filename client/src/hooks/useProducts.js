@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from '../api/axiosConfig';
 import useDebounce from './useDebounce';
 
@@ -68,16 +68,16 @@ export const useProducts = (initialFilters = {}, initialPage = 1) => {
         }
     };
 
-    const updateFilter = (key, value) => {
+    const updateFilter = useCallback((key, value) => {
         setFilters(prev => ({ ...prev, [key]: value }));
         // Reset về trang 1 khi thay đổi filter để tránh trang không có data
         setCurrentPage(1);
-    };
+    }, []);
 
-    const resetFilters = () => {
+    const resetFilters = useCallback(() => {
         setFilters(initialFilters);
         setCurrentPage(1);
-    };
+    }, [initialFilters]);
 
     return {
         products,

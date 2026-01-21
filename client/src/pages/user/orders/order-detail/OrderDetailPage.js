@@ -215,16 +215,16 @@ const OrderDetailPage = () => {
                             <h2>Thông tin thanh toán</h2>
                             <div className="summary-row">
                                 <span>Tạm tính:</span>
-                                <span>{order.subtotal.toLocaleString()}đ</span>
+                                <span>{(order.subtotal || 0).toLocaleString()}đ</span>
                             </div>
                             <div className="summary-row">
                                 <span>Phí vận chuyển:</span>
-                                <span>{order.shippingFee.toLocaleString()}đ</span>
+                                <span>{(order.shippingFee || 0).toLocaleString()}đ</span>
                             </div>
-                            {order.discount > 0 && (
+                            {(order.discount || 0) > 0 && (
                                 <div className="summary-row discount">
                                     <span>Discount:</span>
-                                    <span>-{order.discount.toLocaleString()}đ</span>
+                                    <span>-{(order.discount || 0).toLocaleString()}đ</span>
                                 </div>
                             )}
                             <div className="summary-row total">

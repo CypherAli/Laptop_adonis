@@ -6,7 +6,7 @@ import ProductImage from '../product/ProductImage';
 import './CartSidebar.css';
 
 const CartSidebar = ({ isOpen, onClose }) => {
-    const { cartItems, updateQuantity, removeFromCart, getCartTotal } = useContext(CartContext);
+    const { cartItems, updateQuantity, removeFromCart } = useContext(CartContext);
 
     // Close sidebar when clicking outside
     useEffect(() => {

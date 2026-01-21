@@ -76,6 +76,7 @@
     margin-bottom: 10px;
     line-height: 1.1;
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
 }
 
 .hero-subtitle {
@@ -83,6 +84,7 @@
     font-weight: 700;
     margin-bottom: 15px;
     opacity: 0.95;
+    color: #ffffff;
 }
 
 .hero-description {
@@ -491,7 +493,7 @@
 .brand-title {
     text-align: center;
     font-size: 1.6rem;
-    color: #ffffff;
+    color: #1a1a1a;
     margin-bottom: 45px;
     font-weight: 800;
     text-transform: uppercase;

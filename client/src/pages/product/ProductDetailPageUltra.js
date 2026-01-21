@@ -181,7 +181,7 @@ const ProductDetailPageUltra = () => {
                 .filter(Boolean))][0];
             setSelectedColor(firstAvailableColor || null);
         }
-    }, [selectedGender, product]);
+    }, [selectedGender, product, selectedColor, selectedSize]);
 
     const handleMouseMove = (e) => {
         if (!isZoomed) return;

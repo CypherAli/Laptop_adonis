@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMessageCircle, FiX, FiSend, FiUser, FiMinus } from 'react-icons/fi';
 import { io } from 'socket.io-client';
@@ -129,7 +129,7 @@ const GuestChatWidget = () => {
                 socket.emit('conversation:leave', activeConversation._id);
             };
         }
-    }, [socket, activeConversation]);
+    }, [socket, activeConversation, activeConversation?._id]);
 
     // Scroll to bottom when messages change
     useEffect(() => {
@@ -294,7 +294,7 @@ const GuestChatWidget = () => {
         }
     };
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = useCallback((e) => {
         if (isDragging) {
             e.preventDefault();
             const newX = e.clientX - dragStartRef.current.x;
@@ -314,14 +314,14 @@ const GuestChatWidget = () => {
                 chatWidgetRef.current.style.top = `${boundedY}px`;
             }
         }
-    };
+    }, [isDragging]);
 
-    const handleMouseUp = () => {
+    const handleMouseUp = useCallback(() => {
         if (isDragging) {
             setIsDragging(false);
             setPosition(positionRef.current);
         }
-    };
+    }, [isDragging]);
 
     useEffect(() => {
         if (isDragging) {
@@ -332,7 +332,7 @@ const GuestChatWidget = () => {
                 document.removeEventListener('mouseup', handleMouseUp);
             };
         }
-    }, [isDragging]);
+    }, [isDragging, handleMouseMove, handleMouseUp]);
 
     // Button drag handlers
     const handleButtonMouseDown = (e) => {
@@ -345,7 +345,7 @@ const GuestChatWidget = () => {
         };
     };
 
-    const handleButtonMouseMove = (e) => {
+    const handleButtonMouseMove = useCallback((e) => {
         if (isButtonDragging) {
             e.preventDefault();
             const newX = e.clientX - buttonDragStartRef.current.x;
@@ -365,14 +365,14 @@ const GuestChatWidget = () => {
                 buttonRef.current.style.top = `${boundedY}px`;
             }
         }
-    };
+    }, [isButtonDragging]);
 
-    const handleButtonMouseUp = () => {
+    const handleButtonMouseUp = useCallback(() => {
         if (isButtonDragging) {
             setIsButtonDragging(false);
             setButtonPosition(buttonPositionRef.current);
         }
-    };
+    }, [isButtonDragging]);
 
     const handleButtonClick = (e) => {
         if (!isButtonDragging) {
@@ -389,7 +389,7 @@ const GuestChatWidget = () => {
                 document.removeEventListener('mouseup', handleButtonMouseUp);
             };
         }
-    }, [isButtonDragging]);
+    }, [isButtonDragging, handleButtonMouseMove, handleButtonMouseUp]);
 
     const handleSaveName = () => {
         if (guestName.trim()) {

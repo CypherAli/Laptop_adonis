@@ -2,7 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { Order } from '#models/order'
 import { Product } from '#models/product'
 import { Cart } from '#models/cart'
-import { User } from '#models/user'
 import mongoose from 'mongoose'
 
 export default class OrdersController {
@@ -14,17 +13,10 @@ export default class OrdersController {
       const user = (request as any).user
       const { page = 1, limit = 10, status } = request.qs()
 
-      const filter: any = {}
-
-      // Client: chỉ xem orders của mình
-      if (user.role === 'client') {
-        filter.user = user.id
+      // TẤT CẢ USERS chỉ xem orders của chính họ (những đơn họ đã mua)
+      const filter: any = {
+        user: new mongoose.Types.ObjectId(user.id),
       }
-      // Partner: xem orders có sản phẩm của mình
-      else if (user.role === 'partner') {
-        filter['items.seller'] = user.id
-      }
-      // Admin: xem tất cả orders (không thêm filter)
 
       if (status) {
         filter.status = status

@@ -5,6 +5,48 @@ import { Order } from '#models/order'
 
 export default class ReviewsController {
   /**
+   * Get all reviews with pagination (for admin)
+   */
+  async index({ request, response }: HttpContext) {
+    try {
+      const { page = 1, limit = 10, isApproved } = request.qs()
+
+      const filter: any = {}
+      if (isApproved !== undefined) {
+        filter.isApproved = isApproved === 'true'
+      }
+
+      const pageNum = Number(page)
+      const limitNum = Number(limit)
+      const skip = (pageNum - 1) * limitNum
+
+      const [reviews, total] = await Promise.all([
+        Review.find(filter)
+          .populate('user', 'username email')
+          .populate('product', 'name imageUrl')
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limitNum)
+          .lean(),
+        Review.countDocuments(filter),
+      ])
+
+      return response.json({
+        reviews,
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalReviews: total,
+      })
+    } catch (error) {
+      console.error('Get reviews error:', error)
+      return response.status(500).json({
+        message: 'Lỗi server',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
    * Get reviews for a product
    */
   async getByProduct({ params, request, response }: HttpContext) {

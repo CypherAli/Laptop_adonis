@@ -179,10 +179,10 @@ const HeroBanner = ({ onBrandClick }) => {
                 </div>
             </section>
 
-            {/* Brand Showcase - Partners */}
+            {/* Brand Showcase - Official Partners */}
             <section className="brand-showcase">
                 <div className="brand-container">
-                    <h3 className="brand-title">Partner</h3>
+                    <h3 className="brand-title">Official Partner</h3>
                     <div className="brand-logos">
                         <div 
                             className="brand-logo" 

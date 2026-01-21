@@ -43,10 +43,13 @@ router
         // Public routes
         router.get('/', [ProductsController, 'index'])
         router.get('/featured', [ProductsController, 'featured'])
-        router.get('/:id', [ProductsController, 'show'])
 
-        // Protected routes (Partner/Admin only)
+        // Protected routes (Partner/Admin only) - MUST be before /:id
+        router.get('/my-products', [ProductsController, 'myProducts']).use(middleware.jwtAuth())
         router.post('/', [ProductsController, 'store']).use(middleware.jwtAuth())
+
+        // Dynamic routes - MUST be last
+        router.get('/:id', [ProductsController, 'show'])
         router.put('/:id', [ProductsController, 'update']).use(middleware.jwtAuth())
         router.delete('/:id', [ProductsController, 'destroy']).use(middleware.jwtAuth())
       })
@@ -79,6 +82,7 @@ router
     // ==================== REVIEWS ROUTES ====================
     router
       .group(() => {
+        router.get('/', [ReviewsController, 'index']) // Get all reviews with pagination
         router.get('/product/:productId', [ReviewsController, 'getByProduct'])
         router.post('/', [ReviewsController, 'create']).use(middleware.jwtAuth())
         router.put('/:id', [ReviewsController, 'update']).use(middleware.jwtAuth())
@@ -147,8 +151,10 @@ router
     // ==================== ADMIN ROUTES ====================
     router
       .group(() => {
+        router.get('/stats', [AdminController, 'stats'])
         router.get('/dashboard', [AdminController, 'dashboard'])
         router.get('/users', [AdminController, 'getUsers'])
+        router.get('/orders', [AdminController, 'getOrders'])
         router.put('/users/:userId/approve', [AdminController, 'approvePartner'])
         router.put('/users/:userId/reject', [AdminController, 'rejectPartner'])
         router.put('/users/:userId/toggle-status', [AdminController, 'toggleUserStatus'])
@@ -160,27 +166,37 @@ router
         router.get('/reviews', [AdminController, 'getReviews'])
         router.put('/reviews/:reviewId/moderate', [AdminController, 'moderateReview'])
         router.get('/analytics', [AdminController, 'analytics'])
+        router.get('/revenue-by-shop', [AdminController, 'getRevenueByShop'])
       })
       .prefix('/admin')
       .use(middleware.jwtAuth())
       .use(middleware.admin())
+
+    // ==================== PARTNER ROUTES ====================
+    router
+      .group(() => {
+        router.get('/stats', [AdminController, 'getPartnerStats'])
+        router.get('/revenue', [AdminController, 'getPartnerRevenue'])
+        router.get('/revenue-by-brand', [AdminController, 'getPartnerRevenueByBrand'])
+      })
+      .prefix('/partner')
+      .use(middleware.jwtAuth())
 
     // ==================== CHAT ROUTES ====================
     // Public routes for guests
     router.get('/chat/partners', [ChatController, 'getActivePartners'])
     router.get('/chat/guest/conversations', [ChatController, 'getGuestConversations'])
 
+    // Authenticated chat routes
     router
       .group(() => {
-        // Support both authenticated and anonymous users
         router.post('/conversations', [ChatController, 'createConversation'])
         router.get('/messages/:conversationId', [ChatController, 'getMessages'])
         router.post('/messages', [ChatController, 'sendMessage'])
-
-        // Partner routes
         router.get('/partner/:partnerId/customers', [ChatController, 'getPartnerCustomers'])
       })
       .prefix('/chat')
+      .use(middleware.jwtAuth())
 
     // Test route
     router.get('/test', async () => {

@@ -1,8 +1,44 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { Product } from '#models/product'
-import { User } from '#models/user'
 
 export default class ProductsController {
+  /**
+   * Get partner's own products
+   */
+  async myProducts({ request, response }: HttpContext) {
+    try {
+      const user = (request as any).user
+
+      if (!user) {
+        return response.status(401).json({
+          message: 'Vui lòng đăng nhập',
+        })
+      }
+
+      // Build filter based on role
+      const filter: any = {}
+      
+      if (user.role === 'partner') {
+        // Partners only see their own products
+        filter.partnerId = user.id
+      }
+      // Admin sees all products (no filter)
+
+      const products = await Product.find(filter).sort({ createdAt: -1 }).lean()
+
+      return response.json({
+        products,
+        total: products.length,
+      })
+    } catch (error) {
+      console.error('Get my products error:', error)
+      return response.status(500).json({
+        message: 'Lỗi server',
+        error: error.message,
+      })
+    }
+  }
+
   /**
    * Get all products with filters and pagination
    */
@@ -76,7 +112,7 @@ export default class ProductsController {
           .filter((c: string) => c)
         if (colors.length > 0) {
           andConditions.push({
-            'variants.color': { $in: colors.map((c) => new RegExp(c, 'i')) },
+            'variants.color': { $in: colors.map((c: string) => new RegExp(c, 'i')) },
           })
         }
       }
@@ -89,7 +125,7 @@ export default class ProductsController {
           .filter((m: string) => m)
         if (materials.length > 0) {
           andConditions.push({
-            'variants.material': { $in: materials.map((m) => new RegExp(m, 'i')) },
+            'variants.material': { $in: materials.map((m: string) => new RegExp(m, 'i')) },
           })
         }
       }

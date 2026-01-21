@@ -23,12 +23,8 @@ export default class SocketProvider {
       const nodeServer = server?.getNodeServer?.()
 
       if (!nodeServer) {
-        console.error('❌ Could not get Node.js HTTP server')
-        console.log('   Server object:', typeof server)
-        console.log(
-          '   Available methods:',
-          Object.getOwnPropertyNames(Object.getPrototypeOf(server))
-        )
+        console.warn('⚠️  Could not get Node.js HTTP server - Socket.IO disabled')
+        console.log('   Server will continue without WebSocket support')
         return
       }
 
@@ -49,6 +45,8 @@ export default class SocketProvider {
         console.error('   Error message:', error.message)
         console.error('   Stack:', error.stack)
       }
+      // Don't throw - allow server to continue without Socket.IO
+      console.log('   Server will continue without WebSocket support')
     }
   }
 

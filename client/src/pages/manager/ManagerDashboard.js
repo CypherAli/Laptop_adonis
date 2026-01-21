@@ -16,7 +16,7 @@ const ManagerDashboard = () => {
         price: '',
         originalPrice: '',
         stock: '',
-        brand: 'Dell',
+        brand: 'Nike',
         imageUrl: ''
     });
     
@@ -28,7 +28,7 @@ const ManagerDashboard = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const brands = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'MSI', 'Apple', 'LG', 'Samsung'];
+    const brands = ['Nike', 'Adidas', 'Puma', 'Reebok', 'New Balance', 'Converse', 'Vans', 'Asics', 'Under Armour', 'Fila'];
 
     useEffect(() => {
         if (!user || (user.role !== 'partner' && user.role !== 'admin')) {
@@ -50,7 +50,7 @@ const ManagerDashboard = () => {
         try {
             setLoading(true);
             const res = await axios.get('/products/my-products');
-            setMyProducts(res.data);
+            setMyProducts(res.data.products || []);
         } catch (err) {
             console.error('Failed to fetch products', err);
             setError('Không thể tải danh sách sản phẩm');
@@ -93,7 +93,7 @@ const ManagerDashboard = () => {
                 price: '',
                 originalPrice: '',
                 stock: '',
-                brand: 'Dell',
+                brand: 'Nike',
                 imageUrl: ''
             });
             setEditingProduct(null);
@@ -147,7 +147,7 @@ const ManagerDashboard = () => {
             price: '',
             originalPrice: '',
             stock: '',
-            brand: 'Dell',
+            brand: 'Nike',
             imageUrl: ''
         });
         setShowForm(false);
@@ -174,46 +174,45 @@ const ManagerDashboard = () => {
     return (
         <div className="partner-dashboard">
             <div className="dashboard-header">
-                <h1>
-                    <span className="header-icon">🏪</span>
-                    Quản lý Sản phẩm
-                    {user?.shopName && <span style={{ fontSize: '0.6em', color: '#666', marginLeft: '10px' }}>- {user.shopName}</span>}
-                </h1>
-                <div className="header-actions" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="header-left">
+                    <h1>
+                        <span className="header-icon">🏪</span>
+                        Quản lý Sản phẩm
+                        {user?.shopName && <span className="shop-name-badge">{user.shopName}</span>}
+                    </h1>
+                </div>
+                <div className="header-actions">
                     {(user?.role === 'partner' || user?.role === 'admin') && (
                         <button 
-                            className="btn-new-product btn-revenue"
+                            className="btn-action btn-revenue"
                             onClick={() => navigate('/partner-dashboard')}
-                            style={{ 
-                                background: 'linear-gradient(135deg, #16a085 0%, #1abc9c 100%)',
-                                whiteSpace: 'nowrap',
-                                minWidth: 'fit-content'
-                            }}
                         >
-                            💰 Revenue
+                            <span className="btn-icon">💰</span>
+                            <span className="btn-text">Revenue Analytics</span>
                         </button>
                     )}
                     {user?.role === 'partner' && user?.isApproved && (
                         <button 
-                            className="btn-new-product"
+                            className={`btn-action ${showForm ? 'btn-close' : 'btn-add'}`}
                             onClick={() => {
                                 setShowForm(!showForm);
                                 if (editingProduct) cancelEdit();
                             }}
-                            style={{ whiteSpace: 'nowrap' }}
                         >
-                            {showForm ? '❌ Close' : '➕ Add product'}
+                            <span className="btn-icon">{showForm ? '✕' : '+'}</span>
+                            <span className="btn-text">{showForm ? 'Close' : 'Add Product'}</span>
                         </button>
                     )}
                     {user?.role === 'admin' && (
                         <button 
-                            className="btn-new-product"
+                            className={`btn-action ${showForm ? 'btn-close' : 'btn-add'}`}
                             onClick={() => {
                                 setShowForm(!showForm);
                                 if (editingProduct) cancelEdit();
                             }}
                         >
-                            {showForm ? '❌ Close' : '➕ Add new product'}
+                            <span className="btn-icon">{showForm ? '✕' : '+'}</span>
+                            <span className="btn-text">{showForm ? 'Close' : 'Add Product'}</span>
                         </button>
                     )}
                 </div>
@@ -270,7 +269,7 @@ const ManagerDashboard = () => {
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     required
-                                    placeholder="VD: Dell XPS 13 9310"
+                                    placeholder="VD: Nike Air Max 270"
                                 />
                             </div>
 
@@ -390,6 +389,10 @@ const ManagerDashboard = () => {
                     <div className="products-grid">
                         {myProducts.map(product => {
                             const statusInfo = getStatusInfo(product.status);
+                            // Get price and stock from variants or fallback
+                            const price = product.variants?.[0]?.price || product.price || 0;
+                            const stock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || product.stock || 0;
+                            
                             return (
                                 <div key={product._id} className="product-card-dashboard">
                                     <span 
@@ -412,9 +415,9 @@ const ManagerDashboard = () => {
                                         <p className="product-description">{product.description}</p>
                                         
                                         <div className="product-meta">
-                                            <span className="price">{product.price.toLocaleString()} VNĐ</span>
+                                            <span className="price">{price.toLocaleString()} VNĐ</span>
                                             <span className="stock">
-                                                📦 {product.stock} {product.stock > 0 ? 'in stock' : 'out of stock'}
+                                                📦 {stock} {stock > 0 ? 'in stock' : 'out of stock'}
                                             </span>
                                         </div>
 

@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { Product } from '#models/product'
 import { Order } from '#models/order'
-import { User } from '#models/user'
 
 export default class DashboardController {
   /**

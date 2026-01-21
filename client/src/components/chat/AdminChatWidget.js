@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext, useCallback } from 'rea
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiSend, FiMinus, FiUsers } from 'react-icons/fi';
 import AuthContext from '../../context/AuthContext';
+import axios from '../../api/axiosConfig';
 import io from 'socket.io-client';
 import './PartnerChatWidget.css'; // Reuse the same styles
 
@@ -25,6 +26,13 @@ const AdminChatWidget = () => {
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const messagesEndRef = useRef(null);
+    
+    // Drag state for button
+    const [buttonPosition, setButtonPosition] = useState({ x: window.innerWidth - 100, y: window.innerHeight - 100 });
+    const [isDragging, setIsDragging] = useState(false);
+    const buttonDragStartRef = useRef({ x: 0, y: 0 });
+    const buttonPositionRef = useRef({ x: window.innerWidth - 100, y: window.innerHeight - 100 });
+    const buttonRef = useRef(null);
 
     const adminId = user?._id || user?.id;
 
@@ -34,7 +42,8 @@ const AdminChatWidget = () => {
 
         console.log('🔌 AdminChatWidget: Initializing socket for admin:', adminId);
 
-        const newSocket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000', {
+        const socketUrl = process.env.REACT_APP_SOCKET_URL || process.env.REACT_APP_SERVER_URL || 'http://localhost:3333';
+        const newSocket = io(socketUrl, {
             transports: ['polling', 'websocket'],
             reconnection: true,
             reconnectionDelay: 1000,
@@ -102,19 +111,13 @@ const AdminChatWidget = () => {
     const fetchPartners = async () => {
         try {
             setLoading(true);
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiUrl}/partner/list-active`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                setPartners(data.partners || []);
-            }
+            console.log('📞 Fetching partners, token:', localStorage.getItem('token')?.substring(0, 20) + '...');
+            const response = await axios.get('/admin/users?role=partner');
+            console.log('✅ Partners fetched:', response.data.users?.length);
+            setPartners(response.data.users || []);
         } catch (error) {
-            console.error('Error fetching partners:', error);
+            console.error('❌ Error fetching partners:', error);
+            console.error('Status:', error.response?.status, 'Message:', error.response?.data);
         } finally {
             setLoading(false);
         }
@@ -123,17 +126,8 @@ const AdminChatWidget = () => {
     const fetchClients = async () => {
         try {
             setLoading(true);
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiUrl}/admin/users?role=client`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                setClients(data.users || []);
-            }
+            const response = await axios.get('/admin/users?role=client');
+            setClients(response.data.users || []);
         } catch (error) {
             console.error('Error fetching clients:', error);
         } finally {
@@ -143,43 +137,35 @@ const AdminChatWidget = () => {
 
     const createOrGetConversation = async (targetUserId) => {
         try {
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiUrl}/chat/conversations`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    targetUserId,
-                    subject: 'Admin Support'
-                })
-            });
-            const data = await response.json();
+            console.log('🔑 Creating conversation with:', { targetUserId, hasToken: !!localStorage.getItem('token') });
             
-            if (data.success) {
-                setConversationId(data.conversation._id);
-                return data.conversation._id;
+            const response = await axios.post('/chat/conversations', {
+                targetUserId,
+                subject: 'Admin Support'
+            });
+            
+            console.log('✅ Conversation created:', response.data);
+            
+            if (response.data) {
+                const convId = response.data._id || response.data.conversation?._id;
+                setConversationId(convId);
+                return convId;
             }
         } catch (error) {
-            console.error('Error creating conversation:', error);
+            console.error('❌ Error creating conversation:', error);
+            console.error('Error details:', {
+                status: error.response?.status,
+                data: error.response?.data,
+                headers: error.config?.headers
+            });
         }
         return null;
     };
 
     const fetchMessages = async (convId) => {
         try {
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiUrl}/chat/conversations/${convId}/messages`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                setMessages(data.messages || []);
-            }
+            const response = await axios.get(`/chat/messages/${convId}`);
+            setMessages(response.data.messages || response.data || []);
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
@@ -224,6 +210,64 @@ const AdminChatWidget = () => {
         setMessages([]);
     };
 
+    // Drag handlers
+    const handleMouseDown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+        buttonDragStartRef.current = {
+            x: e.clientX - buttonPositionRef.current.x,
+            y: e.clientY - buttonPositionRef.current.y
+        };
+    };
+
+    const handleMouseMove = useCallback((e) => {
+        if (isDragging) {
+            e.preventDefault();
+            const newX = e.clientX - buttonDragStartRef.current.x;
+            const newY = e.clientY - buttonDragStartRef.current.y;
+            
+            // Keep within viewport bounds
+            const maxX = window.innerWidth - 80;
+            const maxY = window.innerHeight - 80;
+            
+            const boundedX = Math.max(0, Math.min(newX, maxX));
+            const boundedY = Math.max(0, Math.min(newY, maxY));
+            
+            buttonPositionRef.current = { x: boundedX, y: boundedY };
+            
+            if (buttonRef.current) {
+                buttonRef.current.style.left = `${boundedX}px`;
+                buttonRef.current.style.top = `${boundedY}px`;
+            }
+        }
+    }, [isDragging]);
+
+    const handleMouseUp = useCallback(() => {
+        if (isDragging) {
+            setIsDragging(false);
+            setButtonPosition(buttonPositionRef.current);
+        }
+    }, [isDragging]);
+
+    const handleButtonClick = (e) => {
+        if (!isDragging) {
+            handleOpenChat();
+        }
+    };
+
+    useEffect(() => {
+        if (isDragging) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            return () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+            };
+        }
+        // eslint-disable-next-line
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
     const handleSendMessage = async (e) => {
         e.preventDefault();
         
@@ -247,25 +291,19 @@ const AdminChatWidget = () => {
         setMessageInput('');
 
         try {
-            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            
-            const response = await fetch(`${apiUrl}/chat/conversations/${conversationId}/messages`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ message: messageCopy })
+            const response = await axios.post('/chat/messages', {
+                conversationId,
+                content: messageCopy
             });
-
-            const data = await response.json();
             
-            if (data.success) {
+            if (response.data) {
                 console.log('✅ Admin message sent successfully');
+                const newMessage = response.data.message || response.data;
+                
                 // Replace temp message with real one
                 setMessages(prev => 
                     prev.map(msg => 
-                        msg._id === tempId ? { ...data.message, isTemp: false } : msg
+                        msg._id === tempId ? { ...newMessage, isTemp: false } : msg
                     )
                 );
                 
@@ -273,7 +311,7 @@ const AdminChatWidget = () => {
                 if (socket?.connected) {
                     socket.emit('message:send', {
                         conversationId,
-                        messageId: data.message._id
+                        messageId: newMessage._id
                     });
                 }
             }
@@ -289,6 +327,12 @@ const AdminChatWidget = () => {
         return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     };
 
+    console.log('🔍 AdminChatWidget Debug:', { 
+        hasUser: !!user, 
+        userRole: user?.role, 
+        shouldRender: user && user.role === 'admin' 
+    });
+
     if (!user || user.role !== 'admin') return null;
 
     const currentList = activeTab === 'partners' ? partners : clients;
@@ -299,15 +343,21 @@ const AdminChatWidget = () => {
             <AnimatePresence>
                 {!isOpen && (
                     <motion.button
+                        ref={buttonRef}
                         className="partner-chat-button"
-                        onClick={handleOpenChat}
+                        onClick={handleButtonClick}
+                        onMouseDown={handleMouseDown}
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        title="Admin Chat"
-                        style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                        whileHover={{ scale: isDragging ? 1 : 1.1 }}
+                        title="Admin Chat - Kéo để di chuyển"
+                        style={{ 
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            left: `${buttonPosition.x}px`,
+                            top: `${buttonPosition.y}px`,
+                            cursor: isDragging ? 'grabbing' : 'grab'
+                        }}
                     >
                         <FiUsers size={24} />
                         <span className="button-label">Admin Chat</span>
@@ -324,6 +374,7 @@ const AdminChatWidget = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 50, scale: 0.8 }}
                         transition={{ duration: 0.2 }}
+                        style={{ bottom: '100px', right: '30px' }}
                     >
                         {/* Header */}
                         <div className="partner-chat-header" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
@@ -414,7 +465,7 @@ const AdminChatWidget = () => {
                                                     className={`message ${isOwnMessage ? 'sent' : 'received'} ${msg.isTemp ? 'temp' : ''}`}
                                                 >
                                                     <div className="message-content">
-                                                        <div className="message-text">{msg.message}</div>
+                                                        <div className="message-text">{msg.content || msg.message}</div>
                                                         <div className="message-time">
                                                             {formatTime(msg.createdAt || msg.timestamp)}
                                                         </div>

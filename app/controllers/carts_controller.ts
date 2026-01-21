@@ -8,23 +8,39 @@ export default class CartsController {
    */
   async index({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const userId = (request as any).user?.id
+
+      if (!userId) {
+        return response.status(401).json({
+          message: 'Vui lòng đăng nhập',
+        })
+      }
 
       let cart = await Cart.findOne({ user: userId })
-        .populate('items.product')
-        .populate('items.seller', 'username shopName')
+        .populate({
+          path: 'items.product',
+          select: 'name brand imageUrl variants',
+        })
+        .populate({
+          path: 'items.seller',
+          select: 'username shopName',
+        })
         .lean()
 
       if (!cart) {
         // Create empty cart if not exists
-        cart = await Cart.create({ user: userId, items: [] })
+        await Cart.create({ user: userId, items: [] })
         return response.json({ items: [] })
       }
 
-      return response.json({ items: cart.items || [] })
+      // Filter out items with deleted products
+      const validItems = cart.items.filter((item: any) => item.product !== null)
+
+      return response.json({ items: validItems })
     } catch (error) {
+      console.error('❌ Cart index error:', error)
       return response.status(500).json({
-        message: 'Lỗi server',
+        message: 'Lỗi server khi lấy giỏ hàng',
         error: error.message,
       })
     }

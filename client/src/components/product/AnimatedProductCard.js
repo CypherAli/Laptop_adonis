@@ -140,7 +140,7 @@ const AnimatedProductCard = ({
             <Link to={`/product/${product._id}`} className="animated-image-wrapper">
                 <motion.div variants={imageVariants}>
                     <ProductImage 
-                        src={product.imageUrl} 
+                        src={product.images?.[0] || ''} 
                         alt={product.name}
                         className="animated-product-image"
                     />

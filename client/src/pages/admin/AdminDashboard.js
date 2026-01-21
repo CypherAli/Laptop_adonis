@@ -5,6 +5,7 @@ import AuthContext from '../../context/AuthContext';
 import { useToast } from '../../components/common/Toast';
 import ProductImage from '../../components/product/ProductImage';
 import PartnerRevenueModal from '../../components/partner/PartnerRevenueModal';
+import AdminChatWidget from '../../components/chat/AdminChatWidget';
 import { 
     FiUsers, FiShoppingBag, FiDollarSign, 
     FiPackage, FiCheckCircle, FiXCircle, FiClock,
@@ -19,11 +20,6 @@ const AdminDashboard = () => {
 
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
-
-    // DEBUG LOG
-    console.log('🎯 AdminDashboard PROFESSIONAL VERSION loaded!');
-    console.log('📍 CSS imported: AdminDashboard.professional.css');
-    console.log('👤 User:', user);
     
     // Analytics Data
     const [dashboardStats, setDashboardStats] = useState(null);
@@ -68,6 +64,7 @@ const AdminDashboard = () => {
             
             // Fetch system stats from admin endpoint
             const statsRes = await axios.get('/admin/stats');
+            console.log('📊 Dashboard Stats:', statsRes.data);
             setDashboardStats(statsRes.data);
             
 
@@ -87,7 +84,7 @@ const AdminDashboard = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await axios.get(`/products?page=${currentPage}&limit=10`);
+            const res = await axios.get(`/admin/products?page=${currentPage}&limit=10`);
             setProducts(res.data.products || []);
             setTotalPages(res.data.totalPages || 1);
         } catch (error) {
@@ -98,7 +95,7 @@ const AdminDashboard = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await axios.get(`/orders?page=${currentPage}&limit=10`);
+            const res = await axios.get(`/admin/orders?page=${currentPage}&limit=10`);
             setOrders(res.data.orders || []);
             setTotalPages(res.data.totalPages || 1);
         } catch (error) {
@@ -312,7 +309,7 @@ const AdminDashboard = () => {
                         >
                             <FiUsers />
                             <span>Users</span>
-                            <span className="badge">{users.length}</span>
+                            <span className="badge">{dashboardStats?.stats?.totalUsers || 0}</span>
                         </button>
                         <button 
                             className={`nav-item ${activeTab === 'products' ? 'active' : ''}`}
@@ -320,7 +317,7 @@ const AdminDashboard = () => {
                         >
                             <FiPackage />
                             <span>Products</span>
-                            <span className="badge">{products.length}</span>
+                            <span className="badge">{dashboardStats?.stats?.totalProducts || 0}</span>
                         </button>
                         <button 
                             className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
@@ -328,7 +325,7 @@ const AdminDashboard = () => {
                         >
                             <FiShoppingBag />
                             <span>Orders</span>
-                            <span className="badge">{orders.length}</span>
+                            <span className="badge">{dashboardStats?.stats?.totalOrders || 0}</span>
                         </button>
                         <button 
                             className={`nav-item ${activeTab === 'revenue' ? 'active' : ''}`}
@@ -343,7 +340,7 @@ const AdminDashboard = () => {
                         >
                             <FiEye />
                             <span>Reviews</span>
-                            <span className="badge">{reviews.length}</span>
+                            <span className="badge">{dashboardStats?.stats?.totalReviews || 0}</span>
                         </button>
                     </nav>
                 </aside>
@@ -361,7 +358,7 @@ const AdminDashboard = () => {
                                     <FiDollarSign className="metric-icon" />
                                 </div>
                                 <div className="metric-value">
-                                    {(dashboardStats.revenue?.total || 0).toLocaleString()} đ
+                                    {(dashboardStats?.stats?.totalRevenue || 0).toLocaleString('vi-VN')} đ
                                 </div>
                                 <div className="metric-footer">
                                     All partners combined
@@ -374,11 +371,11 @@ const AdminDashboard = () => {
                                     <FiShoppingBag className="metric-icon" />
                                 </div>
                                 <div className="metric-value">
-                                    {dashboardStats.orders?.total || 0}
+                                    {dashboardStats?.stats?.totalOrders || 0}
                                 </div>
                                 <div className="metric-footer">
-                                    Pending: {dashboardStats.orders?.byStatus?.find(s => s._id === 'pending')?.count || 0} | 
-                                    Delivered: {dashboardStats.orders?.byStatus?.find(s => s._id === 'delivered')?.count || 0}
+                                    Pending: {dashboardStats?.stats?.pendingOrders || 0} | 
+                                    Delivered: {dashboardStats?.stats?.deliveredOrders || 0}
                                 </div>
                             </div>
 
@@ -388,11 +385,11 @@ const AdminDashboard = () => {
                                     <FiPackage className="metric-icon" />
                                 </div>
                                 <div className="metric-value">
-                                    {dashboardStats.products?.total || 0}
+                                    {dashboardStats?.stats?.totalProducts || 0}
                                 </div>
                                 <div className="metric-footer">
-                                    Out of stock: {dashboardStats.products?.outOfStock || 0} | 
-                                    Low: {dashboardStats.products?.lowStock || 0}
+                                    Out of stock: {dashboardStats?.stats?.outOfStockProducts || 0} | 
+                                    Low: {dashboardStats?.stats?.lowStockProducts || 0}
                                 </div>
                             </div>
 
@@ -402,11 +399,11 @@ const AdminDashboard = () => {
                                     <FiUsers className="metric-icon" />
                                 </div>
                                 <div className="metric-value">
-                                    {dashboardStats.users?.total || 0}
+                                    {dashboardStats?.stats?.totalUsers || 0}
                                 </div>
                                 <div className="metric-footer">
-                                    Partners: {dashboardStats.users?.byRole?.find(r => r._id === 'partner')?.count || 0} | 
-                                    Clients: {dashboardStats.users?.byRole?.find(r => r._id === 'client')?.count || 0}
+                                    Partners: {dashboardStats?.stats?.totalPartners || 0} | 
+                                    Clients: {dashboardStats?.stats?.totalClients || 0}
                                 </div>
                             </div>
                         </div>
@@ -425,14 +422,14 @@ const AdminDashboard = () => {
                                         <FiClock className="action-icon warning" />
                                         <span>Partner approvals pending</span>
                                         <span className="action-count">
-                                            {users.filter(u => u.role === 'partner' && !u.isApproved).length}
+                                            {dashboardStats?.stats?.pendingPartners || 0}
                                         </span>
                                     </div>
                                     <div className="action-item">
                                         <FiClock className="action-icon warning" />
                                         <span>Reviews awaiting approval</span>
                                         <span className="action-count">
-                                            {reviews.filter(r => !r.isApproved).length}
+                                            {dashboardStats?.stats?.pendingReviews || 0}
                                         </span>
                                     </div>
                                 </div>
@@ -450,14 +447,14 @@ const AdminDashboard = () => {
                                         <FiPackage className="action-icon danger" />
                                         <span>Out of stock products</span>
                                         <span className="action-count">
-                                            {dashboardStats.products?.outOfStock || 0}
+                                            {dashboardStats?.stats?.outOfStockProducts || 0}
                                         </span>
                                     </div>
                                     <div className="action-item">
                                         <FiPackage className="action-icon warning" />
                                         <span>Low stock alerts</span>
                                         <span className="action-count">
-                                            {dashboardStats.products?.lowStock || 0}
+                                            {dashboardStats?.stats?.lowStockProducts || 0}
                                         </span>
                                     </div>
                                 </div>
@@ -484,7 +481,12 @@ const AdminDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {products.map(product => (
+                                    {products.map(product => {
+                                        // Get price from variants or fallback
+                                        const price = product.variants?.[0]?.price || product.price || 0;
+                                        const stock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || product.stock || 0;
+                                        
+                                        return (
                                         <tr key={product._id}>
                                             <td>
                                                 <ProductImage 
@@ -495,8 +497,8 @@ const AdminDashboard = () => {
                                                 />
                                             </td>
                                             <td>{product.name}</td>
-                                            <td>{product.price.toLocaleString()} VND</td>
-                                            <td>{product.stock}</td>
+                                            <td>{price.toLocaleString()} VND</td>
+                                            <td>{stock}</td>
                                             <td>
                                                 <span className={`status-badge ${product.status}`}>
                                                     {product.status === 'approved' && <FiCheckCircle />}
@@ -543,7 +545,8 @@ const AdminDashboard = () => {
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -869,6 +872,9 @@ const AdminDashboard = () => {
                 )}
                 </main>
             </div>
+
+            {/* Admin Chat Widget */}
+            <AdminChatWidget />
         </div>
     );
 };
