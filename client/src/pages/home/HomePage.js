@@ -85,7 +85,6 @@ const HomePage = () => {
                 }
             }, 500);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location.search]);
 
     // Calculate active filters count

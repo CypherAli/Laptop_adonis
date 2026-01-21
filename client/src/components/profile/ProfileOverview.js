@@ -11,28 +11,24 @@ const ProfileOverview = ({ userData, onRefresh }) => {
         <div className="profile-overview">
             <div className="stats-grid">
                 <div className="stat-card">
-                    <div className="stat-icon">📦</div>
                     <div className="stat-info">
                         <h3>{stats.totalOrders || 0}</h3>
                         <p>Orders</p>
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon">💰</div>
                     <div className="stat-info">
                         <h3>{(stats.totalSpent || 0).toLocaleString()}₫</h3>
                         <p>Tổng chi tiêu</p>
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon">⭐</div>
                     <div className="stat-info">
                         <h3>{stats.totalReviews || 0}</h3>
                         <p>Đánh giá</p>
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon">💎</div>
                     <div className="stat-info">
                         <h3>{loyalty.available || 0}</h3>
                         <p>Điểm hiện tại</p>

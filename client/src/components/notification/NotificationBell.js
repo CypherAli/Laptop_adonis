@@ -34,27 +34,29 @@ const NotificationBell = () => {
     }, []);
 
     const fetchUnreadCount = async () => {
-        try {
-            const response = await axios.get('/notifications/unread-count');
-            setUnreadCount(response.data.unreadCount || 0);
-        } catch (error) {
-            console.error('Error fetching unread count:', error);
-        }
+        // TODO: Implement notification API endpoint
+        // try {
+        //     const response = await axios.get('/notifications/unread-count');
+        //     setUnreadCount(response.data.unreadCount || 0);
+        // } catch (error) {
+        //     console.error('Error fetching unread count:', error);
+        // }
     };
 
     const fetchRecentNotifications = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get('/notifications/my-notifications', {
-                params: { limit: 5, status: 'unread' }
-            });
-            const notifs = response.data.notifications || response.data;
-            setNotifications(Array.isArray(notifs) ? notifs : []);
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-        } finally {
-            setLoading(false);
-        }
+        // TODO: Implement notification API endpoint
+        // try {
+        //     setLoading(true);
+        //     const response = await axios.get('/notifications/my-notifications', {
+        //         params: { limit: 5, status: 'unread' }
+        //     });
+        //     const notifs = response.data.notifications || response.data;
+        //     setNotifications(Array.isArray(notifs) ? notifs : []);
+        // } catch (error) {
+        //     console.error('Error fetching notifications:', error);
+        // } finally {
+        //     setLoading(false);
+        // }
     };
 
     const handleBellClick = async () => {

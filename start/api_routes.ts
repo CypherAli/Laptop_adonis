@@ -99,6 +99,42 @@ router
       .prefix('/user/wishlist')
       .use(middleware.jwtAuth())
 
+    // ==================== USER ROUTES ====================
+    const UsersController = () => import('#controllers/users_controller')
+    router
+      .group(() => {
+        // Addresses
+        router.get('/addresses', [UsersController, 'getAddresses'])
+        router.post('/addresses', [UsersController, 'addAddress'])
+        router.put('/addresses/:addressId', [UsersController, 'updateAddress'])
+        router.delete('/addresses/:addressId', [UsersController, 'deleteAddress'])
+        router.put('/addresses/:addressId/default', [UsersController, 'setDefaultAddress'])
+
+        // Payment Methods
+        router.get('/payment-methods', [UsersController, 'getPaymentMethods'])
+        router.post('/payment-methods', [UsersController, 'addPaymentMethod'])
+        router.delete('/payment-methods/:methodId', [UsersController, 'deletePaymentMethod'])
+
+        // Preferences
+        router.get('/preferences', [UsersController, 'getPreferences'])
+        router.put('/preferences', [UsersController, 'updatePreferences'])
+      })
+      .prefix('/user')
+      .use(middleware.jwtAuth())
+
+    // ==================== NOTIFICATIONS ROUTES ====================
+    const NotificationsController = () => import('#controllers/notifications_controller')
+    router
+      .group(() => {
+        router.get('/unread-count', [NotificationsController, 'getUnreadCount'])
+        router.get('/', [NotificationsController, 'index'])
+        router.put('/:notificationId/read', [NotificationsController, 'markAsRead'])
+        router.put('/mark-all-read', [NotificationsController, 'markAllAsRead'])
+        router.delete('/:notificationId', [NotificationsController, 'destroy'])
+      })
+      .prefix('/notifications')
+      .use(middleware.jwtAuth())
+
     // ==================== COMPARISON ROUTES ====================
     router
       .group(() => {

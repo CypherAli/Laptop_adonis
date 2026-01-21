@@ -32,6 +32,8 @@ const CheckoutPage = () => {
     const fetchCart = async () => {
         try {
             const res = await axios.get('/cart');
+            console.log('🛒 Cart data:', res.data);
+            console.log('🛒 Cart items:', res.data.items);
             setCartItems(res.data.items || []);
         } catch (err) {
             toast.error('Cannot load cart');
@@ -87,6 +89,10 @@ const CheckoutPage = () => {
             toast.error('Please enter address');
             return false;
         }
+        if (!shippingInfo.district.trim()) {
+            toast.error('Please enter district');
+            return false;
+        }
         if (!shippingInfo.city.trim()) {
             toast.error('Please select Province/City');
             return false;
@@ -111,32 +117,40 @@ const CheckoutPage = () => {
         try {
             const orderData = {
                 items: cartItems.map(item => ({
-                    productId: item.product._id,  // Changed from 'product' to 'productId'
-                    quantity: item.quantity
+                    product: item.product._id,
+                    variantSku: item.variantSku,
+                    quantity: item.quantity,
+                    sellerName: item.sellerName
                 })),
                 shippingAddress: {
                     fullName: shippingInfo.fullName,
                     phone: shippingInfo.phone,
-                    address: shippingInfo.address,
-                    ward: shippingInfo.ward,
-                    district: shippingInfo.district,
-                    city: shippingInfo.city
+                    address: {
+                        street: shippingInfo.address,
+                        ward: shippingInfo.ward,
+                        district: shippingInfo.district,
+                        city: shippingInfo.city
+                    }
                 },
                 paymentMethod: paymentMethod,
                 notes: shippingInfo.notes
             };
 
             console.log('📦 Submitting order:', orderData);
+            console.log('📦 Order items detail:', orderData.items);
+            console.log('📦 Shipping address detail:', orderData.shippingAddress);
             const response = await axios.post('/orders', orderData);
             console.log('✅ Order response:', response.data);
             
             // Clear cart after successful order
-            await axios.delete('/cart/clear/all');
+            await axios.delete('/cart/clear');
             
             toast.success('Order placed successfully!');
             navigate(`/orders`);
         } catch (err) {
-            console.error('Order submission failed', err);
+            console.error('❌ Order submission failed', err);
+            console.error('❌ Error response:', err.response?.data);
+            console.error('❌ Error status:', err.response?.status);
             const errorMsg = err.response?.data?.message || 'Order failed. Please try again.';
             toast.error(errorMsg);
         } finally {
@@ -156,7 +170,6 @@ const CheckoutPage = () => {
     if (cartItems.length === 0) {
         return (
             <div className="empty-checkout">
-                <div className="empty-icon">🛒</div>
                 <h2>Giỏ hàng trống</h2>
                 <p>Please add products to cart before checkout</p>
                 <button onClick={() => navigate('/')} className="btn-shop">
@@ -170,7 +183,6 @@ const CheckoutPage = () => {
         <div className="checkout-page">
             <div className="checkout-container">
                 <h1 className="checkout-title">
-                    <span className="title-icon">💳</span>
                     Checkout
                 </h1>
 
@@ -179,7 +191,6 @@ const CheckoutPage = () => {
                         {/* Shipping Information */}
                         <div className="checkout-section">
                             <h2 className="section-title">
-                                <span className="section-icon">📍</span>
                                 Shipping Information
                             </h2>
 
@@ -243,13 +254,14 @@ const CheckoutPage = () => {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>District</label>
+                                    <label>District <span className="required">*</span></label>
                                     <input
                                         type="text"
                                         name="district"
                                         value={shippingInfo.district}
                                         onChange={handleInputChange}
                                         placeholder="District 1"
+                                        required
                                     />
                                 </div>
 
@@ -287,7 +299,6 @@ const CheckoutPage = () => {
                         {/* Payment Method */}
                         <div className="checkout-section">
                             <h2 className="section-title">
-                                <span className="section-icon">💰</span>
                                 Payment Method
                             </h2>
 
@@ -301,7 +312,6 @@ const CheckoutPage = () => {
                                         onChange={(e) => setPaymentMethod(e.target.value)}
                                     />
                                     <div className="payment-content">
-                                        <span className="payment-icon">💵</span>
                                         <div>
                                             <strong>Cash on Delivery (COD)</strong>
                                             <p>Pay with cash upon receiving goods</p>
@@ -318,7 +328,6 @@ const CheckoutPage = () => {
                                         onChange={(e) => setPaymentMethod(e.target.value)}
                                     />
                                     <div className="payment-content">
-                                        <span className="payment-icon">🏦</span>
                                         <div>
                                             <strong>Bank Transfer</strong>
                                             <p>Transfer via Internet Banking</p>
@@ -335,7 +344,6 @@ const CheckoutPage = () => {
                                         onChange={(e) => setPaymentMethod(e.target.value)}
                                     />
                                     <div className="payment-content">
-                                        <span className="payment-icon">📱</span>
                                         <div>
                                             <strong>MoMo Wallet</strong>
                                             <p>Pay via MoMo e-wallet</p>
@@ -352,7 +360,6 @@ const CheckoutPage = () => {
                                         onChange={(e) => setPaymentMethod(e.target.value)}
                                     />
                                     <div className="payment-content">
-                                        <span className="payment-icon">💙</span>
                                         <div>
                                             <strong>ZaloPay</strong>
                                             <p>Pay via ZaloPay e-wallet</p>
@@ -367,7 +374,6 @@ const CheckoutPage = () => {
                     <div className="checkout-sidebar">
                         <div className="order-summary">
                             <h2 className="summary-title">
-                                <span>📦</span>
                                 Your Order
                             </h2>
 
@@ -400,7 +406,7 @@ const CheckoutPage = () => {
                                 </div>
                                 {calculateShipping() === 0 && (
                                     <div className="free-shipping-note">
-                                        🎉 Free shipping for orders over 10,000,000 ₫
+                                        Free shipping for orders over 10,000,000 ₫
                                     </div>
                                 )}
                                 <div className="calc-row total">
@@ -428,8 +434,8 @@ const CheckoutPage = () => {
                             </button>
 
                             <div className="checkout-note">
-                                <p>🔒 Your information is secure</p>
-                                <p>📞 Hotline: 1900 xxxx</p>
+                                <p>Your information is secure</p>
+                                <p>Hotline: 1900 xxxx</p>
                             </div>
                         </div>
                     </div>

@@ -13,7 +13,7 @@ import AuthContext from './context/AuthContext';
 // Chat Widgets - Different for each role
 import PartnerLiveChat from './components/chat/PartnerLiveChat';
 import AdminChatWidget from './components/chat/AdminChatWidget';
-import AnonymousChatWidget from './components/chat/AnonymousChatWidget';
+import UserLiveChat from './components/chat/UserLiveChat';
 import GuestChatWidget from './components/chat/GuestChatWidget';
 
 // Import ALL pages directly - NO LAZY LOADING for maximum stability
@@ -144,7 +144,7 @@ function App() {
       ) : !user ? (
         <GuestChatWidget />
       ) : (
-        <AnonymousChatWidget />
+        <UserLiveChat />
       )}
     </RoleBasedLayout>
     </ErrorBoundary>

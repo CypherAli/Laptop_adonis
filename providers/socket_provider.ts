@@ -105,8 +105,9 @@ export default class SocketProvider {
         async (data: {
           conversationId: string
           content: string
-          senderId?: string
-          senderType: 'user' | 'guest'
+          userId?: string
+          userName?: string
+          senderType: 'user' | 'guest' | 'partner'
           anonymousId?: string
           anonymousName?: string
         }) => {
@@ -119,31 +120,40 @@ export default class SocketProvider {
               content: data.content,
             }
 
+            // Handle different sender types
             if (data.senderType === 'guest' && data.anonymousId) {
+              // Guest/Anonymous message
               messageData.senderType = 'anonymous'
               messageData.anonymousSender = {
                 id: data.anonymousId,
                 name: data.anonymousName || 'Guest',
               }
-            } else if (data.senderId) {
-              messageData.sender = data.senderId
+            } else if (data.userId) {
+              // Logged-in user or partner message
+              messageData.sender = data.userId
               messageData.senderType = 'user'
             }
 
+            // Save message to database
             const message = await Message.create(messageData)
             const populatedMessage: any = await Message.findById(message._id)
-              .populate('sender', 'username shopName role')
+              .populate('sender', 'username shopName role name')
               .lean()
 
             // Update conversation last message
+            const senderName =
+              data.senderType === 'guest'
+                ? data.anonymousName || 'Guest'
+                : data.userName ||
+                  populatedMessage?.sender?.name ||
+                  populatedMessage?.sender?.username ||
+                  'User'
+
             await Conversation.findByIdAndUpdate(data.conversationId, {
               lastMessage: {
                 content: data.content,
                 timestamp: new Date(),
-                sender:
-                  data.senderType === 'guest'
-                    ? data.anonymousName || 'Guest'
-                    : populatedMessage?.sender?.username || 'Unknown',
+                sender: senderName,
               },
             })
 
@@ -153,7 +163,7 @@ export default class SocketProvider {
               conversationId: data.conversationId,
             })
 
-            console.log('✅ Message sent successfully')
+            console.log('✅ Message sent and saved to database')
           } catch (error) {
             console.error('❌ Error sending message:', error)
             socket.emit('message:error', {

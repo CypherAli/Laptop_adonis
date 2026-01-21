@@ -26,18 +26,18 @@ const ProfilePage = () => {
     const [unreadCount, setUnreadCount] = useState(0);
 
     const tabs = [
-        { id: 'overview', label: 'Tổng quan', icon: '📊' },
-        { id: 'personal', label: 'Thông tin cá nhân', icon: '👤' },
-        { id: 'addresses', label: 'Địa chỉ', icon: '📍' },
-        { id: 'payment', label: 'Payment', icon: '💳' },
-        { id: 'orders', label: 'Orders', icon: '📦' },
-        { id: 'warranty', label: 'Bảo hành', icon: '🛡️' },
-        { id: 'wishlist', label: 'Yêu thích', icon: '❤️' },
-        { id: 'reviews', label: 'Đánh giá', icon: '⭐' },
-        { id: 'vouchers', label: 'Voucher', icon: '🎫' },
-        { id: 'support', label: 'Support', icon: '💬' },
-        { id: 'notifications', label: 'Notifications', icon: '🔔', badge: unreadCount },
-        { id: 'settings', label: 'Cài đặt', icon: '⚙️' }
+        { id: 'overview', label: 'Tổng quan' },
+        { id: 'personal', label: 'Thông tin cá nhân' },
+        { id: 'addresses', label: 'Địa chỉ' },
+        { id: 'payment', label: 'Payment' },
+        { id: 'orders', label: 'Orders' },
+        { id: 'warranty', label: 'Bảo hành' },
+        { id: 'wishlist', label: 'Yêu thích' },
+        { id: 'reviews', label: 'Đánh giá' },
+        { id: 'vouchers', label: 'Voucher' },
+        { id: 'support', label: 'Support' },
+        { id: 'notifications', label: 'Notifications', badge: unreadCount },
+        { id: 'settings', label: 'Cài đặt' }
     ];
 
     useEffect(() => {
@@ -58,8 +58,12 @@ const ProfilePage = () => {
 
     const fetchUserData = async () => {
         try {
-            const response = await axios.get('/user/profile');
-            setUserData(response.data);
+            const response = await axios.get('/auth/me');
+            setUserData({
+                ...response.data.user,
+                stats: response.data.stats || {},
+                loyaltyPoints: response.data.loyaltyPoints || { available: 0, total: 0, used: 0 }
+            });
         } catch (error) {
             console.error('Fetch user error:', error);
             // Fallback to userDetails if API fails
@@ -147,7 +151,6 @@ const ProfilePage = () => {
                             </span>
                         </div>
                         <div className="loyalty-points">
-                            <span className="points-icon">💎</span>
                             <span className="points-value">{userData?.loyaltyPoints?.available || 0}</span>
                             <span className="points-label">Điểm tích lũy</span>
                         </div>
@@ -160,7 +163,6 @@ const ProfilePage = () => {
                                 className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
                                 onClick={() => setActiveTab(tab.id)}
                             >
-                                <span className="nav-icon">{tab.icon}</span>
                                 <span className="nav-label">{tab.label}</span>
                                 {tab.badge > 0 && (
                                     <span className="nav-badge">{tab.badge}</span>

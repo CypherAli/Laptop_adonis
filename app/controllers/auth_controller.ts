@@ -174,7 +174,33 @@ export default class AuthController {
         })
       }
 
-      return response.json({ user })
+      // Get user stats
+      const { Order } = await import('#models/order')
+      const { Review } = await import('#models/review')
+
+      const orders = await Order.find({ user: userId })
+      const reviews = await Review.find({ user: userId })
+
+      const stats = {
+        totalOrders: orders.length,
+        totalSpent: orders
+          .filter((o: any) => o.status !== 'cancelled')
+          .reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0),
+        totalReviews: reviews.length,
+      }
+
+      return response.json({
+        user,
+        stats,
+        loyaltyPoints: user.loyaltyPoints || { available: 0, total: 0, used: 0 },
+        addresses: user.addresses || [],
+        paymentMethods: user.paymentMethods || [],
+        preferences: user.preferences || {},
+        verification: {
+          email: user.verification?.email?.isVerified || false,
+          phone: user.verification?.phone?.isVerified || false,
+        },
+      })
     } catch (error) {
       return response.status(500).json({
         message: 'Lỗi server',

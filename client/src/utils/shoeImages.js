@@ -4,7 +4,7 @@ export const SHOE_IMAGES = {
     nike_air_max: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/99486859-0ff3-46b4-949b-2d16af2ad421/custom-nike-air-max-90-by-you-shoes.png',
     nike_jordan: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/u_126ab356-44d8-4a06-89b4-fcdcc8df0245,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/b7d9211c-26e7-431a-ac24-b0540fb3c00f/air-jordan-1-retro-high-og-shoes-Pz6fZ9.png',
     nike_react: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/ca0f57ad-f13c-40e1-aae4-f5fd81c85a6d/react-infinity-run-flyknit-3-road-running-shoes-JsPnRN.png',
-    nike_blazer: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/d6cc0273-2759-4c36-b8d8-87ce5e5bfa00/blazer-mid-77-vintage-shoes-nw30B2.png',
+    nike_blazer: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80',
     nike_dunk: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/af53d53d-561f-450a-a483-70a7ceee380f/dunk-low-retro-shoes-66RGq8.png',
     
     // Adidas
@@ -41,7 +41,7 @@ export const SHOE_IMAGES = {
     shoe_generic_4: 'https://www.converse.com/dw/image/v2/BCZC_PRD/on/demandware.static/-/Sites-cnv-master-catalog/default/dw6f1c0e4d/images/a_107/M9160_A_107X1.jpg',
     shoe_generic_5: 'https://images.unsplash.com/photo-1543508282-6319a3e2621f?w=800',
     shoe_generic_6: 'https://nb.scene7.com/is/image/NB/ml574evb_nb_02_i',
-    shoe_generic_7: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/d6cc0273-2759-4c36-b8d8-87ce5e5bfa00/blazer-mid-77-vintage-shoes-nw30B2.png'
+    shoe_generic_7: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80'
 };
 
 // Function to get random shoe image

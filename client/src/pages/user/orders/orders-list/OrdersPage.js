@@ -11,22 +11,25 @@ const OrdersPage = () => {
     const [error, setError] = useState(null);
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const { user } = useContext(AuthContext);
+    const { user, loading: authLoading } = useContext(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Wait for auth to initialize
+        if (authLoading) return;
+        
         if (!user) {
             navigate('/login');
             return;
         }
         fetchOrders();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user]);
+    }, [user, authLoading]);
 
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/orders/my-orders');
+            const res = await axios.get('/orders');
             
             const ordersData = res.data.orders || res.data;
             setOrders(Array.isArray(ordersData) ? ordersData : []);
@@ -55,14 +58,14 @@ const OrdersPage = () => {
 
     const getStatusInfo = (status) => {
         const statusMap = {
-            pending: { label: '⏳ Chờ xác nhận', color: '#f39c12', icon: '⏳' },
-            confirmed: { label: '✅ Đã xác nhận', color: '#16a085', icon: '✅' },
-            processing: { label: '📦 Đang xử lý', color: '#3498db', icon: '📦' },
-            shipped: { label: '🚚 Đang giao', color: '#9b59b6', icon: '🚚' },
-            delivered: { label: '✅ Đã giao', color: '#27ae60', icon: '✅' },
-            cancelled: { label: '❌ Đã hủy', color: '#e74c3c', icon: '❌' }
+            pending: { label: 'Chờ xác nhận', color: '#f39c12', icon: '' },
+            confirmed: { label: 'Đã xác nhận', color: '#16a085', icon: '' },
+            processing: { label: 'Đang xử lý', color: '#3498db', icon: '' },
+            shipped: { label: 'Đang giao', color: '#9b59b6', icon: '' },
+            delivered: { label: 'Đã giao', color: '#27ae60', icon: '' },
+            cancelled: { label: 'Đã hủy', color: '#e74c3c', icon: '' }
         };
-        return statusMap[status] || { label: status, color: '#95a5a6', icon: '❓' };
+        return statusMap[status] || { label: status, color: '#95a5a6', icon: '' };
     };
 
     const getStatusStep = (status) => {
@@ -111,7 +114,6 @@ const OrdersPage = () => {
         <div className="orders-page">
             <div className="orders-header">
                 <h1>
-                    <span className="header-icon">📦</span>
                     My Orders
                 </h1>
                 <span className="orders-count">{orders.length} {orders.length === 1 ? 'order' : 'orders'}</span>
@@ -129,37 +131,36 @@ const OrdersPage = () => {
                     className={`tab ${filterStatus === 'pending' ? 'active' : ''}`}
                     onClick={() => setFilterStatus('pending')}
                 >
-                    ⏳ Pending ({statusCounts.pending})
+                    Pending ({statusCounts.pending})
                 </button>
                 <button 
                     className={`tab ${filterStatus === 'processing' ? 'active' : ''}`}
                     onClick={() => setFilterStatus('processing')}
                 >
-                    📦 Processing ({statusCounts.processing})
+                    Processing ({statusCounts.processing})
                 </button>
                 <button 
                     className={`tab ${filterStatus === 'shipped' ? 'active' : ''}`}
                     onClick={() => setFilterStatus('shipped')}
                 >
-                    🚚 Shipping ({statusCounts.shipped})
+                    Shipping ({statusCounts.shipped})
                 </button>
                 <button 
                     className={`tab ${filterStatus === 'delivered' ? 'active' : ''}`}
                     onClick={() => setFilterStatus('delivered')}
                 >
-                    ✅ Delivered ({statusCounts.delivered})
+                    Delivered ({statusCounts.delivered})
                 </button>
                 <button 
                     className={`tab ${filterStatus === 'cancelled' ? 'active' : ''}`}
                     onClick={() => setFilterStatus('cancelled')}
                 >
-                    ❌ Cancelled ({statusCounts.cancelled})
+                    Cancelled ({statusCounts.cancelled})
                 </button>
             </div>
 
             {filteredOrders.length === 0 ? (
                 <div className="no-orders">
-                    <div className="empty-icon">📦</div>
                     <h2>No orders found</h2>
                     <p>
                         {filterStatus === 'all' 
@@ -201,7 +202,7 @@ const OrdersPage = () => {
                                         </span>
                                         {order.paymentStatus && (
                                             <span className="payment-status">
-                                                {order.paymentStatus === 'paid' ? '✅ Paid' : '⏳ Unpaid'}
+                                                {order.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
                                             </span>
                                         )}
                                     </div>
@@ -248,6 +249,10 @@ const OrdersPage = () => {
                                                 src={item.imageUrl || PLACEHOLDER_IMAGES.avatar} 
                                                 alt={item.name}
                                                 className="item-image"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = PLACEHOLDER_IMAGES.avatar;
+                                                }}
                                             />
                                             <div className="item-details">
                                                 <p className="item-name">{item.name}</p>
@@ -263,11 +268,16 @@ const OrdersPage = () => {
                                 {/* Shipping Info */}
                                 {order.shippingAddress && (
                                     <div className="shipping-section">
-                                        <h4>📍 Địa chỉ giao hàng</h4>
+                                        <h4>Địa chỉ giao hàng</h4>
                                         <div className="shipping-details">
                                             <p><strong>{order.shippingAddress.fullName}</strong></p>
-                                            <p>📞 {order.shippingAddress.phone}</p>
-                                            <p>🏠 {order.shippingAddress.address}, {order.shippingAddress.city}</p>
+                                            <p>{order.shippingAddress.phone}</p>
+                                            <p>{[
+                                                order.shippingAddress.address?.street || order.shippingAddress.address,
+                                                order.shippingAddress.address?.ward,
+                                                order.shippingAddress.address?.district,
+                                                order.shippingAddress.address?.city || order.shippingAddress.city
+                                            ].filter(Boolean).join(', ')}</p>
                                         </div>
                                     </div>
                                 )}
@@ -375,7 +385,14 @@ const OrdersPage = () => {
                                 <h3>Products</h3>
                                 {selectedOrder.items.map((item, index) => (
                                     <div key={index} className="detail-item">
-                                        <img src={item.imageUrl} alt={item.name} />
+                                        <img 
+                                            src={item.imageUrl || PLACEHOLDER_IMAGES.avatar} 
+                                            alt={item.name}
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = PLACEHOLDER_IMAGES.avatar;
+                                            }}
+                                        />
                                         <div>
                                             <p><strong>{item.name}</strong></p>
                                             <p>{item.price.toLocaleString()} VNĐ × {item.quantity}</p>
@@ -390,8 +407,12 @@ const OrdersPage = () => {
                                     <h3>Địa chỉ giao hàng</h3>
                                     <p><strong>{selectedOrder.shippingAddress.fullName}</strong></p>
                                     <p>{selectedOrder.shippingAddress.phone}</p>
-                                    <p>{selectedOrder.shippingAddress.address}</p>
-                                    <p>{selectedOrder.shippingAddress.city}</p>
+                                    <p>{[
+                                        selectedOrder.shippingAddress.address?.street || selectedOrder.shippingAddress.address,
+                                        selectedOrder.shippingAddress.address?.ward,
+                                        selectedOrder.shippingAddress.address?.district,
+                                        selectedOrder.shippingAddress.address?.city || selectedOrder.shippingAddress.city
+                                    ].filter(Boolean).join(', ')}</p>
                                 </div>
                             )}
 

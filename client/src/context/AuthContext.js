@@ -6,6 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [userDetails, setUserDetails] = useState(() => {
         const saved = localStorage.getItem('userDetails');
@@ -32,10 +33,19 @@ export const AuthProvider = ({ children }) => {
                 setUser(decodedUser);
                 localStorage.setItem('token', token);
                 
-                // Fetch fresh user details if not already loaded
+                // Use cached userDetails on reload, don't fetch
                 if (!userDetails) {
-                    fetchUserDetails();
+                    // Try to use decoded token data
+                    const basicUser = {
+                        id: decodedUser.id,
+                        email: decodedUser.email,
+                        username: decodedUser.username,
+                        role: decodedUser.role
+                    };
+                    setUserDetails(basicUser);
+                    localStorage.setItem('userDetails', JSON.stringify(basicUser));
                 }
+                setLoading(false);
             } catch (error) {
                 console.error("Invalid token:", error);
                 setUser(null);
@@ -49,13 +59,13 @@ export const AuthProvider = ({ children }) => {
             setUserDetails(null);
             localStorage.removeItem('token');
             localStorage.removeItem('userDetails');
+            setLoading(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     const fetchUserDetails = async () => {
         try {
-            const res = await axios.get('/user/profile');
+            const res = await axios.get('/auth/me');
             if (res.data) {
                 setUserDetails(res.data);
                 localStorage.setItem('userDetails', JSON.stringify(res.data));
@@ -125,7 +135,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, userDetails, token, login, logout, register, updateUser }}>
+        <AuthContext.Provider value={{ user, userDetails, token, loading, login, logout, register, updateUser }}>
             {children}
         </AuthContext.Provider>
     );
