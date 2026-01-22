@@ -48,12 +48,6 @@ const PartnerDashboard = () => {
       return
     }
 
-    // Redirect admin to proper admin dashboard
-    if (user.role === 'admin') {
-      console.log('⚠️ Admin should use Admin Dashboard, not Partner Dashboard')
-      // Admin can still view but show warning
-    }
-
     // Check if partner is approved (admin không cần check)
     if (user.role === 'partner' && !user.isApproved) {
       // Partner pending approval - show limited view

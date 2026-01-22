@@ -1,7 +1,7 @@
-import React, { useContext } from 'react'
+import React, { useContext, lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 
-// Core Components
+// Core Components - Keep these eager loaded for better UX
 import ErrorBoundary from './components/common/ErrorBoundary'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -10,46 +10,71 @@ import RoleBasedLayout from './components/layout/RoleBasedLayout'
 import ScrollToTop from './components/common/ScrollToTop'
 import AuthContext from './context/AuthContext'
 
-// Chat Widgets - Different for each role
+// Chat Widgets - Keep eager loaded for instant availability
 import PartnerLiveChat from './components/chat/PartnerLiveChat'
 import AdminChatWidget from './components/chat/AdminChatWidget'
 import UserLiveChat from './components/chat/UserLiveChat'
 import GuestChatWidget from './components/chat/GuestChatWidget'
 
-// Import ALL pages directly - NO LAZY LOADING for maximum stability
+// Critical pages - eager load for better initial experience
 import HomePage from './pages/home/HomePage'
 import ProductDetailPageUltra from './pages/product/ProductDetailPageUltra'
-import DealsPage from './pages/deals/DealsPage'
-import BestSellersPage from './pages/product/BestSellersPage'
-import BlogPage from './pages/common/BlogPage'
-import BlogDetailPage from './pages/common/BlogDetailPage'
-import AboutPage from './pages/common/AboutPage'
-import ContactPage from './pages/company/ContactPage'
-import CompanyAboutPage from './pages/company/CompanyAboutPage'
-import CareersPage from './pages/common/CareersPage'
-import NewsPage from './pages/company/NewsPage'
-import StoresPage from './pages/company/StoresPage'
-import TermsPage from './pages/company/TermsPage'
-import CartPage from './pages/user/cart/cart-list/CartPage'
-import WishlistPage from './pages/user/wishlist/WishlistPage'
 import LoginPage from './pages/user/auth/login/LoginPage'
 import RegisterPage from './pages/user/auth/register/RegisterPage'
-import ForgotPasswordPage from './pages/user/auth/forgot-password/ForgotPasswordPage'
-import ResetPasswordPage from './pages/user/auth/reset-password/ResetPasswordPage'
-import CheckoutPage from './pages/user/cart/checkout/CheckoutPage'
-import OrdersPage from './pages/user/orders/orders-list/OrdersPage'
-import OrderDetailPage from './pages/user/orders/order-detail/OrderDetailPage'
-import ManagerDashboard from './pages/manager/ManagerDashboard'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import PartnerDashboard from './pages/partner/PartnerDashboard'
-import PartnerOrders from './pages/partner/PartnerOrders'
-import HuongDanMuaHang from './pages/chat/HuongDanMuaHang'
-import InstallmentGuidePage from './pages/guide/InstallmentGuidePage'
-import ProfilePage from './pages/user/profile/ProfilePage'
-import PaymentGuidePage from './pages/guide/PaymentGuidePage'
-import WarrantyPolicyPage from './pages/user/policies/warranty/WarrantyPolicyPage'
-import ReturnPolicyPage from './pages/user/policies/return/ReturnPolicyPage'
-import ShippingPolicyPage from './pages/user/policies/shipping/ShippingPolicyPage'
+
+// Lazy load less critical pages for faster initial load
+const DealsPage = lazy(() => import('./pages/deals/DealsPage'))
+const BestSellersPage = lazy(() => import('./pages/product/BestSellersPage'))
+const BlogPage = lazy(() => import('./pages/common/BlogPage'))
+const BlogDetailPage = lazy(() => import('./pages/common/BlogDetailPage'))
+const AboutPage = lazy(() => import('./pages/common/AboutPage'))
+const ContactPage = lazy(() => import('./pages/company/ContactPage'))
+const CompanyAboutPage = lazy(() => import('./pages/company/CompanyAboutPage'))
+const CareersPage = lazy(() => import('./pages/common/CareersPage'))
+const NewsPage = lazy(() => import('./pages/company/NewsPage'))
+const StoresPage = lazy(() => import('./pages/company/StoresPage'))
+const TermsPage = lazy(() => import('./pages/company/TermsPage'))
+const CartPage = lazy(() => import('./pages/user/cart/cart-list/CartPage'))
+const WishlistPage = lazy(() => import('./pages/user/wishlist/WishlistPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/user/auth/forgot-password/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('./pages/user/auth/reset-password/ResetPasswordPage'))
+const CheckoutPage = lazy(() => import('./pages/user/cart/checkout/CheckoutPage'))
+const OrdersPage = lazy(() => import('./pages/user/orders/orders-list/OrdersPage'))
+const OrderDetailPage = lazy(() => import('./pages/user/orders/order-detail/OrderDetailPage'))
+const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const PartnerDashboard = lazy(() => import('./pages/partner/PartnerDashboard'))
+const PartnerOrders = lazy(() => import('./pages/partner/PartnerOrders'))
+const HuongDanMuaHang = lazy(() => import('./pages/chat/HuongDanMuaHang'))
+const InstallmentGuidePage = lazy(() => import('./pages/guide/InstallmentGuidePage'))
+const ProfilePage = lazy(() => import('./pages/user/profile/ProfilePage'))
+const PaymentGuidePage = lazy(() => import('./pages/guide/PaymentGuidePage'))
+const WarrantyPolicyPage = lazy(() => import('./pages/user/policies/warranty/WarrantyPolicyPage'))
+const ReturnPolicyPage = lazy(() => import('./pages/user/policies/return/ReturnPolicyPage'))
+const ShippingPolicyPage = lazy(() => import('./pages/user/policies/shipping/ShippingPolicyPage'))
+
+// Loading component
+const LoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    minHeight: '60vh',
+    fontSize: '18px',
+    color: '#666'
+  }}>
+    <div className="spinner" style={{
+      border: '4px solid #f3f3f3',
+      borderTop: '4px solid #3498db',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      animation: 'spin 1s linear infinite',
+      marginRight: '15px'
+    }}></div>
+    Đang tải...
+  </div>
+)
 
 function App() {
   const { user } = useContext(AuthContext)
@@ -58,22 +83,23 @@ function App() {
       <RoleBasedLayout>
         <ScrollToTop />
         <Header />
-        <Routes>
-          {/* === Public Routes === */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/product/:id" element={<ProductDetailPageUltra />} />
-          <Route path="/deals" element={<DealsPage />} />
-          <Route path="/best-sellers" element={<BestSellersPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:id" element={<BlogDetailPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* === Public Routes === */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/product/:id" element={<ProductDetailPageUltra />} />
+            <Route path="/deals" element={<DealsPage />} />
+            <Route path="/best-sellers" element={<BestSellersPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:id" element={<BlogDetailPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
 
           {/* === Policy Pages === */}
           <Route path="/huong-dan-mua-hang" element={<HuongDanMuaHang />} />
@@ -139,7 +165,8 @@ function App() {
               </div>
             }
           />
-        </Routes>
+          </Routes>
+        </Suspense>
         <Footer />
 
         {/* Chat Widget - Support cả guest và logged-in users */}

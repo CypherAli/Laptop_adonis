@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import axios from '../../../../api/axiosConfig'
 import AuthContext from '../../../../context/AuthContext'
@@ -12,24 +12,25 @@ const OrderDetailPage = () => {
   const [loading, setLoading] = useState(true)
   const toast = useToast()
 
-  useEffect(() => {
-    if (user) {
-      fetchOrderDetail()
-    }
-    // eslint-disable-next-line
-  }, [orderId, user])
-
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     try {
       setLoading(true)
       const res = await axios.get(`/orders/${orderId}`)
-      setOrder(res.data)
+      console.log('Order response:', res.data) // Debug log
+      setOrder(res.data.order || res.data) // Handle both response formats
     } catch (error) {
+      console.error('Order fetch error:', error) // Debug log
       toast.error(error.response?.data?.message || 'Cannot load order information')
     } finally {
       setLoading(false)
     }
-  }
+  }, [orderId, toast])
+
+  useEffect(() => {
+    if (user) {
+      fetchOrderDetail()
+    }
+  }, [user, fetchOrderDetail])
 
   const handleCancelOrder = async () => {
     if (!window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
@@ -92,8 +93,8 @@ const OrderDetailPage = () => {
     )
   }
 
-  const statusInfo = getStatusInfo(order.status)
-  const paymentInfo = getPaymentStatusInfo(order.paymentStatus)
+  const statusInfo = getStatusInfo(order?.status || 'pending')
+  const paymentInfo = getPaymentStatusInfo(order?.paymentStatus || 'unpaid')
 
   return (
     <div className="order-detail-page">
@@ -190,8 +191,8 @@ const OrderDetailPage = () => {
                       )}
                     </div>
                     <div className="product-price">
-                      <p className="quantity">x{item.quantity}</p>
-                      <p className="price">{(item.price * item.quantity).toLocaleString()}đ</p>
+                      <p className="quantity">x{item.quantity || 1}</p>
+                      <p className="price">{((item.price || 0) * (item.quantity || 1)).toLocaleString()}đ</p>
                     </div>
                   </div>
                 )) || []}
@@ -228,7 +229,7 @@ const OrderDetailPage = () => {
               )}
               <div className="summary-row total">
                 <span>Tổng cộng:</span>
-                <span>{order.totalAmount.toLocaleString()}đ</span>
+                <span>{(order.totalAmount || 0).toLocaleString()}đ</span>
               </div>
               <div className="payment-method">
                 <h3>Phương thức thanh toán</h3>
@@ -247,15 +248,32 @@ const OrderDetailPage = () => {
             <div className="order-section">
               <h2>Shipping Address</h2>
               <div className="address-info">
-                <p>
-                  <strong>{order.shippingAddress.fullName}</strong>
-                </p>
-                <p>📞 {order.shippingAddress.phone}</p>
-                {order.shippingAddress.email && <p>📧 {order.shippingAddress.email}</p>}
-                <p>📍 {order.shippingAddress.address}</p>
-                {order.shippingAddress.ward && <p>{order.shippingAddress.ward}</p>}
-                {order.shippingAddress.district && <p>{order.shippingAddress.district}</p>}
-                <p>{order.shippingAddress.city}</p>
+                {order.shippingAddress ? (
+                  <>
+                    <p>
+                      <strong>{order.shippingAddress.fullName || 'N/A'}</strong>
+                    </p>
+                    <p>📞 {order.shippingAddress.phone || 'N/A'}</p>
+                    {order.shippingAddress.email && <p>📧 {order.shippingAddress.email}</p>}
+                    {typeof order.shippingAddress.address === 'object' ? (
+                      <>
+                        {order.shippingAddress.address.street && <p>📍 {order.shippingAddress.address.street}</p>}
+                        {order.shippingAddress.address.ward && <p>{order.shippingAddress.address.ward}</p>}
+                        {order.shippingAddress.address.district && <p>{order.shippingAddress.address.district}</p>}
+                        {order.shippingAddress.address.city && <p>{order.shippingAddress.address.city}</p>}
+                      </>
+                    ) : (
+                      <>
+                        <p>📍 {order.shippingAddress.address || 'N/A'}</p>
+                        {order.shippingAddress.ward && <p>{order.shippingAddress.ward}</p>}
+                        {order.shippingAddress.district && <p>{order.shippingAddress.district}</p>}
+                        {order.shippingAddress.city && <p>{order.shippingAddress.city}</p>}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <p>No shipping address provided</p>
+                )}
               </div>
             </div>
 

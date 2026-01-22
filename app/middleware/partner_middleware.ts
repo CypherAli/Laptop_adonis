@@ -8,13 +8,15 @@ export default class PartnerMiddleware {
   async handle({ request, response }: HttpContext, next: NextFn) {
     const user = (request as any).user
 
-    if (!user || user.role !== 'partner') {
+    // Allow both partner and admin roles
+    if (!user || (user.role !== 'partner' && user.role !== 'admin')) {
       return response.status(403).json({
-        message: 'Bạn không có quyền truy cập. Chỉ Partner mới được phép.',
+        message: 'Bạn không có quyền truy cập. Chỉ Partner hoặc Admin mới được phép.',
       })
     }
 
-    if (!user.isApproved) {
+    // Skip approval check for admins
+    if (user.role === 'partner' && !user.isApproved) {
       return response.status(403).json({
         message: 'Tài khoản Partner của bạn đang chờ phê duyệt.',
       })

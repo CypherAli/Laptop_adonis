@@ -41,7 +41,6 @@ export default class extends BaseSeeder {
       puma: 'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=800',
       newbalance: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=800',
     }
-
     // ULTRA DIVERSE COLOR PALETTE (15 colors)
     const COLORS = [
       'Black',

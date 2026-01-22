@@ -62,11 +62,14 @@ const ManagerDashboard = () => {
   const fetchMyProducts = async () => {
     try {
       setLoading(true)
-      const res = await axios.get('/products/my-products')
+      const res = await axios.get('/products/my-products', { skipCache: true })
+      console.log('My products response:', res.data)
       setMyProducts(res.data.products || [])
+      setError('') // Clear any previous errors
     } catch (err) {
       console.error('Failed to fetch products', err)
-      setError('Không thể tải danh sách sản phẩm')
+      console.error('Error details:', err.response?.data || err.message)
+      setError(err.response?.data?.message || 'Không thể tải danh sách sản phẩm')
     } finally {
       setLoading(false)
     }
@@ -84,11 +87,32 @@ const ManagerDashboard = () => {
     setLoading(true)
 
     try {
+      // Transform form data to match API structure
       const productData = {
-        ...formData,
-        price: Number(formData.price),
-        originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
-        stock: Number(formData.stock),
+        name: formData.name,
+        description: formData.description,
+        basePrice: Number(formData.price),
+        category: 'Shoes', // Default category
+        brand: formData.brand,
+        images: formData.imageUrl ? [formData.imageUrl] : [],
+        variants: [
+          {
+            variantName: 'Default',
+            sku: `${formData.brand}-${Date.now()}`,
+            price: Number(formData.price),
+            originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+            stock: Number(formData.stock),
+            attributes: {
+              size: '42', // Default size
+              color: 'Default'
+            }
+          }
+        ],
+        features: [],
+        warranty: '6 months',
+        // Admin creates products that are active immediately
+        isActive: user?.role === 'admin' ? true : false,
+        isFeatured: false
       }
 
       if (editingProduct) {
@@ -96,7 +120,11 @@ const ManagerDashboard = () => {
         setSuccess('Cập nhật sản phẩm thành công!')
       } else {
         await axios.post('/products', productData)
-        setSuccess('Tạo sản phẩm thành công! Đang chờ admin duyệt.')
+        if (user?.role === 'admin') {
+          setSuccess('Tạo sản phẩm thành công! Sản phẩm đã được kích hoạt.')
+        } else {
+          setSuccess('Tạo sản phẩm thành công! Đang chờ admin duyệt.')
+        }
       }
 
       // Reset form
@@ -115,7 +143,8 @@ const ManagerDashboard = () => {
       // Refresh products list
       fetchMyProducts()
     } catch (err) {
-      console.error(err)
+      console.error('Product submission error:', err)
+      console.error('Error response:', err.response?.data)
       setError(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.')
     } finally {
       setLoading(false)

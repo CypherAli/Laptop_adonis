@@ -5,7 +5,6 @@ import AuthContext from '../../context/AuthContext'
 import { useToast } from '../../components/common/Toast'
 import ProductImage from '../../components/product/ProductImage'
 import PartnerRevenueModal from '../../components/partner/PartnerRevenueModal'
-import AdminChatWidget from '../../components/chat/AdminChatWidget'
 import {
   FiUsers,
   FiShoppingBag,
@@ -90,11 +89,13 @@ const AdminDashboard = () => {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(`/admin/products?page=${currentPage}&limit=10`)
+      console.log('Products response:', res.data)
       setProducts(res.data.products || [])
       setTotalPages(res.data.totalPages || 1)
     } catch (error) {
       console.error('Failed to fetch products:', error)
-      toast.error('Không thể tải danh sách sản phẩm')
+      console.error('Error details:', error.response?.data || error.message)
+      toast.error(error.response?.data?.message || 'Không thể tải danh sách sản phẩm')
     }
   }
 
@@ -879,9 +880,6 @@ const AdminDashboard = () => {
           )}
         </main>
       </div>
-
-      {/* Admin Chat Widget */}
-      <AdminChatWidget />
     </div>
   )
 }
