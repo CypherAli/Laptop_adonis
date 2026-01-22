@@ -92,6 +92,7 @@
     margin-bottom: 30px;
     opacity: 0.9;
     font-weight: 500;
+    color: #ffffff;
 }
 
 .hero-cta {
@@ -493,7 +494,7 @@
 .brand-title {
     text-align: center;
     font-size: 1.6rem;
-    color: #1a1a1a;
+    color: #ffffff;
     margin-bottom: 45px;
     font-weight: 800;
     text-transform: uppercase;

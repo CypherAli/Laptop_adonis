@@ -51,6 +51,22 @@ const ProductImage = ({
 
     const handleImageError = (e) => {
         console.log('Image load error:', src);
+        
+        // Check if this is a 403 or CORS error by trying to detect external URLs
+        const isExternalUrl = src && (
+            src.includes('vans.com') || 
+            src.includes('nike.com') || 
+            src.includes('adidas.com') ||
+            src.includes('reebok.com') ||
+            src.includes('puma.com') ||
+            src.startsWith('http://') ||
+            (src.startsWith('https://') && !src.includes(window.location.hostname))
+        );
+        
+        if (isExternalUrl) {
+            console.warn('⚠️ External image blocked (403/CORS):', src);
+        }
+        
         setImageError(true);
         setIsLoading(false);
         

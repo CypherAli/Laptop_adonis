@@ -131,10 +131,12 @@ router
     router
       .group(() => {
         router.get('/unread-count', [NotificationsController, 'getUnreadCount'])
-        router.get('/', [NotificationsController, 'index'])
-        router.put('/:notificationId/read', [NotificationsController, 'markAsRead'])
-        router.put('/mark-all-read', [NotificationsController, 'markAllAsRead'])
+        router.get('/my-notifications', [NotificationsController, 'index'])
+        router.post('/:notificationId/read', [NotificationsController, 'markAsRead'])
+        router.post('/mark-all-read', [NotificationsController, 'markAllAsRead'])
         router.delete('/:notificationId', [NotificationsController, 'destroy'])
+        router.delete('/read', [NotificationsController, 'deleteAllRead'])
+        router.post('/test', [NotificationsController, 'createTest']) // For testing
       })
       .prefix('/notifications')
       .use(middleware.jwtAuth())
