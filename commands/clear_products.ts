@@ -1,6 +1,6 @@
 import { BaseCommand } from '@adonisjs/core/ace'
 import mongoose from 'mongoose'
-import Product from '#models/product'
+import { Product } from '#models/product'
 
 export default class ClearProducts extends BaseCommand {
   static commandName = 'clear:products'

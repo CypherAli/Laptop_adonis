@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import mongoose from 'mongoose'
 import { Review } from '#models/review'
 import { Product } from '#models/product'
 import { Order } from '#models/order'
@@ -55,8 +56,6 @@ export default class ReviewsController {
       const { page = 1, limit = 10, rating, sortBy = 'recent' } = request.qs()
 
       // Validate ObjectId
-      const mongooseModule = await import('mongoose')
-      const mongoose = mongooseModule.default
       if (!mongoose.Types.ObjectId.isValid(productId)) {
         return response.status(400).json({
           message: 'ID sản phẩm không hợp lệ',

@@ -1,5 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { User } from '#models/user'
+import { Order } from '#models/order'
+import { Review } from '#models/review'
 import jwt from 'jsonwebtoken'
 import env from '#start/env'
 
@@ -175,9 +177,6 @@ export default class AuthController {
       }
 
       // Get user stats
-      const { Order } = await import('#models/order')
-      const { Review } = await import('#models/review')
-
       const orders = await Order.find({ user: userId })
       const reviews = await Review.find({ user: userId })
 

@@ -16,6 +16,10 @@ import {
   FiTrash2,
   FiEye,
   FiBarChart2,
+  FiGrid,
+  FiTag,
+  FiSettings,
+  FiLayers,
 } from 'react-icons/fi'
 import './AdminDashboard.professional.css'
 
@@ -40,10 +44,22 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([])
   const [users, setUsers] = useState([])
   const [reviews, setReviews] = useState([])
+  const [categories, setCategories] = useState([])
+  const [brands, setBrands] = useState([])
+  const [attributes, setAttributes] = useState([])
+  const [settings, setSettings] = useState(null)
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+
+  // Form states for new tabs
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [showBrandForm, setShowBrandForm] = useState(false)
+  const [showAttributeForm, setShowAttributeForm] = useState(false)
+  const [editingCategory, setEditingCategory] = useState(null)
+  const [editingBrand, setEditingBrand] = useState(null)
+  const [editingAttribute, setEditingAttribute] = useState(null)
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -61,6 +77,10 @@ const AdminDashboard = () => {
     else if (activeTab === 'users') fetchUsers()
     else if (activeTab === 'reviews') fetchReviews()
     else if (activeTab === 'revenue') fetchPartnerRevenue()
+    else if (activeTab === 'categories') fetchCategories()
+    else if (activeTab === 'brands') fetchBrands()
+    else if (activeTab === 'attributes') fetchAttributes()
+    else if (activeTab === 'settings') fetchSettings()
     // eslint-disable-next-line
   }, [activeTab, currentPage])
 
@@ -270,7 +290,61 @@ const AdminDashboard = () => {
       toast.error('Không thể từ chối đánh giá')
     }
   }
+  // CATEGORIES FETCH & ACTIONS
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get('/admin/categories/tree')
+      const tree = res.data.tree || []
+      // Flatten tree to show all categories
+      const flattenTree = (items, result = []) => {
+        items.forEach(item => {
+          result.push(item)
+          if (item.children && item.children.length > 0) {
+            flattenTree(item.children, result)
+          }
+        })
+        return result
+      }
+      setCategories(flattenTree(tree))
+    } catch (error) {
+      console.error('Failed to fetch categories:', error)
+      toast.error('Không thể tải danh mục')
+    }
+  }
 
+  // BRANDS FETCH & ACTIONS
+  const fetchBrands = async () => {
+    try {
+      const res = await axios.get(`/admin/brands?page=${currentPage}&limit=12`)
+      setBrands(res.data.brands || [])
+      setTotalPages(res.data.totalPages || 1)
+    } catch (error) {
+      console.error('Failed to fetch brands:', error)
+      toast.error('Không thể tải thương hiệu')
+    }
+  }
+
+  // ATTRIBUTES FETCH & ACTIONS
+  const fetchAttributes = async () => {
+    try {
+      const res = await axios.get('/admin/attributes')
+      setAttributes(res.data.attributes || [])
+    } catch (error) {
+      console.error('Failed to fetch attributes:', error)
+      toast.error('Không thể tải thuộc tính')
+    }
+  }
+
+  // SETTINGS FETCH & ACTIONS
+  const fetchSettings = async () => {
+    try {
+      const res = await axios.get('/admin/settings')
+      setSettings(res.data || {})
+    } catch (error) {
+      console.error('Failed to fetch settings:', error)
+      toast.error('Không thể tải cài đặt')
+    }
+  }
   if (loading) {
     return (
       <div className="admin-loading">
@@ -326,6 +400,27 @@ const AdminDashboard = () => {
               <span className="badge">{dashboardStats?.stats?.totalProducts || 0}</span>
             </button>
             <button
+              className={`nav-item ${activeTab === 'categories' ? 'active' : ''}`}
+              onClick={() => setActiveTab('categories')}
+            >
+              <FiGrid />
+              <span>Danh mục</span>
+            </button>
+            <button
+              className={`nav-item ${activeTab === 'brands' ? 'active' : ''}`}
+              onClick={() => setActiveTab('brands')}
+            >
+              <FiTag />
+              <span>Thương hiệu</span>
+            </button>
+            <button
+              className={`nav-item ${activeTab === 'attributes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('attributes')}
+            >
+              <FiLayers />
+              <span>Thuộc tính</span>
+            </button>
+            <button
               className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
               onClick={() => setActiveTab('orders')}
             >
@@ -347,6 +442,13 @@ const AdminDashboard = () => {
               <FiEye />
               <span>Reviews</span>
               <span className="badge">{dashboardStats?.stats?.totalReviews || 0}</span>
+            </button>
+            <button
+              className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              <FiSettings />
+              <span>Cài đặt</span>
             </button>
           </nav>
         </aside>
@@ -861,6 +963,199 @@ const AdminDashboard = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* CATEGORIES TAB */}
+          {activeTab === 'categories' && (
+            <div className="management-tab">
+              <h2>Quản lý Danh mục</h2>
+              <div className="table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Tên</th>
+                      <th>Slug</th>
+                      <th>Level</th>
+                      <th>Trạng thái</th>
+                      <th>Ngày tạo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>
+                          Chưa có danh mục nào
+                        </td>
+                      </tr>
+                    ) : (
+                      categories.map((category) => (
+                        <tr key={category._id}>
+                          <td><strong>{category.name}</strong></td>
+                          <td>/{category.slug}</td>
+                          <td>Level {category.level || 0}</td>
+                          <td>
+                            <span className={`status-badge ${category.isActive ? 'approved' : 'pending'}`}>
+                              {category.isActive ? 'Hoạt động' : 'Ẩn'}
+                            </span>
+                          </td>
+                          <td>{new Date(category.createdAt).toLocaleDateString('vi-VN')}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* BRANDS TAB */}
+          {activeTab === 'brands' && (
+            <div className="management-tab">
+              <h2>Quản lý Thương hiệu</h2>
+              <div className="table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Tên</th>
+                      <th>Slug</th>
+                      <th>Website</th>
+                      <th>Trạng thái</th>
+                      <th>Ngày tạo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {brands.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '40px' }}>
+                          Chưa có thương hiệu nào
+                        </td>
+                      </tr>
+                    ) : (
+                      brands.map((brand) => (
+                        <tr key={brand._id}>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              {brand.logo && (
+                                <img 
+                                  src={brand.logo} 
+                                  alt={brand.name}
+                                  style={{ width: '30px', height: '30px', objectFit: 'contain' }}
+                                />
+                              )}
+                              <strong>{brand.name}</strong>
+                            </div>
+                          </td>
+                          <td>/{brand.slug}</td>
+                          <td>
+                            {brand.website ? (
+                              <a href={brand.website} target="_blank" rel="noopener noreferrer">
+                                Link
+                              </a>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                          <td>
+                            <span className={`status-badge ${brand.isActive ? 'approved' : 'pending'}`}>
+                              {brand.isActive ? 'Hoạt động' : 'Ẩn'}
+                            </span>
+                          </td>
+                          <td>{new Date(brand.createdAt).toLocaleDateString('vi-VN')}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ATTRIBUTES TAB */}
+          {activeTab === 'attributes' && (
+            <div className="management-tab">
+              <h2>Quản lý Thuộc tính</h2>
+              <div className="table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Tên</th>
+                      <th>Slug</th>
+                      <th>Loại</th>
+                      <th>Số giá trị</th>
+                      <th>Variant</th>
+                      <th>Filterable</th>
+                      <th>Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attributes.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>
+                          Chưa có thuộc tính nào
+                        </td>
+                      </tr>
+                    ) : (
+                      attributes.map((attr) => (
+                        <tr key={attr._id}>
+                          <td><strong>{attr.name}</strong></td>
+                          <td>/{attr.slug}</td>
+                          <td>{attr.type}</td>
+                          <td>{attr.values?.length || 0}</td>
+                          <td>{attr.isVariant ? '✓' : '✗'}</td>
+                          <td>{attr.isFilterable ? '✓' : '✗'}</td>
+                          <td>
+                            <span className={`status-badge ${attr.isActive ? 'approved' : 'pending'}`}>
+                              {attr.isActive ? 'Hoạt động' : 'Ẩn'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* SETTINGS TAB */}
+          {activeTab === 'settings' && (
+            <div className="management-tab">
+              <h2>Cài đặt Hệ thống</h2>
+              {!settings ? (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                  <p>Đang tải cài đặt...</p>
+                </div>
+              ) : (
+                <div className="settings-display">
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', padding: '20px' }}>
+                    <div className="setting-item">
+                      <strong>Tên website:</strong>
+                      <p>{settings.siteName || 'Chưa cài đặt'}</p>
+                    </div>
+                    <div className="setting-item">
+                      <strong>Email liên hệ:</strong>
+                      <p>{settings.contactEmail || 'Chưa cài đặt'}</p>
+                    </div>
+                    <div className="setting-item">
+                      <strong>Số điện thoại:</strong>
+                      <p>{settings.contactPhone || 'Chưa cài đặt'}</p>
+                    </div>
+                    <div className="setting-item">
+                      <strong>Địa chỉ:</strong>
+                      <p>{settings.contactAddress || 'Chưa cài đặt'}</p>
+                    </div>
+                    <div className="setting-item">
+                      <strong>Maintenance mode:</strong>
+                      <p>{settings.maintenanceMode ? '✓ Bật' : '✗ Tắt'}</p>
+                    </div>
+                    <div className="setting-item">
+                      <strong>COD enabled:</strong>
+                      <p>{settings.codEnabled ? '✓ Bật' : '✗ Tắt'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -12,6 +12,12 @@ export const WishlistProvider = ({ children }) => {
   // Load wishlist on mount and when user changes
   useEffect(() => {
     if (user) {
+      // Admin không có wishlist
+      if (user.role === 'admin') {
+        setWishlist([])
+        localStorage.removeItem('wishlist')
+        return
+      }
       // Load from API if logged in
       loadWishlistFromAPI()
     } else {

@@ -23,6 +23,7 @@ const ChatController = () => import('#controllers/chat_controller')
 const CategoriesController = () => import('#controllers/categories_controller')
 const BrandsController = () => import('#controllers/brands_controller')
 const AttributesController = () => import('#controllers/attributes_controller')
+const SettingsController = () => import('#controllers/settings_controller')
 
 // API routes with /api prefix
 router
@@ -162,6 +163,9 @@ router
     
     // Filterable attributes for product filters
     router.get('/attributes/filterable', [AttributesController, 'filterable'])
+    
+    // Public settings (site info, social links, etc.)
+    router.get('/settings/public', [SettingsController, 'getPublic'])
 
     // ==================== ADMIN ROUTES ====================
     router
@@ -221,6 +225,11 @@ router
         router.put('/attributes/:id/toggle-active', [AttributesController, 'toggleActive'])
         router.post('/attributes/:id/values', [AttributesController, 'addValue'])
         router.delete('/attributes/:id/values', [AttributesController, 'removeValue'])
+        
+        // ==================== SETTINGS MANAGEMENT ====================
+        router.get('/settings', [SettingsController, 'index'])
+        router.put('/settings', [SettingsController, 'update'])
+        router.post('/settings/reset', [SettingsController, 'reset'])
       })
       .prefix('/admin')
       .use(middleware.jwtAuth())

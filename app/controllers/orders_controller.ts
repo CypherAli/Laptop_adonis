@@ -192,8 +192,7 @@ export default class OrdersController {
           product: product._id, // Reference ID (để trace back nếu cần)
           variantSku: variant.sku,
           variantName: variant.variantName, // SNAPSHOT: Tên variant lúc mua
-          seller: product.createdBy,
-          sellerName: item.sellerName, // SNAPSHOT: Tên shop lúc mua
+          seller: product.createdBy, // Reference đến User model để lấy shopName khi cần
           name: product.name, // SNAPSHOT: Tên sản phẩm lúc mua
           brand: product.brand, // SNAPSHOT: Brand lúc mua
           price: variant.price, // SNAPSHOT: Giá lúc mua

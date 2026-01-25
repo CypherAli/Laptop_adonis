@@ -8,22 +8,30 @@ export default class WishlistController {
    */
   async index({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
 
-      const user = await User.findById(userId).populate({
+      // Admin không có wishlist
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng wishlist',
+        })
+      }
+
+      const userDoc = await User.findById(userId).populate({
         path: 'wishlist',
         model: 'Product',
         select: 'name brand category basePrice variants images isActive',
       })
 
-      if (!user) {
+      if (!userDoc) {
         return response.status(404).json({
           message: 'User not found',
         })
       }
 
       // Filter out inactive products
-      const wishlist = (user.wishlist || [])
+      const wishlist = (userDoc.wishlist || [])
         .filter((product: any) => product && product.isActive)
         .map((product: any) => ({
           product: {
@@ -62,7 +70,16 @@ export default class WishlistController {
    */
   async add({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
+
+      // Admin không có wishlist
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng wishlist',
+        })
+      }
+
       const { productId } = request.only(['productId'])
 
       if (!productId) {
@@ -80,7 +97,7 @@ export default class WishlistController {
       }
 
       // Add to wishlist (using $addToSet to avoid duplicates)
-      const user = await User.findByIdAndUpdate(
+      const userDoc = await User.findByIdAndUpdate(
         userId,
         {
           $addToSet: { wishlist: productId },
@@ -92,7 +109,7 @@ export default class WishlistController {
         select: 'name brand category basePrice variants images isActive',
       })
 
-      if (!user) {
+      if (!userDoc) {
         return response.status(404).json({
           message: 'User not found',
         })
@@ -100,7 +117,7 @@ export default class WishlistController {
 
       return response.json({
         message: 'Product added to wishlist',
-        wishlist: user.wishlist,
+        wishlist: userDoc.wishlist,
       })
     } catch (error) {
       console.error('Error adding to wishlist:', error)
@@ -116,7 +133,16 @@ export default class WishlistController {
    */
   async remove({ request, response, params }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
+
+      // Admin không có wishlist
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng wishlist',
+        })
+      }
+
       const { productId } = params
 
       if (!productId) {
@@ -126,7 +152,7 @@ export default class WishlistController {
       }
 
       // Remove from wishlist
-      const user = await User.findByIdAndUpdate(
+      const userDoc = await User.findByIdAndUpdate(
         userId,
         {
           $pull: { wishlist: productId },
@@ -134,7 +160,7 @@ export default class WishlistController {
         { new: true }
       )
 
-      if (!user) {
+      if (!userDoc) {
         return response.status(404).json({
           message: 'User not found',
         })
@@ -157,9 +183,17 @@ export default class WishlistController {
    */
   async clear({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
 
-      const user = await User.findByIdAndUpdate(
+      // Admin không có wishlist
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng wishlist',
+        })
+      }
+
+      const userDoc = await User.findByIdAndUpdate(
         userId,
         {
           $set: { wishlist: [] },
@@ -167,7 +201,7 @@ export default class WishlistController {
         { new: true }
       )
 
-      if (!user) {
+      if (!userDoc) {
         return response.status(404).json({
           message: 'User not found',
         })

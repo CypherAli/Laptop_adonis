@@ -12,6 +12,12 @@ export const CartProvider = ({ children }) => {
   // Load cart on mount and when user changes
   useEffect(() => {
     if (user) {
+      // Admin không có cart
+      if (user.role === 'admin') {
+        setCartItems([])
+        localStorage.removeItem('cart')
+        return
+      }
       loadCartFromAPI()
     } else {
       loadCartFromLocalStorage()

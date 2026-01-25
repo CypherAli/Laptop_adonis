@@ -8,11 +8,19 @@ export default class CartsController {
    */
   async index({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user?.id
+      const user = (request as any).user
+      const userId = user?.id
 
       if (!userId) {
         return response.status(401).json({
           message: 'Vui lòng đăng nhập',
+        })
+      }
+
+      // Admin không có giỏ hàng
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng giỏ hàng',
         })
       }
 
@@ -51,7 +59,16 @@ export default class CartsController {
    */
   async addItem({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
+
+      // Admin không có giỏ hàng
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng giỏ hàng',
+        })
+      }
+
       let {
         productId,
         variantSku,
@@ -200,7 +217,16 @@ export default class CartsController {
    */
   async updateItem({ params, request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
+
+      // Admin không có giỏ hàng
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng giỏ hàng',
+        })
+      }
+
       const { itemId } = params
       const { quantity } = request.only(['quantity'])
 
@@ -261,7 +287,16 @@ export default class CartsController {
    */
   async removeItem({ params, request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
+
+      // Admin không có giỏ hàng
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng giỏ hàng',
+        })
+      }
+
       const { itemId } = params
 
       const cart = await Cart.findOne({ user: userId })
@@ -297,7 +332,15 @@ export default class CartsController {
    */
   async clear({ request, response }: HttpContext) {
     try {
-      const userId = (request as any).user.id
+      const user = (request as any).user
+      const userId = user.id
+
+      // Admin không có giỏ hàng
+      if (user.role === 'admin') {
+        return response.status(403).json({
+          message: 'Admin không có quyền sử dụng giỏ hàng',
+        })
+      }
 
       await Cart.findOneAndUpdate({ user: userId }, { items: [] })
 

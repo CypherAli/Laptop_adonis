@@ -249,11 +249,23 @@ export default function AdminDashboard() {
         <button className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`} onClick={() => { setActiveTab('products'); setCurrentPage(1); }}>
           Sản Phẩm
         </button>
+        <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => navigate('/admin/categories')}>
+          Danh mục
+        </button>
+        <button className={`tab-btn ${activeTab === 'brands' ? 'active' : ''}`} onClick={() => navigate('/admin/brands')}>
+          Thương hiệu
+        </button>
+        <button className={`tab-btn ${activeTab === 'attributes' ? 'active' : ''}`} onClick={() => navigate('/admin/attributes')}>
+          Thuộc tính
+        </button>
         <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => { setActiveTab('orders'); setCurrentPage(1); }}>
           Đơn Hàng
         </button>
         <button className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => { setActiveTab('reviews'); setCurrentPage(1); }}>
           Đánh Giá
+        </button>
+        <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => navigate('/admin/settings')}>
+          Cài đặt
         </button>
       </div>
 

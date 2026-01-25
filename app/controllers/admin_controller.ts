@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import mongoose from 'mongoose'
 import { User } from '#models/user'
 import { Product } from '#models/product'
 import { Order } from '#models/order'
@@ -47,7 +48,7 @@ export default class AdminController {
         Review.countDocuments({ isApproved: false }),
       ])
 
-      console.log('📊 Admin Stats Debug:', {
+      console.log(' Admin Stats Debug:', {
         totalOrders,
         totalProducts,
         totalUsers: totalClients + totalPartners + totalAdmins,
@@ -93,7 +94,7 @@ export default class AdminController {
         orderStats,
       })
     } catch (error) {
-      console.error('❌ Admin dashboard error:', error)
+      console.error(' Admin dashboard error:', error)
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,
@@ -204,7 +205,7 @@ export default class AdminController {
         totalOrders: total,
       })
     } catch (error) {
-      console.error('❌ Get all orders error:', error)
+      console.error(' Get all orders error:', error)
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,
@@ -596,8 +597,6 @@ export default class AdminController {
   async getPartnerStats({ request, response }: HttpContext) {
     try {
       const user = (request as any).user
-      const mongooseModule = await import('mongoose')
-      const mongoose = mongooseModule.default
       const partnerId = new mongoose.Types.ObjectId(user.id)
 
       const [totalProducts, totalOrders, totalRevenue] = await Promise.all([
@@ -635,8 +634,6 @@ export default class AdminController {
   async getPartnerRevenue({ request, response }: HttpContext) {
     try {
       const user = (request as any).user
-      const mongooseModule = await import('mongoose')
-      const mongoose = mongooseModule.default
       const partnerId = new mongoose.Types.ObjectId(user.id)
 
       const revenue = await Order.aggregate([
@@ -667,8 +664,6 @@ export default class AdminController {
   async getPartnerRevenueByBrand({ request, response }: HttpContext) {
     try {
       const user = (request as any).user
-      const mongooseModule = await import('mongoose')
-      const mongoose = mongooseModule.default
       const partnerId = new mongoose.Types.ObjectId(user.id)
 
       const revenueByBrand = await Order.aggregate([
