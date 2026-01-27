@@ -117,7 +117,11 @@ const Header = () => {
                         <span className="user-icon"></span>
                       )
                     })()}
-                    <span className="user-name">{userDetails?.username || user?.username}</span>
+                    <span className="user-name">
+                      {user?.role === 'partner' && userDetails?.shopName 
+                        ? userDetails.shopName 
+                        : (userDetails?.username || user?.username)}
+                    </span>
                     <span className="dropdown-arrow">▼</span>
                   </button>
                   <div className="user-dropdown">
