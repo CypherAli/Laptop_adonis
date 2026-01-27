@@ -12,6 +12,7 @@ const AnimatedProductCard = ({
   onAddToCart,
   onToggleWishlist,
   isInWishlist,
+  userRole,
 }) => {
   // Helper function to get price range from variants
   const getPriceRange = () => {
@@ -182,15 +183,18 @@ const AnimatedProductCard = ({
 
       {/* Action Buttons */}
       <div className="animated-action-buttons">
-        <motion.button
-          className={`animated-wishlist-btn ${isInWishlist(product._id) ? 'active' : ''}`}
-          onClick={() => onToggleWishlist(product)}
-          variants={buttonVariants}
-          whileHover="hover"
-          whileTap="tap"
-        >
-          {isInWishlist(product._id) ? '❤' : '♡'}
-        </motion.button>
+        {/* Admin và Partner không cần wishlist */}
+        {userRole !== 'admin' && userRole !== 'partner' && (
+          <motion.button
+            className={`animated-wishlist-btn ${isInWishlist(product._id) ? 'active' : ''}`}
+            onClick={() => onToggleWishlist(product)}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            {isInWishlist(product._id) ? '❤' : '♡'}
+          </motion.button>
+        )}
 
         <CompareButton product={product} />
       </div>
@@ -205,6 +209,19 @@ const AnimatedProductCard = ({
         >
           {product.brand}
         </motion.div>
+
+        {/* Partner/Seller Info */}
+        {product.createdBy && product.createdBy.shopName && (
+          <motion.div
+            className="animated-partner-info"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.1 + 0.25 }}
+          >
+            <span className="partner-icon">🏪</span>
+            <span className="partner-name">{product.createdBy.shopName}</span>
+          </motion.div>
+        )}
 
         <Link to={`/product/${product._id}`}>
           <motion.h3
@@ -262,20 +279,23 @@ const AnimatedProductCard = ({
             {totalStock > 0 ? `Còn ${totalStock} sản phẩm` : 'Hết hàng'}
           </span>
 
-          {totalStock > 0 ? (
-            <motion.button
-              className="animated-add-btn"
-              onClick={() => onAddToCart(product)}
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              Thêm
-            </motion.button>
-          ) : (
-            <motion.button className="animated-notify-btn" disabled>
-              Thông báo
-            </motion.button>
+          {/* Admin và Partner không cần add to cart */}
+          {userRole !== 'admin' && userRole !== 'partner' && (
+            totalStock > 0 ? (
+              <motion.button
+                className="animated-add-btn"
+                onClick={() => onAddToCart(product)}
+                variants={buttonVariants}
+                whileHover="hover"
+                whileTap="tap"
+              >
+                Thêm
+              </motion.button>
+            ) : (
+              <motion.button className="animated-notify-btn" disabled>
+                Thông báo
+              </motion.button>
+            )
           )}
         </div>
       </div>

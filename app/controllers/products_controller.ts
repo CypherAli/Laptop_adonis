@@ -23,7 +23,7 @@ export default class ProductsController {
 
       if (user.role === 'partner') {
         // Partners only see their own products
-        filter.partnerId = user.id
+        filter.createdBy = user.id
       }
       // Admin sees all products (no filter)
 
@@ -164,7 +164,12 @@ export default class ProductsController {
 
       // Execute query
       const [products, total] = await Promise.all([
-        Product.find(filter).sort(sort).skip(skip).limit(limitNum).lean(),
+        Product.find(filter)
+          .sort(sort)
+          .skip(skip)
+          .limit(limitNum)
+          .populate('createdBy', 'username shopName email')
+          .lean(),
         Product.countDocuments(filter),
       ])
 
@@ -195,7 +200,9 @@ export default class ProductsController {
         })
       }
 
-      const product = await Product.findById(params.id).lean()
+      const product = await Product.findById(params.id)
+        .populate('createdBy', 'username shopName email')
+        .lean()
 
       if (!product) {
         return response.status(404).json({

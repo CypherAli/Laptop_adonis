@@ -1035,18 +1035,21 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
 
             {/* Action Buttons */}
             <div className="quickview-actions">
-              <button
-                className="quickview-btn-cart"
-                onClick={handleAddToCart}
-                disabled={isOutOfStock}
-                style={{
-                  opacity: isOutOfStock ? 0.5 : 1,
-                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                  background: isOutOfStock ? '#f87171' : '#6366f1',
-                }}
-              >
-                <FiShoppingCart /> {isOutOfStock ? '❌ Hết hàng' : 'Thêm vào giỏ'}
-              </button>
+              {/* Admin và Partner không cần add to cart */}
+              {user?.role !== 'admin' && user?.role !== 'partner' && (
+                <button
+                  className="quickview-btn-cart"
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock}
+                  style={{
+                    opacity: isOutOfStock ? 0.5 : 1,
+                    cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                    background: isOutOfStock ? '#f87171' : '#6366f1',
+                  }}
+                >
+                  <FiShoppingCart /> {isOutOfStock ? '❌ Hết hàng' : 'Thêm vào giỏ'}
+                </button>
+              )}
               <Link
                 to={`/product/${displayProduct._id}`}
                 className="quickview-btn-detail"

@@ -4,6 +4,7 @@ import { FiShoppingCart, FiEye } from 'react-icons/fi'
 import axios from '../../api/axiosConfig'
 import CartContext from '../../context/CartContext'
 import WishlistContext from '../../context/WishlistContext'
+import AuthContext from '../../context/AuthContext'
 import { useToast } from '../common/Toast'
 import QuickViewModal from '../modal/QuickViewModal'
 import { PLACEHOLDER_IMAGES } from '../../utils/placeholder'
@@ -15,6 +16,7 @@ const BestSellers = () => {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const { addToCart } = useContext(CartContext)
   const { toggleWishlist, isInWishlist } = useContext(WishlistContext)
+  const { user } = useContext(AuthContext)
   const toast = useToast()
 
   useEffect(() => {
@@ -121,13 +123,16 @@ const BestSellers = () => {
 
                 {/* Action Buttons */}
                 <div className="bestseller-actions">
-                  <button
-                    className={`bestseller-wishlist-btn ${isInWishlist(product._id) ? 'active' : ''}`}
-                    onClick={(e) => handleWishlistClick(e, product)}
-                    title={isInWishlist(product._id) ? 'Remove from wishlist' : 'Add to wishlist'}
-                  >
-                    {isInWishlist(product._id) ? '❤️' : '🤍'}
-                  </button>
+                  {/* Admin và Partner không cần wishlist */}
+                  {user?.role !== 'admin' && user?.role !== 'partner' && (
+                    <button
+                      className={`bestseller-wishlist-btn ${isInWishlist(product._id) ? 'active' : ''}`}
+                      onClick={(e) => handleWishlistClick(e, product)}
+                      title={isInWishlist(product._id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                    >
+                      {isInWishlist(product._id) ? '❤️' : '🤍'}
+                    </button>
+                  )}
                   <button
                     className="bestseller-view-btn"
                     onClick={(e) => {
@@ -170,14 +175,16 @@ const BestSellers = () => {
                     </span>
                   </div>
 
-                  {/* Add to Cart Button */}
-                  <button
-                    className="bestseller-add-to-cart"
-                    onClick={(e) => handleAddToCart(e, product)}
-                    title="Add to cart"
-                  >
-                    <FiShoppingCart /> Add to Cart
-                  </button>
+                  {/* Add to Cart Button - Admin và Partner không cần */}
+                  {user?.role !== 'admin' && user?.role !== 'partner' && (
+                    <button
+                      className="bestseller-add-to-cart"
+                      onClick={(e) => handleAddToCart(e, product)}
+                      title="Add to cart"
+                    >
+                      <FiShoppingCart /> Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

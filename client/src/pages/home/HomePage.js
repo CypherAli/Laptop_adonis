@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
 import CartContext from '../../context/CartContext'
 import WishlistContext from '../../context/WishlistContext'
+import AuthContext from '../../context/AuthContext'
 import { useToast } from '../../components/common/Toast'
 import Loading from '../../components/loading/Loading'
 import HeroBanner from '../../components/common/HeroBanner'
@@ -36,6 +37,7 @@ const HomePage = () => {
 
   const { addToCart } = useContext(CartContext)
   const { toggleWishlist, isInWishlist } = useContext(WishlistContext)
+  const { user } = useContext(AuthContext)
   const toast = useToast()
 
   // Use custom hook for product fetching and filtering
@@ -364,6 +366,7 @@ const HomePage = () => {
                   }}
                   onToggleWishlist={toggleWishlist}
                   isInWishlist={isInWishlist}
+                  userRole={user?.role}
                 />
               ))
             )}

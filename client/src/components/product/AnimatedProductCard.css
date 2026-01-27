@@ -222,6 +222,30 @@
   color: #ff8800;
 }
 
+/* Partner/Seller Info */
+.animated-partner-info {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.08));
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  border-left: 3px solid #6366f1;
+  color: #a5b4fc;
+  margin-top: 4px;
+}
+
+.partner-icon {
+  font-size: 14px;
+}
+
+.partner-name {
+  color: #e0e7ff;
+}
+
 .animated-product-name {
   font-size: 16px;
   font-weight: 800;

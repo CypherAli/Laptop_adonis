@@ -84,8 +84,8 @@ const Header = () => {
               <>
                 <NotificationBell />
 
-                {/* Wishlist và Cart - CHỈ dành cho user và partner, ADMIN KHÔNG CẦN */}
-                {user.role !== 'admin' && (
+                {/* Wishlist và Cart - CHỈ dành cho user (client), KHÔNG cho admin và partner */}
+                {user.role === 'client' && (
                   <>
                     <Link to="/wishlist" className="icon-link">
                       <span className="icon"></span>
@@ -130,6 +130,11 @@ const Header = () => {
                       </Link>
                     )}
                     {user && user.role === 'admin' && (
+                      <Link to="/admin/add-product" className="dropdown-item">
+                        Add Product
+                      </Link>
+                    )}
+                    {user && user.role === 'partner' && (
                       <Link to="/admin/add-product" className="dropdown-item">
                         Add Product
                       </Link>
@@ -215,8 +220,8 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Cart Sidebar - CHỈ render cho user và partner, ADMIN KHÔNG CẦN */}
-      {(!user || user.role !== 'admin') && (
+      {/* Cart Sidebar - CHỈ render cho client (user), KHÔNG cho admin và partner */}
+      {(!user || user.role === 'client') && (
         <CartSidebar isOpen={isCartSidebarOpen} onClose={() => setIsCartSidebarOpen(false)} />
       )}
     </>

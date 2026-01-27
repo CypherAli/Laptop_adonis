@@ -132,11 +132,15 @@ function App() {
             <Route path="/partner/orders" element={<PartnerOrders />} />
           </Route>
 
-          {/* === Protected Admin Routes === */}
-          <Route element={<PrivateRoute allowedRoles={['admin']} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
+          {/* === Protected Admin & Partner Routes === */}
+          <Route element={<PrivateRoute allowedRoles={['admin', 'partner']} />}>
             <Route path="/admin/add-product" element={<AddProduct />} />
             <Route path="/admin/edit-product/:id" element={<EditProduct />} />
+          </Route>
+
+          {/* === Protected Admin Only Routes === */}
+          <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
 
