@@ -9,37 +9,11 @@ const ManagerDashboard = () => {
   const { user } = useContext(AuthContext)
   const navigate = useNavigate()
 
-  // Form states
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    originalPrice: '',
-    stock: '',
-    brand: 'Nike',
-    imageUrl: '',
-  })
-
   // UI states
   const [myProducts, setMyProducts] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [editingProduct, setEditingProduct] = useState(null)
-  const [showForm, setShowForm] = useState(false)
-
-  const brands = [
-    'Nike',
-    'Adidas',
-    'Puma',
-    'Reebok',
-    'New Balance',
-    'Converse',
-    'Vans',
-    'Asics',
-    'Under Armour',
-    'Fila',
-  ]
 
   useEffect(() => {
     if (!user || (user.role !== 'partner' && user.role !== 'admin')) {
@@ -75,97 +49,6 @@ const ManagerDashboard = () => {
     }
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
-    setLoading(true)
-
-    try {
-      // Transform form data to match API structure
-      const productData = {
-        name: formData.name,
-        description: formData.description,
-        basePrice: Number(formData.price),
-        category: 'Shoes', // Default category
-        brand: formData.brand,
-        images: formData.imageUrl ? [formData.imageUrl] : [],
-        variants: [
-          {
-            variantName: 'Default',
-            sku: `${formData.brand}-${Date.now()}`,
-            price: Number(formData.price),
-            originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
-            stock: Number(formData.stock),
-            attributes: {
-              size: '42', // Default size
-              color: 'Default'
-            }
-          }
-        ],
-        features: [],
-        warranty: '6 months',
-        // Admin creates products that are active immediately
-        isActive: user?.role === 'admin' ? true : false,
-        isFeatured: false
-      }
-
-      if (editingProduct) {
-        await axios.put(`/products/${editingProduct._id}`, productData)
-        setSuccess('Cập nhật sản phẩm thành công!')
-      } else {
-        await axios.post('/products', productData)
-        if (user?.role === 'admin') {
-          setSuccess('Tạo sản phẩm thành công! Sản phẩm đã được kích hoạt.')
-        } else {
-          setSuccess('Tạo sản phẩm thành công! Đang chờ admin duyệt.')
-        }
-      }
-
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        price: '',
-        originalPrice: '',
-        stock: '',
-        brand: 'Nike',
-        imageUrl: '',
-      })
-      setEditingProduct(null)
-      setShowForm(false)
-
-      // Refresh products list
-      fetchMyProducts()
-    } catch (err) {
-      console.error('Product submission error:', err)
-      console.error('Error response:', err.response?.data)
-      setError(err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleEdit = (product) => {
-    setEditingProduct(product)
-    setFormData({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      originalPrice: product.originalPrice || '',
-      stock: product.stock,
-      brand: product.brand,
-      imageUrl: product.imageUrl,
-    })
-    setShowForm(true)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   const handleDelete = async (productId) => {
     if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
       return
@@ -178,20 +61,6 @@ const ManagerDashboard = () => {
     } catch (err) {
       setError(err.response?.data?.message || 'Không thể xóa sản phẩm')
     }
-  }
-
-  const cancelEdit = () => {
-    setEditingProduct(null)
-    setFormData({
-      name: '',
-      description: '',
-      price: '',
-      originalPrice: '',
-      stock: '',
-      brand: 'Nike',
-      imageUrl: '',
-    })
-    setShowForm(false)
   }
 
   const getStatusInfo = (status) => {
@@ -223,39 +92,6 @@ const ManagerDashboard = () => {
           </h1>
         </div>
         <div className="header-actions">
-          {(user?.role === 'partner' || user?.role === 'admin') && (
-            <button
-              className="btn-action btn-revenue"
-              onClick={() => navigate('/partner-dashboard')}
-            >
-              <span className="btn-icon">💰</span>
-              <span className="btn-text">Revenue Analytics</span>
-            </button>
-          )}
-          {user?.role === 'partner' && user?.isApproved && (
-            <button
-              className={`btn-action ${showForm ? 'btn-close' : 'btn-add'}`}
-              onClick={() => {
-                setShowForm(!showForm)
-                if (editingProduct) cancelEdit()
-              }}
-            >
-              <span className="btn-icon">{showForm ? '✕' : '+'}</span>
-              <span className="btn-text">{showForm ? 'Close' : 'Add Product'}</span>
-            </button>
-          )}
-          {user?.role === 'admin' && (
-            <button
-              className={`btn-action ${showForm ? 'btn-close' : 'btn-add'}`}
-              onClick={() => {
-                setShowForm(!showForm)
-                if (editingProduct) cancelEdit()
-              }}
-            >
-              <span className="btn-icon">{showForm ? '✕' : '+'}</span>
-              <span className="btn-text">{showForm ? 'Close' : 'Add Product'}</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -299,118 +135,6 @@ const ManagerDashboard = () => {
         </div>
       )}
 
-      {/* Product Form */}
-      {showForm && (
-        <div className="product-form-card">
-          <h2>{editingProduct ? '✏️ Edit product' : '➕ Add new product'}</h2>
-          <form onSubmit={handleSubmit} className="product-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label>Tên sản phẩm *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="VD: Nike Air Max 270"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Thương hiệu *</label>
-                <select name="brand" value={formData.brand} onChange={handleInputChange} required>
-                  {brands.map((brand) => (
-                    <option key={brand} value={brand}>
-                      {brand}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Mô tả *</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
-                rows="4"
-                placeholder="Mô tả chi tiết sản phẩm..."
-              ></textarea>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Giá bán (VNĐ) *</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  required
-                  min="0"
-                  placeholder="25000000"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Giá gốc (VNĐ)</label>
-                <input
-                  type="number"
-                  name="originalPrice"
-                  value={formData.originalPrice}
-                  onChange={handleInputChange}
-                  min="0"
-                  placeholder="30000000"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Tồn kho *</label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={formData.stock}
-                  onChange={handleInputChange}
-                  required
-                  min="0"
-                  placeholder="50"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Link hình ảnh</label>
-              <input
-                type="url"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleInputChange}
-                placeholder="https://example.com/image.jpg"
-              />
-              {formData.imageUrl && (
-                <div className="image-preview">
-                  <img src={formData.imageUrl} alt="Preview" />
-                </div>
-              )}
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn-submit" disabled={loading}>
-                {loading ? '⏳ Processing...' : editingProduct ? '💾 Update' : '➕ Create product'}
-              </button>
-              {editingProduct && (
-                <button type="button" className="btn-cancel" onClick={cancelEdit}>
-                  ❌ Hủy
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
-      )}
-
       {/* Products List */}
       <div className="products-section">
         <h2>
@@ -422,9 +146,11 @@ const ManagerDashboard = () => {
           <div className="no-products">
             <div className="empty-icon">📦</div>
             <p>No products yet</p>
-            <button className="btn-add-first" onClick={() => setShowForm(true)}>
-              ➕ Add first product
-            </button>
+            {user?.role === 'admin' && (
+              <button className="btn-add-first" onClick={() => navigate('/admin/add-product')}>
+                ➕ Add first product
+              </button>
+            )}
           </div>
         ) : (
           <div className="products-grid">
@@ -461,7 +187,10 @@ const ManagerDashboard = () => {
                     </div>
 
                     <div className="product-actions">
-                      <button className="btn-edit" onClick={() => handleEdit(product)}>
+                      <button 
+                        className="btn-edit" 
+                        onClick={() => navigate(`/admin/edit-product/${product._id}`)}
+                      >
                         ✏️ Sửa
                       </button>
                       <button className="btn-delete" onClick={() => handleDelete(product._id)}>

@@ -4,6 +4,9 @@ import { User } from '#models/user'
 import { Product } from '#models/product'
 import { Order } from '#models/order'
 import { Review } from '#models/review'
+import { Category } from '#models/category'
+import { Brand } from '#models/brand'
+import { Settings } from '#models/settings'
 
 export default class AdminController {
   /**
@@ -687,4 +690,267 @@ export default class AdminController {
       })
     }
   }
+
+  /**
+   * Get categories tree
+   */
+  async getCategoriesTree({ response }: HttpContext) {
+    try {
+      // Get all categories and build tree
+      const allCategories = await Category.find().lean()
+      
+      // Build tree structure
+      const categoryMap = new Map()
+      const rootCategories: any[] = []
+      
+      // First pass: create map
+      allCategories.forEach((cat: any) => {
+        categoryMap.set(cat._id.toString(), { ...cat, children: [] })
+      })
+      
+      // Second pass: build tree and add product counts
+      for (const cat of allCategories) {
+        const category = categoryMap.get(cat._id.toString())
+        const productCount = await Product.countDocuments({
+          category: cat.name,
+        })
+        category.productCount = productCount
+        
+        if (cat.parentId) {
+          const parent = categoryMap.get(cat.parentId.toString())
+          if (parent) {
+            parent.children.push(category)
+          }
+        } else {
+          rootCategories.push(category)
+        }
+      }
+
+      return response.json({ tree: rootCategories })
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi lấy danh mục',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Toggle category active status
+   */
+  async toggleCategoryActive({ params, response }: HttpContext) {
+    try {
+      const category = await Category.findById(params.id)
+      if (!category) {
+        return response.status(404).json({ message: 'Không tìm thấy danh mục' })
+      }
+
+      category.isActive = !category.isActive
+      await category.save()
+
+      return response.json({ message: 'Đã cập nhật trạng thái danh mục', category })
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi cập nhật danh mục',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Get brands list with pagination
+   */
+  async getBrands({ request, response }: HttpContext) {
+    try {
+      const page = Number(request.input('page', 1))
+      const limit = Number(request.input('limit', 10))
+      const skip = (page - 1) * limit
+
+      const [brands, total] = await Promise.all([
+        Brand.find().skip(skip).limit(limit).lean(),
+        Brand.countDocuments(),
+      ])
+
+      // Add product count for each brand
+      const brandsWithCount = await Promise.all(
+        brands.map(async (brand: any) => {
+          const productCount = await Product.countDocuments({
+            brand: brand.name,
+          })
+          return { ...brand, productCount }
+        })
+      )
+
+      return response.json({
+        brands: brandsWithCount,
+        page,
+        totalPages: Math.ceil(total / limit),
+        total,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi lấy thương hiệu',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Toggle brand active status
+   */
+  async toggleBrandActive({ params, response }: HttpContext) {
+    try {
+      const brand = await Brand.findById(params.id)
+      if (!brand) {
+        return response.status(404).json({ message: 'Không tìm thấy thương hiệu' })
+      }
+
+      brand.isActive = !brand.isActive
+      await brand.save()
+
+      return response.json({ message: 'Đã cập nhật trạng thái thương hiệu', brand })
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi cập nhật thương hiệu',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Get system settings
+   */
+  async getSettings({ response }: HttpContext) {
+    try {
+      let settings = await Settings.findOne()
+      
+      // Create default settings if not exists
+      if (!settings) {
+        settings = await Settings.create({
+          siteName: 'ShoeStore',
+          siteDescription: '',
+          contactEmail: '',
+          contactPhone: '',
+        })
+      }
+
+      return response.json(settings)
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi lấy cài đặt',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Update system settings
+   */
+  async updateSettings({ request, response }: HttpContext) {
+    try {
+      const data = request.only([
+        'siteName',
+        'siteDescription',
+        'siteLogo',
+        'contactEmail',
+        'contactPhone',
+        'address',
+        'maintenanceMode',
+        'maintenanceMessage',
+        'emailNotifications',
+        'orderConfirmationEmail',
+        'emailFromName',
+        'emailFromAddress',
+        'minOrderAmount',
+        'maxOrderAmount',
+        'freeShippingThreshold',
+        'defaultShippingFee',
+        'codEnabled',
+        'bankTransferEnabled',
+        'defaultProductsPerPage',
+        'maxProductImages',
+        'allowGuestReviews',
+        'requireReviewApproval',
+        'facebookUrl',
+        'instagramUrl',
+        'twitterUrl',
+        'youtubeUrl',
+        'metaTitle',
+        'metaDescription',
+        'metaKeywords',
+        'googleAnalyticsId',
+        'facebookPixelId',
+      ])
+
+      let settings = await Settings.findOne()
+      
+      if (!settings) {
+        settings = await Settings.create(data)
+      } else {
+        Object.assign(settings, data)
+        await settings.save()
+      }
+
+      return response.json({ message: 'Đã cập nhật cài đặt', settings })
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi cập nhật cài đặt',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Get partner orders (for Partner Dashboard)
+   */
+  async getPartnerOrders({ request, response }: HttpContext) {
+    try {
+      const user = (request as any).user
+      const partnerId = new mongoose.Types.ObjectId(user.id)
+      
+      const page = parseInt(request.input('page', '1'))
+      const limit = parseInt(request.input('limit', '10'))
+      const status = request.input('status')
+      const skip = (page - 1) * limit
+
+      // Build query - get orders that contain items from this partner
+      const matchQuery: any = {
+        'items.seller': partnerId,
+      }
+
+      if (status && status !== 'all') {
+        matchQuery.status = status
+      }
+
+      const [orders, totalOrders] = await Promise.all([
+        Order.find(matchQuery)
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Order.countDocuments(matchQuery),
+      ])
+
+      // Filter items to show only partner's items
+      const filteredOrders = orders.map((order: any) => ({
+        ...order,
+        items: order.items.filter(
+          (item: any) => item.seller.toString() === partnerId.toString()
+        ),
+      }))
+
+      return response.json({
+        orders: filteredOrders,
+        currentPage: page,
+        totalPages: Math.ceil(totalOrders / limit),
+        totalOrders,
+      })
+    } catch (error) {
+      return response.status(500).json({
+        message: 'Lỗi khi lấy đơn hàng',
+        error: error.message,
+      })
+    }
+  }
 }
+

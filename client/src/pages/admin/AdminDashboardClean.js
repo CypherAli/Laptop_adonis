@@ -17,6 +17,10 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiClock,
+  FiGlobe,
+  FiSave,
+  FiChevronLeft,
+  FiChevronRight,
 } from 'react-icons/fi'
 import './AdminDashboard.clean.css'
 
@@ -75,6 +79,42 @@ const AdminDashboardClean = () => {
   const [orders, setOrders] = useState([])
   const [users, setUsers] = useState([])
   const [reviews, setReviews] = useState([])
+  const [categories, setCategories] = useState([])
+  const [brands, setBrands] = useState([])
+  const [settings, setSettings] = useState({
+    siteName: 'ShoeStore',
+    siteDescription: '',
+    siteLogo: '',
+    contactEmail: '',
+    contactPhone: '',
+    address: '',
+    maintenanceMode: false,
+    maintenanceMessage: '',
+    emailNotifications: true,
+    orderConfirmationEmail: true,
+    emailFromName: 'ShoeStore',
+    emailFromAddress: '',
+    minOrderAmount: 0,
+    maxOrderAmount: 100000000,
+    freeShippingThreshold: 500000,
+    defaultShippingFee: 30000,
+    codEnabled: true,
+    bankTransferEnabled: true,
+    defaultProductsPerPage: 12,
+    maxProductImages: 10,
+    allowGuestReviews: false,
+    requireReviewApproval: true,
+    facebookUrl: '',
+    instagramUrl: '',
+    twitterUrl: '',
+    youtubeUrl: '',
+    metaTitle: '',
+    metaDescription: '',
+    metaKeywords: '',
+    googleAnalyticsId: '',
+    facebookPixelId: ''
+  })
+  const [settingsTab, setSettingsTab] = useState('site')
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -95,6 +135,9 @@ const AdminDashboardClean = () => {
     else if (activeTab === 'orders') fetchOrders(1)
     else if (activeTab === 'users') fetchUsers(1)
     else if (activeTab === 'reviews') fetchReviews(1)
+    else if (activeTab === 'categories') fetchCategories()
+    else if (activeTab === 'brands') fetchBrands(1)
+    else if (activeTab === 'settings') fetchSettings()
   }, [activeTab])
 
   useEffect(() => {
@@ -195,6 +238,87 @@ const AdminDashboardClean = () => {
       fetchReviews(currentPage)
     } catch (error) {
       toast.error('Không thể cập nhật đánh giá')
+    }
+  }
+
+  // Categories functions
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get('/admin/categories/tree')
+      const flattenTree = (items, result = [], level = 0) => {
+        items.forEach(item => {
+          result.push({ ...item, level })
+          if (item.children && item.children.length > 0) {
+            flattenTree(item.children, result, level + 1)
+          }
+        })
+        return result
+      }
+      setCategories(flattenTree(res.data.tree || []))
+    } catch (error) {
+      toast.error('Không thể tải danh mục')
+    }
+  }
+
+  const handleToggleCategoryActive = async (categoryId) => {
+    try {
+      await axios.put(`/admin/categories/${categoryId}/toggle-active`)
+      toast.success('Đã cập nhật trạng thái danh mục')
+      fetchCategories()
+    } catch (error) {
+      toast.error('Không thể cập nhật danh mục')
+    }
+  }
+
+  // Brands functions
+  const fetchBrands = async (page = 1) => {
+    try {
+      const res = await axios.get(`/admin/brands?page=${page}&limit=10`)
+      setBrands(res.data.brands || [])
+      setTotalPages(res.data.totalPages || 1)
+    } catch (error) {
+      toast.error('Không thể tải thương hiệu')
+    }
+  }
+
+  const handleToggleBrandActive = async (brandId) => {
+    try {
+      await axios.put(`/admin/brands/${brandId}/toggle-active`)
+      toast.success('Đã cập nhật trạng thái thương hiệu')
+      fetchBrands(currentPage)
+    } catch (error) {
+      toast.error('Không thể cập nhật thương hiệu')
+    }
+  }
+
+  // Settings functions
+  const fetchSettings = async () => {
+    try {
+      const res = await axios.get('/admin/settings')
+      if (res.data) {
+        // Merge with defaults to ensure no null/undefined values
+        setSettings(prevSettings => ({
+          ...prevSettings,
+          ...Object.fromEntries(
+            Object.entries(res.data).map(([key, value]) => [
+              key,
+              value ?? prevSettings[key] ?? ''
+            ])
+          )
+        }))
+      }
+    } catch (error) {
+      toast.error('Không thể tải cài đặt')
+    }
+  }
+
+  const handleUpdateSettings = async (e) => {
+    e.preventDefault()
+    try {
+      await axios.put('/admin/settings', settings)
+      toast.success('Đã cập nhật cài đặt thành công!')
+    } catch (error) {
+      toast.error('Không thể cập nhật cài đặt')
     }
   }
 
@@ -743,10 +867,580 @@ const AdminDashboardClean = () => {
                   {activeTab === 'settings' && <><FiSettings /> System Settings</>}
                 </h3>
               </div>
-              <div className="empty-state-clean">
-                <div className="empty-state-icon"><FiSettings /></div>
-                <div className="empty-state-text">Feature coming soon</div>
-              </div>
+              
+              {/* Categories Content */}
+              {activeTab === 'categories' && (
+                <table className="data-table-clean">
+                  <thead>
+                    <tr>
+                      <th style={{width: '40%'}}>Category Name</th>
+                      <th>Slug</th>
+                      <th>Products</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>
+                          No categories found
+                        </td>
+                      </tr>
+                    ) : (
+                      categories.map((category) => (
+                        <tr key={category._id}>
+                          <td>
+                            <div style={{ 
+                              paddingLeft: `${category.level * 24}px`, 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '8px' 
+                            }}>
+                              {category.level > 0 && <span style={{color: '#94a3b8'}}>└─</span>}
+                              <span style={{ fontWeight: category.level === 0 ? '600' : '400' }}>
+                                {category.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td><span className="badge-clean">{category.slug}</span></td>
+                          <td>{category.productCount || 0} products</td>
+                          <td>
+                            <span className={`status-badge ${category.isActive ? 'active' : 'inactive'}`}>
+                              {category.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td>
+                            <button 
+                              className="action-btn-clean"
+                              onClick={() => handleToggleCategoryActive(category._id)}
+                            >
+                              {category.isActive ? 'Deactivate' : 'Activate'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Brands Content */}
+              {activeTab === 'brands' && (
+                <>
+                  <table className="data-table-clean">
+                    <thead>
+                      <tr>
+                        <th style={{width: '10%'}}>Logo</th>
+                        <th style={{width: '25%'}}>Brand Name</th>
+                        <th>Slug</th>
+                        <th>Products</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {brands.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>
+                            No brands found
+                          </td>
+                        </tr>
+                      ) : (
+                        brands.map((brand) => {
+                          const hasValidLogo = brand.logo && (brand.logo.startsWith('http://') || brand.logo.startsWith('https://') || brand.logo.startsWith('/'))
+                          return (
+                          <tr key={brand._id}>
+                            <td>
+                              <div className="brand-logo-cell" style={{position: 'relative'}}>
+                                {hasValidLogo && (
+                                  <img 
+                                    src={brand.logo} 
+                                    alt={brand.name} 
+                                    style={{
+                                      width: '40px',
+                                      height: '40px',
+                                      objectFit: 'contain',
+                                      borderRadius: '4px'
+                                    }} 
+                                    onLoad={(e) => {
+                                      const placeholder = e.target.nextElementSibling
+                                      if (placeholder) placeholder.style.display = 'none'
+                                    }}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none'
+                                      const placeholder = e.target.nextElementSibling
+                                      if (placeholder) placeholder.style.display = 'flex'
+                                    }}
+                                  />
+                                )}
+                                <div style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  background: '#f1f5f9',
+                                  borderRadius: '4px',
+                                  display: hasValidLogo ? 'none' : 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: '#94a3b8'
+                                }}>
+                                  <FiPackage size={20} />
+                                </div>
+                              </div>
+                            </td>
+                            <td><strong>{brand.name}</strong></td>
+                            <td><span className="badge-clean">{brand.slug}</span></td>
+                            <td>{brand.productCount || 0} products</td>
+                            <td>
+                              <span className={`status-badge ${brand.isActive ? 'active' : 'inactive'}`}>
+                                {brand.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td>
+                              <button 
+                                className="action-btn-clean"
+                                onClick={() => handleToggleBrandActive(brand._id)}
+                              >
+                                {brand.isActive ? 'Deactivate' : 'Activate'}
+                              </button>
+                            </td>
+                          </tr>
+                          )
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                  {totalPages > 1 && (
+                    <div className="pagination-clean">
+                      <button
+                        className="pagination-btn"
+                        onClick={() => {
+                          setCurrentPage(currentPage - 1)
+                          fetchBrands(currentPage - 1)
+                        }}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </button>
+                      <span className="pagination-info">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <button
+                        className="pagination-btn"
+                        onClick={() => {
+                          setCurrentPage(currentPage + 1)
+                          fetchBrands(currentPage + 1)
+                        }}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Settings Content */}
+              {activeTab === 'settings' && (
+                <div className="settings-wrapper">
+                  {/* Settings Tabs */}
+                  <div className="settings-tabs">
+                    <button 
+                      className={`settings-tab ${settingsTab === 'site' ? 'active' : ''}`}
+                      onClick={() => setSettingsTab('site')}
+                    >
+                      <FiGlobe /> Site Info
+                    </button>
+                    <button 
+                      className={`settings-tab ${settingsTab === 'email' ? 'active' : ''}`}
+                      onClick={() => setSettingsTab('email')}
+                    >
+                      <FiMessageSquare /> Email
+                    </button>
+                    <button 
+                      className={`settings-tab ${settingsTab === 'order' ? 'active' : ''}`}
+                      onClick={() => setSettingsTab('order')}
+                    >
+                      <FiShoppingBag /> Orders
+                    </button>
+                    <button 
+                      className={`settings-tab ${settingsTab === 'product' ? 'active' : ''}`}
+                      onClick={() => setSettingsTab('product')}
+                    >
+                      <FiPackage /> Products
+                    </button>
+                    <button 
+                      className={`settings-tab ${settingsTab === 'social' ? 'active' : ''}`}
+                      onClick={() => setSettingsTab('social')}
+                    >
+                      <FiUsers /> Social
+                    </button>
+                    <button 
+                      className={`settings-tab ${settingsTab === 'seo' ? 'active' : ''}`}
+                      onClick={() => setSettingsTab('seo')}
+                    >
+                      <FiBarChart2 /> SEO
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleUpdateSettings} className="settings-form-clean">
+                    {/* Site Info Tab */}
+                    {settingsTab === 'site' && (
+                      <div className="settings-section">
+                        <h4><FiGlobe /> Website Information</h4>
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label>Site Name *</label>
+                            <input 
+                              type="text" 
+                              value={settings.siteName}
+                              onChange={(e) => setSettings({...settings, siteName: e.target.value})}
+                              required
+                              placeholder="Enter your site name"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Site Logo URL</label>
+                            <input 
+                              type="text" 
+                              value={settings.siteLogo}
+                              onChange={(e) => setSettings({...settings, siteLogo: e.target.value})}
+                              placeholder="https://example.com/logo.png"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Contact Email</label>
+                            <input 
+                              type="email" 
+                              value={settings.contactEmail}
+                              onChange={(e) => setSettings({...settings, contactEmail: e.target.value})}
+                              placeholder="contact@example.com"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Contact Phone</label>
+                            <input 
+                              type="tel" 
+                              value={settings.contactPhone}
+                              onChange={(e) => setSettings({...settings, contactPhone: e.target.value})}
+                              placeholder="+84 123 456 789"
+                            />
+                          </div>
+                          <div className="form-group full-width">
+                            <label>Site Description</label>
+                            <textarea 
+                              value={settings.siteDescription}
+                              onChange={(e) => setSettings({...settings, siteDescription: e.target.value})}
+                              rows="3"
+                              placeholder="Brief description of your website"
+                            />
+                          </div>
+                          <div className="form-group full-width">
+                            <label>Address</label>
+                            <input 
+                              type="text" 
+                              value={settings.address}
+                              onChange={(e) => setSettings({...settings, address: e.target.value})}
+                              placeholder="Physical store address"
+                            />
+                          </div>
+                          <div className="form-group full-width">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.maintenanceMode}
+                                onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})}
+                              />
+                              <span>Enable Maintenance Mode</span>
+                            </label>
+                            {settings.maintenanceMode && (
+                              <textarea 
+                                value={settings.maintenanceMessage}
+                                onChange={(e) => setSettings({...settings, maintenanceMessage: e.target.value})}
+                                rows="2"
+                                placeholder="Maintenance message to display"
+                                style={{marginTop: '8px'}}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Email Settings Tab */}
+                    {settingsTab === 'email' && (
+                      <div className="settings-section">
+                        <h4><FiMessageSquare /> Email Configuration</h4>
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label>Email From Name</label>
+                            <input 
+                              type="text" 
+                              value={settings.emailFromName}
+                              onChange={(e) => setSettings({...settings, emailFromName: e.target.value})}
+                              placeholder="Your Store Name"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Email From Address</label>
+                            <input 
+                              type="email" 
+                              value={settings.emailFromAddress}
+                              onChange={(e) => setSettings({...settings, emailFromAddress: e.target.value})}
+                              placeholder="noreply@example.com"
+                            />
+                          </div>
+                          <div className="form-group full-width">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.emailNotifications}
+                                onChange={(e) => setSettings({...settings, emailNotifications: e.target.checked})}
+                              />
+                              <span>Enable Email Notifications</span>
+                            </label>
+                          </div>
+                          <div className="form-group full-width">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.orderConfirmationEmail}
+                                onChange={(e) => setSettings({...settings, orderConfirmationEmail: e.target.checked})}
+                              />
+                              <span>Send Order Confirmation Emails</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Order Settings Tab */}
+                    {settingsTab === 'order' && (
+                      <div className="settings-section">
+                        <h4><FiShoppingBag /> Order Configuration</h4>
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label>Minimum Order Amount (VND)</label>
+                            <input 
+                              type="number" 
+                              value={settings.minOrderAmount}
+                              onChange={(e) => setSettings({...settings, minOrderAmount: parseInt(e.target.value) || 0})}
+                              min="0"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Maximum Order Amount (VND)</label>
+                            <input 
+                              type="number" 
+                              value={settings.maxOrderAmount}
+                              onChange={(e) => setSettings({...settings, maxOrderAmount: parseInt(e.target.value) || 0})}
+                              min="0"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Free Shipping Threshold (VND)</label>
+                            <input 
+                              type="number" 
+                              value={settings.freeShippingThreshold}
+                              onChange={(e) => setSettings({...settings, freeShippingThreshold: parseInt(e.target.value) || 0})}
+                              min="0"
+                            />
+                            <small>Orders above this amount get free shipping</small>
+                          </div>
+                          <div className="form-group">
+                            <label>Default Shipping Fee (VND)</label>
+                            <input 
+                              type="number" 
+                              value={settings.defaultShippingFee}
+                              onChange={(e) => setSettings({...settings, defaultShippingFee: parseInt(e.target.value) || 0})}
+                              min="0"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.codEnabled}
+                                onChange={(e) => setSettings({...settings, codEnabled: e.target.checked})}
+                              />
+                              <span>Enable Cash on Delivery (COD)</span>
+                            </label>
+                          </div>
+                          <div className="form-group">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.bankTransferEnabled}
+                                onChange={(e) => setSettings({...settings, bankTransferEnabled: e.target.checked})}
+                              />
+                              <span>Enable Bank Transfer</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Product Settings Tab */}
+                    {settingsTab === 'product' && (
+                      <div className="settings-section">
+                        <h4><FiPackage /> Product Configuration</h4>
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label>Products Per Page</label>
+                            <input 
+                              type="number" 
+                              value={settings.defaultProductsPerPage}
+                              onChange={(e) => setSettings({...settings, defaultProductsPerPage: parseInt(e.target.value) || 12})}
+                              min="1"
+                              max="100"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Max Product Images</label>
+                            <input 
+                              type="number" 
+                              value={settings.maxProductImages}
+                              onChange={(e) => setSettings({...settings, maxProductImages: parseInt(e.target.value) || 10})}
+                              min="1"
+                              max="50"
+                            />
+                          </div>
+                          <div className="form-group full-width">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.allowGuestReviews}
+                                onChange={(e) => setSettings({...settings, allowGuestReviews: e.target.checked})}
+                              />
+                              <span>Allow Guest Reviews (without login)</span>
+                            </label>
+                          </div>
+                          <div className="form-group full-width">
+                            <label className="checkbox-label">
+                              <input 
+                                type="checkbox" 
+                                checked={settings.requireReviewApproval}
+                                onChange={(e) => setSettings({...settings, requireReviewApproval: e.target.checked})}
+                              />
+                              <span>Require Review Approval Before Publishing</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Links Tab */}
+                    {settingsTab === 'social' && (
+                      <div className="settings-section">
+                        <h4><FiUsers /> Social Media Links</h4>
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label>Facebook URL</label>
+                            <input 
+                              type="url" 
+                              value={settings.facebookUrl}
+                              onChange={(e) => setSettings({...settings, facebookUrl: e.target.value})}
+                              placeholder="https://facebook.com/yourpage"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Instagram URL</label>
+                            <input 
+                              type="url" 
+                              value={settings.instagramUrl}
+                              onChange={(e) => setSettings({...settings, instagramUrl: e.target.value})}
+                              placeholder="https://instagram.com/yourprofile"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Twitter URL</label>
+                            <input 
+                              type="url" 
+                              value={settings.twitterUrl}
+                              onChange={(e) => setSettings({...settings, twitterUrl: e.target.value})}
+                              placeholder="https://twitter.com/yourhandle"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>YouTube URL</label>
+                            <input 
+                              type="url" 
+                              value={settings.youtubeUrl}
+                              onChange={(e) => setSettings({...settings, youtubeUrl: e.target.value})}
+                              placeholder="https://youtube.com/yourchannel"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SEO Settings Tab */}
+                    {settingsTab === 'seo' && (
+                      <div className="settings-section">
+                        <h4><FiBarChart2 /> SEO & Analytics</h4>
+                        <div className="form-grid">
+                          <div className="form-group full-width">
+                            <label>Meta Title</label>
+                            <input 
+                              type="text" 
+                              value={settings.metaTitle}
+                              onChange={(e) => setSettings({...settings, metaTitle: e.target.value})}
+                              placeholder="Your Site - Best Shoes Online"
+                              maxLength="60"
+                            />
+                            <small>{settings.metaTitle.length}/60 characters</small>
+                          </div>
+                          <div className="form-group full-width">
+                            <label>Meta Description</label>
+                            <textarea 
+                              value={settings.metaDescription}
+                              onChange={(e) => setSettings({...settings, metaDescription: e.target.value})}
+                              rows="3"
+                              placeholder="Description for search engines"
+                              maxLength="160"
+                            />
+                            <small>{settings.metaDescription.length}/160 characters</small>
+                          </div>
+                          <div className="form-group full-width">
+                            <label>Meta Keywords</label>
+                            <input 
+                              type="text" 
+                              value={settings.metaKeywords}
+                              onChange={(e) => setSettings({...settings, metaKeywords: e.target.value})}
+                              placeholder="shoes, sneakers, footwear"
+                            />
+                            <small>Separate keywords with commas</small>
+                          </div>
+                          <div className="form-group">
+                            <label>Google Analytics ID</label>
+                            <input 
+                              type="text" 
+                              value={settings.googleAnalyticsId}
+                              onChange={(e) => setSettings({...settings, googleAnalyticsId: e.target.value})}
+                              placeholder="G-XXXXXXXXXX"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Facebook Pixel ID</label>
+                            <input 
+                              type="text" 
+                              value={settings.facebookPixelId}
+                              onChange={(e) => setSettings({...settings, facebookPixelId: e.target.value})}
+                              placeholder="123456789012345"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="settings-actions">
+                      <button type="submit" className="btn-primary-clean">
+                        <FiSave /> Save Settings
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
           )}
         </main>

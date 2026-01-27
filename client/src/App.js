@@ -42,7 +42,8 @@ const CheckoutPage = lazy(() => import('./pages/user/cart/checkout/CheckoutPage'
 const OrderManagement = lazy(() => import('./pages/orders/OrderManagement'))
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboardClean'))
-const PartnerDashboard = lazy(() => import('./pages/partner/PartnerDashboard'))
+const AddProduct = lazy(() => import('./pages/admin/AddProduct'))
+const EditProduct = lazy(() => import('./pages/admin/EditProduct'))
 const PartnerOrders = lazy(() => import('./pages/partner/PartnerOrders'))
 const HuongDanMuaHang = lazy(() => import('./pages/chat/HuongDanMuaHang'))
 const InstallmentGuidePage = lazy(() => import('./pages/guide/InstallmentGuidePage'))
@@ -128,15 +129,14 @@ function App() {
           {/* === Protected Partner Routes === */}
           <Route element={<PrivateRoute allowedRoles={['partner', 'admin']} />}>
             <Route path="/manager" element={<ManagerDashboard />} />
-            <Route path="/partner/dashboard" element={<PartnerDashboard />} />
             <Route path="/partner/orders" element={<PartnerOrders />} />
-            <Route path="/partner-dashboard" element={<PartnerDashboard />} />
-            <Route path="/dashboard/partner" element={<PartnerDashboard />} />
           </Route>
 
           {/* === Protected Admin Routes === */}
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/add-product" element={<AddProduct />} />
+            <Route path="/admin/edit-product/:id" element={<EditProduct />} />
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
 

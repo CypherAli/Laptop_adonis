@@ -187,39 +187,16 @@ router
         router.put('/reviews/:reviewId/moderate', [AdminController, 'moderateReview'])
         
         // ==================== CATEGORIES MANAGEMENT ====================
-        router.get('/categories', [CategoriesController, 'index'])
-        router.get('/categories/tree', [CategoriesController, 'tree'])
-        router.get('/categories/:id', [CategoriesController, 'show'])
-        router.post('/categories', [CategoriesController, 'store'])
-        router.put('/categories/:id', [CategoriesController, 'update'])
-        router.delete('/categories/:id', [CategoriesController, 'destroy'])
-        router.put('/categories/:id/toggle-active', [CategoriesController, 'toggleActive'])
+        router.get('/categories/tree', [AdminController, 'getCategoriesTree'])
+        router.put('/categories/:id/toggle-active', [AdminController, 'toggleCategoryActive'])
         
         // ==================== BRANDS MANAGEMENT ====================
-        router.get('/brands', [BrandsController, 'index'])
-        router.get('/brands/list', [BrandsController, 'list'])
-        router.get('/brands/:id', [BrandsController, 'show'])
-        router.post('/brands', [BrandsController, 'store'])
-        router.put('/brands/:id', [BrandsController, 'update'])
-        router.delete('/brands/:id', [BrandsController, 'destroy'])
-        router.put('/brands/:id/toggle-active', [BrandsController, 'toggleActive'])
-        
-        // ==================== ATTRIBUTES MANAGEMENT ====================
-        router.get('/attributes', [AttributesController, 'index'])
-        router.get('/attributes/filterable', [AttributesController, 'filterable'])
-        router.get('/attributes/variants', [AttributesController, 'variants'])
-        router.get('/attributes/:id', [AttributesController, 'show'])
-        router.post('/attributes', [AttributesController, 'store'])
-        router.put('/attributes/:id', [AttributesController, 'update'])
-        router.delete('/attributes/:id', [AttributesController, 'destroy'])
-        router.put('/attributes/:id/toggle-active', [AttributesController, 'toggleActive'])
-        router.post('/attributes/:id/values', [AttributesController, 'addValue'])
-        router.delete('/attributes/:id/values', [AttributesController, 'removeValue'])
+        router.get('/brands', [AdminController, 'getBrands'])
+        router.put('/brands/:id/toggle-active', [AdminController, 'toggleBrandActive'])
         
         // ==================== SETTINGS MANAGEMENT ====================
-        router.get('/settings', [SettingsController, 'index'])
-        router.put('/settings', [SettingsController, 'update'])
-        router.post('/settings/reset', [SettingsController, 'reset'])
+        router.get('/settings', [AdminController, 'getSettings'])
+        router.put('/settings', [AdminController, 'updateSettings'])
       })
       .prefix('/admin')
       .use(middleware.jwtAuth())
@@ -231,6 +208,7 @@ router
         router.get('/stats', [AdminController, 'getPartnerStats'])
         router.get('/revenue', [AdminController, 'getPartnerRevenue'])
         router.get('/revenue-by-brand', [AdminController, 'getPartnerRevenueByBrand'])
+        router.get('/orders', [AdminController, 'getPartnerOrders'])
       })
       .prefix('/partner')
       .use(middleware.jwtAuth())
