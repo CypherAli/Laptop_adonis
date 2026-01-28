@@ -1,7 +1,8 @@
 /* ==================== BEST SELLERS SECTION ==================== */
 .best-sellers-section {
   padding: 60px 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+  background: var(--bg-body);
+  transition: background 0.3s ease;
 }
 
 .section-container {
@@ -18,7 +19,7 @@
 .section-title {
   font-size: 2.5rem;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0 0 15px;
   display: flex;
   align-items: center;
@@ -45,7 +46,7 @@
 
 .section-subtitle {
   font-size: 1.1rem;
-  color: #aaaaaa;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -57,7 +58,7 @@
   padding: 10px 5px 30px;
   margin-bottom: 20px;
   scrollbar-width: thin;
-  scrollbar-color: #ff8800 #333333;
+  scrollbar-color: #ff8800 var(--border-color);
 }
 
 .best-sellers-scroll::-webkit-scrollbar {
@@ -65,7 +66,7 @@
 }
 
 .best-sellers-scroll::-webkit-scrollbar-track {
-  background: #333333;
+  background: var(--bg-secondary);
   border-radius: 10px;
 }
 
@@ -85,14 +86,14 @@
 }
 
 .bestseller-card {
-  background: #242424;
+  background: var(--bg-primary);
   border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
   transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   position: relative;
-  border: 2px solid transparent;
+  border: 1.5px solid var(--border-color);
   display: block;
   width: 100%;
   height: 100%;
@@ -102,6 +103,15 @@
   transform: translateY(-8px);
   box-shadow: 0 12px 30px rgba(255, 136, 0, 0.2);
   border-color: #ff8800;
+}
+
+/* Light mode - border rõ hơn */
+[data-theme='light'] .bestseller-card {
+  border: 2px solid #e5e7eb;
+}
+
+[data-theme='light'] .bestseller-card:hover {
+  box-shadow: 0 12px 30px rgba(255, 136, 0, 0.25);
 }
 
 .bestseller-rank {
@@ -152,7 +162,7 @@
   height: 40px;
   border: none;
   border-radius: 50%;
-  background: rgba(36, 36, 36, 0.95);
+  background: var(--bg-primary);
   backdrop-filter: blur(10px);
   cursor: pointer;
   font-size: 1.2rem;
@@ -160,9 +170,10 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   text-decoration: none;
   color: #ff8800;
+  border: 1px solid var(--border-color);
 }
 
 .bestseller-view-btn svg {
@@ -197,7 +208,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #242424 100%);
+  background: var(--bg-secondary);
   padding: 20px;
 }
 
@@ -230,7 +241,7 @@
 .bestseller-name {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -249,7 +260,7 @@
 
 .bestseller-price .original-price {
   font-size: 0.9rem;
-  color: #aaaaaa;
+  color: var(--text-light);
   text-decoration: line-through;
 }
 
@@ -264,9 +275,9 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.85rem;
-  color: #aaaaaa;
+  color: var(--text-secondary);
   padding-top: 10px;
-  border-top: 1px solid #333333;
+  border-top: 1px solid var(--border-color);
   margin-bottom: 12px;
 }
 
@@ -327,7 +338,7 @@
   text-align: center;
   padding: 60px 0;
   font-size: 1.2rem;
-  color: #aaaaaa;
+  color: var(--text-secondary);
 }
 
 /* Responsive */

@@ -317,3 +317,78 @@
   border: 2px solid var(--danger-color);
   background: #fff5f5;
 }
+
+/* ==========================================
+   DARK MODE SUPPORT FOR ALL ROLES
+   ========================================== */
+
+/* Dark Mode - Guest Theme */
+[data-theme='dark'] .theme-guest {
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #0f172a;
+  --border-color: #374151;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Mode - Client Theme */
+[data-theme='dark'] .theme-client {
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #0f172a;
+  --border-color: #374151;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .theme-client .ultra-product-page,
+[data-theme='dark'] .theme-client .homepage-container {
+  background: linear-gradient(180deg, #0f172a 0%, #1f2937 50%, #111827 100%);
+}
+
+/* Dark Mode - Partner Theme */
+[data-theme='dark'] .theme-partner {
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #0f172a;
+  --border-color: #374151;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .theme-partner .ultra-product-page,
+[data-theme='dark'] .theme-partner .homepage-container {
+  background: linear-gradient(180deg, #0f172a 0%, #1f2937 50%, #111827 100%);
+}
+
+/* Dark Mode - Admin Theme */
+[data-theme='dark'] .theme-admin {
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #0f172a;
+  --border-color: #374151;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .theme-admin .ultra-product-page,
+[data-theme='dark'] .theme-admin .homepage-container {
+  background: linear-gradient(180deg, #0f172a 0%, #1f2937 50%, #111827 100%);
+}
+
+[data-theme='dark'] .theme-admin .danger-zone {
+  background: #1f1515;
+}

@@ -6,7 +6,6 @@ import { FiSave, FiX, FiImage, FiPackage } from 'react-icons/fi'
 import './AddProduct.css'
 
 const EditProduct = () => {
-  const { user } = useContext(AuthContext)
   const navigate = useNavigate()
   const { id } = useParams()
 
@@ -61,6 +60,7 @@ const EditProduct = () => {
 
   useEffect(() => {
     fetchProduct()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const fetchProduct = async () => {

@@ -9,6 +9,7 @@ import PrivateRoute from './components/route/PrivateRoute'
 import RoleBasedLayout from './components/layout/RoleBasedLayout'
 import ScrollToTop from './components/common/ScrollToTop'
 import AuthContext from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 
 // Chat Widgets - Keep eager loaded for instant availability
 import PartnerLiveChat from './components/chat/PartnerLiveChat'
@@ -82,9 +83,10 @@ function App() {
   const { user } = useContext(AuthContext)
   return (
     <ErrorBoundary>
-      <RoleBasedLayout>
-        <ScrollToTop />
-        <Header />
+      <ThemeProvider>
+        <RoleBasedLayout>
+          <ScrollToTop />
+          <Header />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             {/* === Public Routes === */}
@@ -188,6 +190,7 @@ function App() {
           <UserLiveChat />
         )}
       </RoleBasedLayout>
+      </ThemeProvider>
     </ErrorBoundary>
   )
 }

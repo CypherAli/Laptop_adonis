@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { Product } from '#models/product'
 import { Review } from '#models/review'
 import { Cart } from '#models/cart'
+import { User } from '#models/user'
 
 export default class ProductsController {
   /**
@@ -168,7 +169,6 @@ export default class ProductsController {
           .sort(sort)
           .skip(skip)
           .limit(limitNum)
-          .populate('createdBy', 'username shopName email')
           .lean(),
         Product.countDocuments(filter),
       ])
