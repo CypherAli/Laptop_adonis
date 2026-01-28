@@ -1,6 +1,8 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { Cart } from '#models/cart'
-import { Product } from '#models/product'
+import { CartService } from '#services/cart_service'
+import { ResponseHelper } from '#utils/response'
+import { ERROR_MESSAGES, USER_ROLES } from '#utils/constants'
+import { logger } from '#utils/logger'
 
 export default class CartsController {
   /**
@@ -12,45 +14,19 @@ export default class CartsController {
       const userId = user?.id
 
       if (!userId) {
-        return response.status(401).json({
-          message: 'Vui lòng đăng nhập',
-        })
+        return ResponseHelper.unauthorized(response)
       }
 
       // Admin không có giỏ hàng
-      if (user.role === 'admin') {
-        return response.status(403).json({
-          message: 'Admin không có quyền sử dụng giỏ hàng',
-        })
+      if (user.role === USER_ROLES.ADMIN) {
+        return ResponseHelper.forbidden(response, ERROR_MESSAGES.ADMIN_NO_CART)
       }
 
-      let cart = await Cart.findOne({ user: userId })
-        .populate({
-          path: 'items.product',
-          select: 'name brand imageUrl variants',
-        })
-        .populate({
-          path: 'items.seller',
-          select: 'username shopName',
-        })
-        .lean()
-
-      if (!cart) {
-        // Create empty cart if not exists
-        await Cart.create({ user: userId, items: [] })
-        return response.json({ items: [] })
-      }
-
-      // Filter out items with deleted products
-      const validItems = cart.items.filter((item: any) => item.product !== null)
-
-      return response.json({ items: validItems })
+      const cart = await CartService.getCart(userId)
+      return ResponseHelper.success(response, cart)
     } catch (error) {
-      console.error('❌ Cart index error:', error)
-      return response.status(500).json({
-        message: 'Lỗi server khi lấy giỏ hàng',
-        error: error.message,
-      })
+      logger.error('Cart index error', error)
+      return ResponseHelper.serverError(response, 'Lỗi server khi lấy giỏ hàng')
     }
   }
 
@@ -63,152 +39,25 @@ export default class CartsController {
       const userId = user.id
 
       // Admin không có giỏ hàng
-      if (user.role === 'admin') {
-        return response.status(403).json({
-          message: 'Admin không có quyền sử dụng giỏ hàng',
-        })
+      if (user.role === USER_ROLES.ADMIN) {
+        return ResponseHelper.forbidden(response, ERROR_MESSAGES.ADMIN_NO_CART)
       }
 
-      let {
+      const {
         productId,
         variantSku,
         quantity = 1,
       } = request.only(['productId', 'variantSku', 'quantity'])
 
-      // Validation
       if (!productId) {
-        return response.status(400).json({
-          message: 'Product ID là bắt buộc',
-        })
+        return ResponseHelper.badRequest(response, 'Product ID là bắt buộc')
       }
 
-      // Find product
-      const product = await Product.findById(productId).populate('createdBy', 'username shopName')
-
-      if (!product) {
-        return response.status(404).json({
-          message: 'Không tìm thấy sản phẩm',
-        })
-      }
-
-      // If no variantSku provided, use the first available variant
-      if (!variantSku) {
-        const firstAvailableVariant = product.variants.find((v) => v.isAvailable && v.stock > 0)
-        if (!firstAvailableVariant) {
-          return response.status(400).json({
-            message: 'Sản phẩm này hiện đã hết hàng',
-          })
-        }
-        variantSku = firstAvailableVariant.sku
-      }
-
-      // Find variant
-      const variant = product.variants.find((v) => v.sku === variantSku)
-
-      if (!variant) {
-        return response.status(404).json({
-          message: 'Không tìm thấy biến thể',
-        })
-      }
-
-      if (!variant.isAvailable) {
-        return response.status(400).json({
-          message: 'Biến thể này hiện không khả dụng',
-        })
-      }
-
-      if (variant.stock < quantity) {
-        return response.status(400).json({
-          message: `Chỉ còn ${variant.stock} sản phẩm`,
-        })
-      }
-
-      // Use findOneAndUpdate for atomic operation
-      const existingCart = await Cart.findOne({ user: userId })
-
-      if (existingCart) {
-        // Check if item already exists
-        const existingItem = existingCart.items.find(
-          (item) => item.product.toString() === productId && item.variantSku === variantSku
-        )
-
-        if (existingItem) {
-          const newQuantity = existingItem.quantity + quantity
-
-          if (newQuantity > variant.stock) {
-            return response.status(400).json({
-              message: `Chỉ còn ${variant.stock} sản phẩm`,
-            })
-          }
-
-          // Atomic update existing item
-          await Cart.findOneAndUpdate(
-            {
-              'user': userId,
-              'items.product': productId,
-              'items.variantSku': variantSku,
-            },
-            {
-              $set: {
-                'items.$.quantity': newQuantity,
-                'items.$.price': variant.price,
-              },
-            }
-          )
-        } else {
-          // Atomic add new item
-          await Cart.findOneAndUpdate(
-            { user: userId },
-            {
-              $push: {
-                items: {
-                  product: product._id,
-                  variantSku: variant.sku,
-                  seller: product.createdBy._id,
-                  sellerName:
-                    (product.createdBy as any).shopName || (product.createdBy as any).username,
-                  quantity,
-                  price: variant.price,
-                  addedAt: new Date(),
-                },
-              },
-            }
-          )
-        }
-      } else {
-        // Create new cart
-        await Cart.create({
-          user: userId,
-          items: [
-            {
-              product: product._id,
-              variantSku: variant.sku,
-              seller: product.createdBy._id,
-              sellerName:
-                (product.createdBy as any).shopName || (product.createdBy as any).username,
-              quantity,
-              price: variant.price,
-              addedAt: new Date(),
-            },
-          ],
-        })
-      }
-
-      // Get updated cart
-      const populatedCart = await Cart.findOne({ user: userId })
-        .populate('items.product')
-        .populate('items.seller', 'username shopName')
-        .lean()
-
-      return response.json({
-        message: 'Đã thêm vào giỏ hàng',
-        items: populatedCart?.items || [],
-      })
+      const cart = await CartService.addItem({ userId, productId, variantSku, quantity })
+      return ResponseHelper.success(response, cart, 'Đã thêm vào giỏ hàng')
     } catch (error) {
-      return response.status(500).json({
-        message: 'Lỗi server',
-        error: error.message,
-      })
+      logger.error('Add to cart error', error)
+      return ResponseHelper.badRequest(response, error.message)
     }
   }
 
@@ -221,64 +70,22 @@ export default class CartsController {
       const userId = user.id
 
       // Admin không có giỏ hàng
-      if (user.role === 'admin') {
-        return response.status(403).json({
-          message: 'Admin không có quyền sử dụng giỏ hàng',
-        })
+      if (user.role === USER_ROLES.ADMIN) {
+        return ResponseHelper.forbidden(response, ERROR_MESSAGES.ADMIN_NO_CART)
       }
 
       const { itemId } = params
       const { quantity } = request.only(['quantity'])
 
       if (!quantity || quantity < 1) {
-        return response.status(400).json({
-          message: 'Số lượng phải lớn hơn 0',
-        })
+        return ResponseHelper.badRequest(response, ERROR_MESSAGES.INVALID_QUANTITY)
       }
 
-      const cart = await Cart.findOne({ user: userId })
-
-      if (!cart) {
-        return response.status(404).json({
-          message: 'Không tìm thấy giỏ hàng',
-        })
-      }
-
-      const itemIndex = cart.items.findIndex((item) => (item as any)._id?.toString() === itemId)
-
-      if (itemIndex === -1) {
-        return response.status(404).json({
-          message: 'Không tìm thấy sản phẩm trong giỏ hàng',
-        })
-      }
-
-      // Check product stock
-      const product = await Product.findById(cart.items[itemIndex].product)
-      const variant = product?.variants.find((v) => v.sku === cart.items[itemIndex].variantSku)
-
-      if (!variant || variant.stock < quantity) {
-        return response.status(400).json({
-          message: `Chỉ còn ${variant?.stock || 0} sản phẩm`,
-        })
-      }
-
-      cart.items[itemIndex].quantity = quantity
-      await cart.save()
-
-      const updatedCart = await Cart.findById(cart._id)
-        .populate('items.product')
-        .populate('items.seller', 'username shopName')
-        .lean()
-
-      return response.json({
-        message: 'Đã cập nhật giỏ hàng',
-        items: updatedCart?.items || [],
-      })
+      const cart = await CartService.updateItem({ userId, itemId, quantity })
+      return ResponseHelper.success(response, cart, 'Đã cập nhật giỏ hàng')
     } catch (error) {
-      return response.status(500).json({
-        message: 'Lỗi server',
-        error: error.message,
-      })
+      logger.error('Update cart item error', error)
+      return ResponseHelper.badRequest(response, error.message)
     }
   }
 
@@ -291,39 +98,17 @@ export default class CartsController {
       const userId = user.id
 
       // Admin không có giỏ hàng
-      if (user.role === 'admin') {
-        return response.status(403).json({
-          message: 'Admin không có quyền sử dụng giỏ hàng',
-        })
+      if (user.role === USER_ROLES.ADMIN) {
+        return ResponseHelper.forbidden(response, ERROR_MESSAGES.ADMIN_NO_CART)
       }
 
       const { itemId } = params
 
-      const cart = await Cart.findOne({ user: userId })
-
-      if (!cart) {
-        return response.status(404).json({
-          message: 'Không tìm thấy giỏ hàng',
-        })
-      }
-
-      cart.items = cart.items.filter((item) => (item as any)._id?.toString() !== itemId)
-      await cart.save()
-
-      const updatedCart = await Cart.findById(cart._id)
-        .populate('items.product')
-        .populate('items.seller', 'username shopName')
-        .lean()
-
-      return response.json({
-        message: 'Đã xóa sản phẩm khỏi giỏ hàng',
-        items: updatedCart?.items || [],
-      })
+      const cart = await CartService.removeItem(userId, itemId)
+      return ResponseHelper.success(response, cart, 'Đã xóa sản phẩm khỏi giỏ hàng')
     } catch (error) {
-      return response.status(500).json({
-        message: 'Lỗi server',
-        error: error.message,
-      })
+      logger.error('Remove cart item error', error)
+      return ResponseHelper.badRequest(response, error.message)
     }
   }
 
@@ -336,22 +121,15 @@ export default class CartsController {
       const userId = user.id
 
       // Admin không có giỏ hàng
-      if (user.role === 'admin') {
-        return response.status(403).json({
-          message: 'Admin không có quyền sử dụng giỏ hàng',
-        })
+      if (user.role === USER_ROLES.ADMIN) {
+        return ResponseHelper.forbidden(response, ERROR_MESSAGES.ADMIN_NO_CART)
       }
 
-      await Cart.findOneAndUpdate({ user: userId }, { items: [] })
-
-      return response.json({
-        message: 'Đã xóa toàn bộ giỏ hàng',
-      })
+      const cart = await CartService.clearCart(userId)
+      return ResponseHelper.success(response, cart, 'Đã xóa tất cả sản phẩm')
     } catch (error) {
-      return response.status(500).json({
-        message: 'Lỗi server',
-        error: error.message,
-      })
+      logger.error('Clear cart error', error)
+      return ResponseHelper.serverError(response, 'Lỗi server')
     }
   }
 }

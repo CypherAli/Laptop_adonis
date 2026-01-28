@@ -164,12 +164,7 @@ export default class ProductsController {
 
       // Execute query
       const [products, total] = await Promise.all([
-        Product.find(filter)
-          .sort(sort)
-          .skip(skip)
-          .limit(limitNum)
-          .populate('createdBy', 'username shopName email')
-          .lean(),
+        Product.find(filter).sort(sort).skip(skip).limit(limitNum).lean(),
         Product.countDocuments(filter),
       ])
 

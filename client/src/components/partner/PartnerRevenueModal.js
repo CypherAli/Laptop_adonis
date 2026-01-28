@@ -35,7 +35,7 @@ const PartnerRevenueModal = ({ partnerId, onClose }) => {
 
   useEffect(() => {
     fetchPartnerRevenue()
-    // eslint-disable-next-line
+     
   }, [partnerId])
 
   const fetchPartnerRevenue = async () => {

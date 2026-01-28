@@ -39,7 +39,7 @@ export default class SeedPartnerProducts extends BaseCommand {
 
       // Product templates for each brand
       const productTemplates = {
-        Nike: [
+        'Nike': [
           {
             name: 'Nike Air Jordan 1 Retro High',
             description:
@@ -121,7 +121,7 @@ export default class SeedPartnerProducts extends BaseCommand {
             },
           },
         ],
-        Adidas: [
+        'Adidas': [
           {
             name: 'Adidas Ultraboost 22',
             description:
@@ -171,10 +171,11 @@ export default class SeedPartnerProducts extends BaseCommand {
             },
           },
         ],
-        Vans: [
+        'Vans': [
           {
             name: 'Vans Old Skool',
-            description: 'Giày sneaker Vans Old Skool với sọc Jazz iconic và thiết kế skate classic.',
+            description:
+              'Giày sneaker Vans Old Skool với sọc Jazz iconic và thiết kế skate classic.',
             brand: 'Vans',
             category: 'Skate',
             basePrice: 1800000,
@@ -202,7 +203,7 @@ export default class SeedPartnerProducts extends BaseCommand {
             },
           },
         ],
-        Converse: [
+        'Converse': [
           {
             name: 'Converse Chuck Taylor All Star',
             description:
@@ -250,7 +251,7 @@ export default class SeedPartnerProducts extends BaseCommand {
             },
           },
         ],
-        Puma: [
+        'Puma': [
           {
             name: 'Puma RS-X Reinvention',
             description:

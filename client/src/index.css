@@ -4,8 +4,9 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-:root {
-  /* Professional Color Palette */
+:root,
+[data-theme='light'] {
+  /* Professional Color Palette - Light Mode */
   --primary-color: #2563eb;
   --primary-dark: #1e40af;
   --primary-light: #3b82f6;
@@ -26,6 +27,7 @@
   --bg-primary: #ffffff;
   --bg-secondary: #f9fafb;
   --bg-tertiary: #f3f4f6;
+  --bg-body: #ffffff;
 
   --border-color: #e5e7eb;
   --border-dark: #d1d5db;
@@ -35,6 +37,15 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Header/Navigation */
+  --header-bg: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  --header-text: #ffffff;
+  --topbar-bg: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  --topbar-text: #ffffff;
+  --nav-bg: #ffffff;
+  --nav-text: #1f2937;
+  --nav-hover-bg: rgba(0, 0, 0, 0.05);
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -56,6 +67,50 @@
   --transition-slow: 300ms ease-in-out;
 }
 
+/* ==================== DARK MODE VARIABLES ==================== */
+[data-theme='dark'] {
+  /* Professional Color Palette - Dark Mode */
+  --primary-color: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #60a5fa;
+
+  --secondary-color: #10b981;
+  --secondary-dark: #059669;
+
+  --accent-color: #fbbf24;
+  --accent-dark: #f59e0b;
+
+  --danger-color: #f87171;
+  --danger-dark: #ef4444;
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-light: #9ca3af;
+
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #0f172a;
+  --bg-body: #0f172a;
+
+  --border-color: #374151;
+  --border-dark: #4b5563;
+
+  /* Shadows - Adjusted for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+
+  /* Header/Navigation - Dark Mode */
+  --header-bg: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  --header-text: #ffffff;
+  --topbar-bg: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  --topbar-text: #ffffff;
+  --nav-bg: #0f172a;
+  --nav-text: #f3f4f6;
+  --nav-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -74,16 +129,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #1a1a1a;
+  background: var(--bg-body);
   color: var(--text-primary);
   line-height: 1.6;
   font-size: 15px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ==================== TOP BAR ==================== */
 .top-bar {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  color: white;
+  background: var(--topbar-bg);
+  color: var(--topbar-text);
   font-size: 0.85rem;
   padding: 8px 0;
 }
@@ -147,11 +203,12 @@ body {
 
 /* ==================== MAIN HEADER ==================== */
 .main-header {
-  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  background: var(--header-bg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: background 0.3s ease;
 }
 
 .nav-container {
@@ -241,7 +298,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: white;
+  color: #ffffff;
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 10px;
@@ -306,7 +363,7 @@ body {
   gap: 8px;
   background: rgba(255, 255, 255, 0.15);
   border: none;
-  color: white;
+  color: #ffffff;
   padding: 10px 16px;
   border-radius: 25px;
   cursor: pointer;
@@ -348,10 +405,10 @@ body {
   top: 100%;
   right: 0;
   margin-top: 10px;
-  background: #242424;
+  background: var(--bg-secondary);
   border-radius: 12px;
-  border: 1px solid #333333;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
   min-width: 200px;
   opacity: 0;
   visibility: hidden;
@@ -368,7 +425,7 @@ body {
 .dropdown-item {
   display: block;
   padding: 12px 20px;
-  color: #ffffff;
+  color: var(--text-primary);
   text-decoration: none;
   transition: all 0.2s;
   border: none;
@@ -389,7 +446,7 @@ body {
 }
 
 .dropdown-item:hover {
-  background: #333333;
+  background: var(--bg-tertiary);
 }
 
 .logout-item {
@@ -453,7 +510,7 @@ body {
 .logo-text {
   font-size: 1.5rem;
   font-weight: 800;
-  color: white;
+  color: #ffffff;
   line-height: 1;
   text-transform: uppercase;
   letter-spacing: -0.5px;
@@ -461,7 +518,7 @@ body {
 
 .logo-tagline {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -475,11 +532,12 @@ body {
 
 .header-search {
   display: flex;
-  background: #242424;
+  background: var(--bg-primary);
   border-radius: 25px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   transition: all 0.3s;
+  border: 1px solid var(--border-color);
 }
 
 .header-search:focus-within {
@@ -493,11 +551,12 @@ body {
   border: none;
   outline: none;
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: var(--text-primary);
+  background: transparent;
 }
 
 .header-search-input::placeholder {
-  color: #95a5a6;
+  color: var(--text-light);
 }
 
 .header-search-btn {
@@ -514,7 +573,7 @@ body {
 }
 
 .nav-link {
-  color: white;
+  color: var(--nav-text);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.95rem;
@@ -524,7 +583,7 @@ body {
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--nav-hover-bg);
 }
 
 .admin-link {
@@ -535,7 +594,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: white;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 600;
   padding: 8px 16px;
@@ -572,7 +631,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: white;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 600;
   padding: 8px 16px;
@@ -605,7 +664,7 @@ body {
 }
 
 .user-greeting {
-  color: white;
+  color: #ffffff;
   font-weight: 500;
   font-size: 0.9rem;
   padding: 8px 15px;
@@ -628,7 +687,7 @@ body {
 
 .logout-btn {
   background: rgba(255, 255, 255, 0.15);
-  color: white;
+  color: #ffffff;
 }
 
 .logout-btn:hover {
@@ -637,7 +696,7 @@ body {
 
 .login-link {
   background: rgba(255, 255, 255, 0.12);
-  color: white;
+  color: #ffffff;
 }
 
 .login-link:hover {
@@ -655,9 +714,10 @@ body {
 
 /* ==================== MAIN NAVIGATION MENU ==================== */
 .main-nav {
-  background: #1a1a1a;
-  border-bottom: 1px solid #333333;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s ease;
 }
 
 .main-nav-container {
@@ -672,7 +732,7 @@ body {
 
 .nav-menu-item {
   padding: 15px 20px;
-  color: #ffffff;
+  color: var(--nav-text);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.95rem;

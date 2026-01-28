@@ -134,7 +134,8 @@ const GuestChatWidget = () => {
         socket.emit('conversation:leave', activeConversation._id)
       }
     }
-  }, [socket, activeConversation, activeConversation?._id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, activeConversation])
 
   // Scroll to bottom when messages change
   useEffect(() => {

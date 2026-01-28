@@ -70,8 +70,7 @@ export default class extends BaseSeeder {
       // 1. NIKE AIR MAX 270 - 15 colors x 3 genders x 8 sizes = 360 variants
       {
         name: 'Nike Air Max 270 Premium',
-        description:
-          'Giày thể thao Nike Air Max 270 với đệm khí Max Air. 15 màu sắc, 3 giới tính.',
+        description: 'Giày thể thao Nike Air Max 270 với đệm khí Max Air. 15 màu sắc, 3 giới tính.',
         brand: 'Nike',
         category: 'Running',
         gender: 'Unisex',

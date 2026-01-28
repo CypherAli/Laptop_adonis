@@ -13,14 +13,11 @@ import {
   FiTag,
   FiSettings,
   FiMessageSquare,
-  FiTrendingUp,
   FiAlertCircle,
   FiCheckCircle,
   FiClock,
   FiGlobe,
   FiSave,
-  FiChevronLeft,
-  FiChevronRight,
 } from 'react-icons/fi'
 import './AdminDashboard.clean.css'
 
@@ -127,7 +124,7 @@ const AdminDashboardClean = () => {
       return
     }
     fetchDashboardData()
-  }, [user])
+  }, [user, navigate, toast])
 
   useEffect(() => {
     setCurrentPage(1)
@@ -138,6 +135,7 @@ const AdminDashboardClean = () => {
     else if (activeTab === 'categories') fetchCategories()
     else if (activeTab === 'brands') fetchBrands(1)
     else if (activeTab === 'settings') fetchSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
 
   useEffect(() => {
@@ -145,7 +143,8 @@ const AdminDashboardClean = () => {
     else if (activeTab === 'orders') fetchOrders(currentPage)
     else if (activeTab === 'users') fetchUsers(currentPage)
     else if (activeTab === 'reviews') fetchReviews(currentPage)
-  }, [currentPage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, activeTab])
 
   const fetchDashboardData = async () => {
     try {

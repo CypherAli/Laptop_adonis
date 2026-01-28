@@ -5,12 +5,12 @@ import AuthContext from '../../context/AuthContext'
 import './NotificationBell.css'
 
 const NotificationBell = () => {
-  // eslint-disable-next-line no-unused-vars
+   
   const [notifications] = useState([])
-  // eslint-disable-next-line no-unused-vars
+   
   const [unreadCount] = useState(0)
   const [showDropdown, setShowDropdown] = useState(false)
-  // eslint-disable-next-line no-unused-vars
+   
   const [loading] = useState(false)
   const { user } = useContext(AuthContext)
   const navigate = useNavigate()

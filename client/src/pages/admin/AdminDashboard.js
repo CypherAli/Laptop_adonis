@@ -68,7 +68,7 @@ const AdminDashboard = () => {
       return
     }
     fetchDashboardData()
-    // eslint-disable-next-line
+     
   }, [user])
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
     else if (activeTab === 'brands') fetchBrands()
     else if (activeTab === 'attributes') fetchAttributes()
     else if (activeTab === 'settings') fetchSettings()
-    // eslint-disable-next-line
+     
   }, [activeTab, currentPage])
 
   const fetchDashboardData = async () => {

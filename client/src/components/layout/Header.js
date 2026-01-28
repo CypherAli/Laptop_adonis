@@ -5,6 +5,7 @@ import CartContext from '../../context/CartContext'
 import WishlistContext from '../../context/WishlistContext'
 import CartSidebar from '../cart/CartSidebar'
 import NotificationBell from '../notification/NotificationBell'
+import ThemeToggle from '../common/ThemeToggle'
 import { getAvatarUrl } from '../../utils/imageHelpers'
 
 const Header = () => {
@@ -80,6 +81,9 @@ const Header = () => {
           </div>
 
           <div className="nav-right">
+            {/* Theme Toggle Button - Always visible */}
+            <ThemeToggle />
+
             {user ? (
               <>
                 <NotificationBell />

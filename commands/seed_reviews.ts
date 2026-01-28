@@ -41,9 +41,9 @@ export default class SeedReviews extends BaseCommand {
 
         // Check nếu đã có order delivered cho user này và product này
         const existingOrder = await Order.findOne({
-          user: user._id,
+          'user': user._id,
           'items.product': product._id,
-          status: 'delivered',
+          'status': 'delivered',
         })
 
         if (!existingOrder) {
@@ -93,7 +93,9 @@ export default class SeedReviews extends BaseCommand {
           this.logger.info(`✅ Created order ${order.orderNumber} for ${user.username}`)
         } else {
           ordersCreated.push({ order: existingOrder, user, product })
-          this.logger.info(`ℹ️  Order already exists for ${user.username} and product ${product.name}`)
+          this.logger.info(
+            `ℹ️  Order already exists for ${user.username} and product ${product.name}`
+          )
         }
       }
 
@@ -126,8 +128,7 @@ export default class SeedReviews extends BaseCommand {
       ]
 
       let reviewCount = 0
-      for (let i = 0; i < ordersCreated.length; i++) {
-        const { order, user, product } = ordersCreated[i]
+      for (const [i, { order, user, product }] of ordersCreated.entries()) {
         const reviewData = reviewsData[i % reviewsData.length]
 
         // Check nếu đã có review
@@ -172,7 +173,9 @@ export default class SeedReviews extends BaseCommand {
             )
           }
         } else {
-          this.logger.info(`ℹ️  Review already exists for ${user.username} and product ${product.name}`)
+          this.logger.info(
+            `ℹ️  Review already exists for ${user.username} and product ${product.name}`
+          )
         }
       }
 

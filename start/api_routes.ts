@@ -160,13 +160,13 @@ router
     // ==================== PUBLIC CATALOG ROUTES ====================
     // Categories tree for navigation
     router.get('/categories/tree', [CategoriesController, 'tree'])
-    
+
     // Brands list for filters
     router.get('/brands/list', [BrandsController, 'list'])
-    
+
     // Filterable attributes for product filters
     router.get('/attributes/filterable', [AttributesController, 'filterable'])
-    
+
     // Public settings (site info, social links, etc.)
     router.get('/settings/public', [SettingsController, 'getPublic'])
 
@@ -178,35 +178,35 @@ router
         router.get('/dashboard', [AdminController, 'dashboard'])
         router.get('/analytics', [AdminController, 'analytics'])
         router.get('/revenue-by-shop', [AdminController, 'getRevenueByShop'])
-        
+
         // Users Management
         router.get('/users', [AdminController, 'getUsers'])
         router.put('/users/:userId/approve', [AdminController, 'approvePartner'])
         router.put('/users/:userId/reject', [AdminController, 'rejectPartner'])
         router.put('/users/:userId/toggle-status', [AdminController, 'toggleUserStatus'])
-        
+
         // Products Management
         router.get('/products', [AdminController, 'getProducts'])
         router.put('/products/:productId/toggle-featured', [
           AdminController,
           'toggleProductFeatured',
         ])
-        
+
         // Orders Management
         router.get('/orders', [AdminController, 'getOrders'])
-        
+
         // Reviews Management
         router.get('/reviews', [AdminController, 'getReviews'])
         router.put('/reviews/:reviewId/moderate', [AdminController, 'moderateReview'])
-        
+
         // ==================== CATEGORIES MANAGEMENT ====================
         router.get('/categories/tree', [AdminController, 'getCategoriesTree'])
         router.put('/categories/:id/toggle-active', [AdminController, 'toggleCategoryActive'])
-        
+
         // ==================== BRANDS MANAGEMENT ====================
         router.get('/brands', [AdminController, 'getBrands'])
         router.put('/brands/:id/toggle-active', [AdminController, 'toggleBrandActive'])
-        
+
         // ==================== SETTINGS MANAGEMENT ====================
         router.get('/settings', [AdminController, 'getSettings'])
         router.put('/settings', [AdminController, 'updateSettings'])
@@ -222,7 +222,7 @@ router
         router.get('/revenue', [AdminController, 'getPartnerRevenue'])
         router.get('/revenue-by-brand', [AdminController, 'getPartnerRevenueByBrand'])
         router.get('/orders', [AdminController, 'getPartnerOrders'])
-        
+
         // Partner Settings Routes
         router.get('/settings', [PartnerController, 'getSettings'])
         router.put('/settings/profile', [PartnerController, 'updateProfile'])

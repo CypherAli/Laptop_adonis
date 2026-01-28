@@ -58,7 +58,6 @@ ProductVariantSchema.index({ productId: 1, stock: 1 })
 ProductVariantSchema.index({ price: 1, stock: 1 })
 ProductVariantSchema.index({ 'attributes.attributeId': 1, 'attributes.value': 1 })
 
-export const ProductVariant = mongoose.models.ProductVariant || mongoose.model<ProductVariantInterface>(
-  'ProductVariant',
-  ProductVariantSchema
-)
+export const ProductVariant =
+  mongoose.models.ProductVariant ||
+  mongoose.model<ProductVariantInterface>('ProductVariant', ProductVariantSchema)

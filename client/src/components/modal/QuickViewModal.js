@@ -252,7 +252,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
     setShowImageModal(false)
   }
 
-  // eslint-disable-next-line no-unused-vars
+   
   const handleOpenImageModal = (index) => {
     setModalImageIndex(index)
     setShowImageModal(true)

@@ -241,7 +241,7 @@ export default class WishlistController {
         })
       }
 
-      const isInWishlist = user.wishlist?.some((id) => id.toString() === productId)
+      const isInWishlist = user.wishlist?.some((id: any) => id.toString() === productId)
 
       return response.json({
         isInWishlist: !!isInWishlist,

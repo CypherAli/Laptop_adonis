@@ -4,7 +4,7 @@ import { FiMapPin, FiClock, FiDollarSign, FiSend } from 'react-icons/fi'
 import './CareersPage.css'
 
 const CareersPage = () => {
-  // eslint-disable-next-line no-unused-vars
+   
   const [formData, setFormData] = useState({
     name: '',
     email: '',

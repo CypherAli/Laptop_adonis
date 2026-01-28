@@ -54,4 +54,5 @@ AttributeSchema.pre('save', function () {
   }
 })
 
-export const Attribute = mongoose.models.Attribute || mongoose.model<AttributeInterface>('Attribute', AttributeSchema)
+export const Attribute =
+  mongoose.models.Attribute || mongoose.model<AttributeInterface>('Attribute', AttributeSchema)

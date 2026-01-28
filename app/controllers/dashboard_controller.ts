@@ -55,7 +55,7 @@ export default class DashboardController {
     // Get low stock products
     const lowStockProductsList = await Product.find({
       'variants.stock': { $lt: 5, $gte: 0 },
-      isActive: true,
+      'isActive': true,
     })
       .limit(10)
       .lean()

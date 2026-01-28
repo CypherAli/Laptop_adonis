@@ -242,7 +242,7 @@ const OrderManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [pagination.limit, filters])
+  }, [pagination.limit, filters, currentUser?.role])
 
   // GET SINGLE ORDER DETAIL
   /**

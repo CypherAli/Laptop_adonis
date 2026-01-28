@@ -1,5 +1,8 @@
+import type { NotificationModel } from '#models/notification'
 import { Notification } from '#models/notification'
+import { User } from '#models/user'
 import type { ObjectId } from 'mongoose'
+import { logger } from '#utils/logger'
 
 interface NotificationDataInput {
   userId: string | ObjectId
@@ -24,11 +27,13 @@ export class NotificationService {
    */
   static async create(data: NotificationDataInput) {
     try {
-      const notification = await Notification.createNotification(data)
+      const NotificationModel = Notification as unknown as NotificationModel
+      const notification = await NotificationModel.createNotification(data)
       // TODO: Emit real-time notification via WebSocket/Socket.io if connected
+      logger.info('Notification created', { notificationId: notification._id, type: data.type })
       return notification
     } catch (error) {
-      console.error('Error creating notification:', error)
+      logger.error('Error creating notification', error)
       throw error
     }
   }
@@ -243,9 +248,6 @@ export class NotificationService {
     }
   ) {
     try {
-      // Import User model dynamically to avoid circular dependencies
-      const { User } = await import('#models/user')
-
       // Find all users with the specified role
       const users = await User.find({ role }).select('_id').lean()
 
@@ -264,9 +266,10 @@ export class NotificationService {
         )
       )
 
+      logger.info(`Sent notifications to ${notifications.length} users with role: ${role}`)
       return notifications
     } catch (error) {
-      console.error('Error sending notifications to role:', error)
+      logger.error('Error sending notifications to role', error, { role })
       throw error
     }
   }

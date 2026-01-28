@@ -50,15 +50,50 @@ export default class SeedCatalog extends BaseCommand {
   async seedCategories(Category: any) {
     const categoryData = [
       // Root categories
-      { name: 'Giày Thể Thao', description: 'Giày thể thao cho mọi hoạt động', isActive: true, order: 1, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Cao Gót', description: 'Giày cao gót thời trang', isActive: true, order: 2, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Sandal', description: 'Giày sandal thoáng mát', isActive: true, order: 3, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Boot', description: 'Giày boot phong cách', isActive: true, order: 4, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Lười', description: 'Giày lười tiện dụng', isActive: true, order: 5, createdAt: new Date(), updatedAt: new Date() },
+      {
+        name: 'Giày Thể Thao',
+        description: 'Giày thể thao cho mọi hoạt động',
+        isActive: true,
+        order: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Cao Gót',
+        description: 'Giày cao gót thời trang',
+        isActive: true,
+        order: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Sandal',
+        description: 'Giày sandal thoáng mát',
+        isActive: true,
+        order: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Boot',
+        description: 'Giày boot phong cách',
+        isActive: true,
+        order: 4,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Lười',
+        description: 'Giày lười tiện dụng',
+        isActive: true,
+        order: 5,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]
 
     // Auto-generate slugs
-    categoryData.forEach(cat => {
+    categoryData.forEach((cat) => {
       cat['slug'] = cat.name
         .toLowerCase()
         .normalize('NFD')
@@ -75,13 +110,58 @@ export default class SeedCatalog extends BaseCommand {
     // Create subcategories for Giày Thể Thao
     const sportsId = rootCategories[0]
     const subCats1 = [
-      { name: 'Giày Chạy Bộ', description: 'Chuyên dụng cho chạy bộ', parentId: sportsId, level: 1, isActive: true, order: 1, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Bóng Đá', description: 'Giày bóng đá chuyên nghiệp', parentId: sportsId, level: 1, isActive: true, order: 2, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Bóng Rổ', description: 'Giày bóng rổ cao cấp', parentId: sportsId, level: 1, isActive: true, order: 3, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Tennis', description: 'Giày tennis chuyên dụng', parentId: sportsId, level: 1, isActive: true, order: 4, createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Giày Gym', description: 'Giày tập gym đa năng', parentId: sportsId, level: 1, isActive: true, order: 5, createdAt: new Date(), updatedAt: new Date() },
+      {
+        name: 'Giày Chạy Bộ',
+        description: 'Chuyên dụng cho chạy bộ',
+        parentId: sportsId,
+        level: 1,
+        isActive: true,
+        order: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Bóng Đá',
+        description: 'Giày bóng đá chuyên nghiệp',
+        parentId: sportsId,
+        level: 1,
+        isActive: true,
+        order: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Bóng Rổ',
+        description: 'Giày bóng rổ cao cấp',
+        parentId: sportsId,
+        level: 1,
+        isActive: true,
+        order: 3,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Tennis',
+        description: 'Giày tennis chuyên dụng',
+        parentId: sportsId,
+        level: 1,
+        isActive: true,
+        order: 4,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Giày Gym',
+        description: 'Giày tập gym đa năng',
+        parentId: sportsId,
+        level: 1,
+        isActive: true,
+        order: 5,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]
-    subCats1.forEach(cat => {
+    subCats1.forEach((cat) => {
       cat['slug'] = cat.name
         .toLowerCase()
         .normalize('NFD')
@@ -95,9 +175,39 @@ export default class SeedCatalog extends BaseCommand {
     // Create subcategories for Giày Cao Gót
     const heelsId = rootCategories[1]
     const subCats2 = [
-      { name: 'Cao Gót 5cm', description: 'Cao gót 5cm thanh lịch', parentId: heelsId, level: 1, isActive: true, order: 1, slug: 'cao-got-5cm', createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Cao Gót 7cm', description: 'Cao gót 7cm quyến rũ', parentId: heelsId, level: 1, isActive: true, order: 2, slug: 'cao-got-7cm', createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Cao Gót 10cm', description: 'Cao gót 10cm sexy', parentId: heelsId, level: 1, isActive: true, order: 3, slug: 'cao-got-10cm', createdAt: new Date(), updatedAt: new Date() },
+      {
+        name: 'Cao Gót 5cm',
+        description: 'Cao gót 5cm thanh lịch',
+        parentId: heelsId,
+        level: 1,
+        isActive: true,
+        order: 1,
+        slug: 'cao-got-5cm',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Cao Gót 7cm',
+        description: 'Cao gót 7cm quyến rũ',
+        parentId: heelsId,
+        level: 1,
+        isActive: true,
+        order: 2,
+        slug: 'cao-got-7cm',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Cao Gót 10cm',
+        description: 'Cao gót 10cm sexy',
+        parentId: heelsId,
+        level: 1,
+        isActive: true,
+        order: 3,
+        slug: 'cao-got-10cm',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]
     await Category.insertMany(subCats2)
 
@@ -220,7 +330,18 @@ export default class SeedCatalog extends BaseCommand {
         name: 'Màu sắc',
         slug: 'mau-sac',
         type: 'color',
-        values: ['Đen', 'Trắng', 'Xám', 'Đỏ', 'Xanh dương', 'Xanh lá', 'Vàng', 'Cam', 'Hồng', 'Nâu'],
+        values: [
+          'Đen',
+          'Trắng',
+          'Xám',
+          'Đỏ',
+          'Xanh dương',
+          'Xanh lá',
+          'Vàng',
+          'Cam',
+          'Hồng',
+          'Nâu',
+        ],
         isVariant: true,
         isFilterable: true,
         isRequired: true,
@@ -272,7 +393,16 @@ export default class SeedCatalog extends BaseCommand {
         name: 'Kiểu dáng',
         slug: 'kieu-dang',
         type: 'multiselect',
-        values: ['Thể thao', 'Thời trang', 'Chạy bộ', 'Bóng đá', 'Bóng rổ', 'Tennis', 'Casual', 'Formal'],
+        values: [
+          'Thể thao',
+          'Thời trang',
+          'Chạy bộ',
+          'Bóng đá',
+          'Bóng rổ',
+          'Tennis',
+          'Casual',
+          'Formal',
+        ],
         isVariant: false,
         isFilterable: true,
         isRequired: false,

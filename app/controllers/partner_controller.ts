@@ -2,8 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { User } from '#models/user'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
-import fs from 'fs/promises'
-import path from 'path'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 export default class PartnerController {
   /**
@@ -63,7 +63,7 @@ export default class PartnerController {
       console.log('=== Partner Profile Update Request ===')
       const user = auth.user!
       console.log('User ID:', user.id)
-      
+
       const userDetails = await User.findById(user.id)
       if (!userDetails) {
         console.error('User not found with ID:', user.id)
@@ -214,7 +214,7 @@ export default class PartnerController {
       }
 
       const requestBody = request.all()
-      
+
       const notificationSettings = {
         emailNotifications: requestBody.emailNotifications ?? true,
         orderNotifications: requestBody.orderNotifications ?? true,
@@ -250,7 +250,7 @@ export default class PartnerController {
 
       const requestBody = request.all()
       console.log('Request body:', requestBody)
-      
+
       const storeSettings = {
         autoApproveOrders: requestBody.autoApproveOrders ?? false,
         minOrderAmount: requestBody.minOrderAmount ?? 0,

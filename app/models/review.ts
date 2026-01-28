@@ -115,4 +115,5 @@ ReviewSchema.post('save', async function () {
   }
 })
 
-export const Review = mongoose.models.Review || mongoose.model<ReviewDocument>('Review', ReviewSchema)
+export const Review =
+  mongoose.models.Review || mongoose.model<ReviewDocument>('Review', ReviewSchema)

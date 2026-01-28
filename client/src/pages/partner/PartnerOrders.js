@@ -40,7 +40,7 @@ const PartnerOrders = () => {
       return
     }
     fetchOrders()
-    // eslint-disable-next-line
+     
   }, [currentPage, selectedStatus])
 
   const fetchOrders = async () => {

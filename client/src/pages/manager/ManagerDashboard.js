@@ -30,7 +30,7 @@ const ManagerDashboard = () => {
     }
 
     fetchMyProducts()
-    // eslint-disable-next-line
+     
   }, [user])
 
   const fetchMyProducts = async () => {

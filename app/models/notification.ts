@@ -20,7 +20,7 @@ interface NotificationDocument extends Document {
 }
 
 // Interface for notification model static methods
-interface NotificationModel extends Model<NotificationDocument> {
+export interface NotificationModel extends Model<NotificationDocument> {
   createNotification(data: any): Promise<NotificationDocument>
   getUnreadCount(userId: string): Promise<number>
   markAllAsRead(userId: string): Promise<any>
@@ -156,7 +156,6 @@ notificationSchema.methods.archive = async function (
   return this
 }
 
-export const Notification = mongoose.models.Notification || mongoose.model<NotificationDocument, NotificationModel>(
-  'Notification',
-  notificationSchema
-)
+export const Notification =
+  mongoose.models.Notification ||
+  mongoose.model<NotificationDocument, NotificationModel>('Notification', notificationSchema)

@@ -703,16 +703,16 @@ export default class AdminController {
     try {
       // Get all categories and build tree
       const allCategories = await Category.find().lean()
-      
+
       // Build tree structure
       const categoryMap = new Map()
       const rootCategories: any[] = []
-      
+
       // First pass: create map
       allCategories.forEach((cat: any) => {
         categoryMap.set(cat._id.toString(), { ...cat, children: [] })
       })
-      
+
       // Second pass: build tree and add product counts
       for (const cat of allCategories) {
         const category = categoryMap.get(cat._id.toString())
@@ -720,7 +720,7 @@ export default class AdminController {
           category: cat.name,
         })
         category.productCount = productCount
-        
+
         if (cat.parentId) {
           const parent = categoryMap.get(cat.parentId.toString())
           if (parent) {
@@ -828,7 +828,7 @@ export default class AdminController {
   async getSettings({ response }: HttpContext) {
     try {
       let settings = await Settings.findOne()
-      
+
       // Create default settings if not exists
       if (!settings) {
         settings = await Settings.create({
@@ -888,7 +888,7 @@ export default class AdminController {
       ])
 
       let settings = await Settings.findOne()
-      
+
       if (!settings) {
         settings = await Settings.create(data)
       } else {
@@ -912,9 +912,9 @@ export default class AdminController {
     try {
       const user = (request as any).user
       const partnerId = new mongoose.Types.ObjectId(user.id)
-      
-      const page = parseInt(request.input('page', '1'))
-      const limit = parseInt(request.input('limit', '10'))
+
+      const page = Number.parseInt(request.input('page', '1'))
+      const limit = Number.parseInt(request.input('limit', '10'))
       const status = request.input('status')
       const skip = (page - 1) * limit
 
@@ -928,20 +928,14 @@ export default class AdminController {
       }
 
       const [orders, totalOrders] = await Promise.all([
-        Order.find(matchQuery)
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit)
-          .lean(),
+        Order.find(matchQuery).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
         Order.countDocuments(matchQuery),
       ])
 
       // Filter items to show only partner's items
       const filteredOrders = orders.map((order: any) => ({
         ...order,
-        items: order.items.filter(
-          (item: any) => item.seller.toString() === partnerId.toString()
-        ),
+        items: order.items.filter((item: any) => item.seller.toString() === partnerId.toString()),
       }))
 
       return response.json({
@@ -958,4 +952,3 @@ export default class AdminController {
     }
   }
 }
-
