@@ -90,7 +90,7 @@ export default class SeedProducts extends BaseCommand {
             },
           ],
           images: [
-            'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/b7d9211c-26e7-431a-ac24-b0540fb3c00f/air-jordan-1-retro-high-og-shoes-Pz6fZ9.png',
+            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800',
           ],
           features: ['Thiết kế iconic', 'Đệm Air cushion', 'Da cao cấp', 'Grip tuyệt vời'],
           warranty: {
@@ -147,7 +147,7 @@ export default class SeedProducts extends BaseCommand {
             },
           ],
           images: [
-            'https://assets.adidas.com/images/w_600,f_auto,q_auto/e44cd5c8e6c8423990afaec0010e3f68_9366/Ultraboost_22_Shoes_Black_GZ0127_01_standard.jpg',
+            'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800',
           ],
           features: ['Boost cushioning', 'Primeknit upper', 'Continental rubber outsole'],
           warranty: {
@@ -283,7 +283,7 @@ export default class SeedProducts extends BaseCommand {
               isAvailable: true,
             },
           ],
-          images: ['https://images.vans.com/is/image/Vans/D3HY28-HERO?$583x583$'],
+          images: ['https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800'],
           features: ['Jazz Stripe', 'Waffle outsole', 'Padded collar', 'Classic skate shoe'],
           warranty: {
             duration: '3 tháng',

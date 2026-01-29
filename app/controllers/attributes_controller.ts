@@ -419,7 +419,7 @@ export default class AttributesController {
         })
       }
 
-      attribute.values = attribute.values.filter((v) => v !== value)
+      attribute.values = attribute.values.filter((v: string) => v !== value)
       await attribute.save()
 
       return response.json({

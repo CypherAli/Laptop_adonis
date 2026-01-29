@@ -53,9 +53,9 @@ export const CartProvider = ({ children }) => {
 
       const response = await axios.get('/cart')
       console.log('🔍 RAW API RESPONSE:', response.data)
-      console.log('🔍 ITEMS:', response.data.items)
+      console.log('🔍 ITEMS:', response.data.data?.items)
 
-      const apiCart = response.data.items.map((item) => {
+      const apiCart = (response.data.data?.items || []).map((item) => {
         console.log('🔍 ITEM:', item)
         console.log('   - sellerName from API:', item.sellerName)
         console.log('   - seller object:', item.seller)
@@ -121,7 +121,7 @@ export const CartProvider = ({ children }) => {
         console.log('🔍 ADD TO CART RESPONSE:', response.data)
 
         // Update local state from API response WITH seller info
-        const apiCart = response.data.items.map((item) => {
+        const apiCart = (response.data.data?.items || []).map((item) => {
           console.log('🔍 Mapping item after add:', item)
           return {
             _id: item.product._id,
@@ -240,7 +240,7 @@ export const CartProvider = ({ children }) => {
         console.log('🔍 UPDATE QUANTITY RESPONSE:', response.data)
 
         // Update local state from API response WITH seller info
-        const apiCart = response.data.items.map((item) => ({
+        const apiCart = (response.data.data?.items || []).map((item) => ({
           _id: item.product._id,
           name: item.product.name,
           brand: item.product.brand,

@@ -165,7 +165,7 @@ export default class OrdersController {
         }
 
         // Find the variant
-        const variant = product.variants.find((v) => v.sku === item.variantSku)
+        const variant = product.variants.find((v: any) => v.sku === item.variantSku)
 
         if (!variant) {
           await session.abortTransaction()
@@ -381,7 +381,7 @@ export default class OrdersController {
       for (const item of order.items) {
         const product = await Product.findById(item.product).session(session)
         if (product) {
-          const variant = product.variants.find((v) => v.sku === item.variantSku)
+          const variant = product.variants.find((v: any) => v.sku === item.variantSku)
           if (variant) {
             variant.stock += item.quantity
           }

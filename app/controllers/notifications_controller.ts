@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { Notification } from '#models/notification'
+import { Notification, type NotificationModel } from '#models/notification'
 import mongoose from 'mongoose'
 
 export default class NotificationsController {
@@ -16,7 +16,7 @@ export default class NotificationsController {
         })
       }
 
-      const unreadCount = await Notification.getUnreadCount(userId)
+      const unreadCount = await (Notification as unknown as NotificationModel).getUnreadCount(userId)
 
       return response.json({
         unreadCount,
@@ -70,7 +70,7 @@ export default class NotificationsController {
           .select('-__v')
           .lean(),
         Notification.countDocuments(query),
-        Notification.getUnreadCount(userId),
+        (Notification as unknown as NotificationModel).getUnreadCount(userId),
       ])
 
       return response.json({
@@ -151,7 +151,7 @@ export default class NotificationsController {
         })
       }
 
-      const result = await Notification.markAllAsRead(userId)
+      const result = await (Notification as unknown as NotificationModel).markAllAsRead(userId)
 
       return response.json({
         message: 'Đã đánh dấu tất cả là đã đọc',
@@ -222,7 +222,7 @@ export default class NotificationsController {
         })
       }
 
-      const result = await Notification.deleteAllRead(userId)
+      const result = await (Notification as unknown as NotificationModel).deleteAllRead(userId)
 
       return response.json({
         message: 'Đã xóa tất cả thông báo đã đọc',
@@ -293,7 +293,7 @@ export default class NotificationsController {
           break
       }
 
-      const notification = await Notification.createNotification(notificationData)
+      const notification = await (Notification as unknown as NotificationModel).createNotification(notificationData)
 
       return response.json({
         message: 'Test notification created',

@@ -349,11 +349,11 @@ export default class ReviewsController {
       }
 
       // Check if already marked
-      const alreadyMarked = review.helpfulBy?.some((uid) => uid.toString() === userId)
+      const alreadyMarked = review.helpfulBy?.some((uid: any) => uid.toString() === userId)
 
       if (alreadyMarked) {
         // Remove helpful mark
-        review.helpfulBy = review.helpfulBy?.filter((uid) => uid.toString() !== userId) || []
+        review.helpfulBy = review.helpfulBy?.filter((uid: any) => uid.toString() !== userId) || []
         review.helpfulCount = Math.max(0, (review.helpfulCount || 0) - 1)
       } else {
         // Add helpful mark

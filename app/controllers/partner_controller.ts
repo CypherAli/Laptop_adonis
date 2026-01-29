@@ -3,16 +3,15 @@ import { User } from '#models/user'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
 import fs from 'node:fs/promises'
-import path from 'node:path'
 
 export default class PartnerController {
   /**
    * GET /api/partner/settings
    * Lấy thông tin settings của partner
    */
-  async getSettings({ auth, response }: HttpContext) {
+  async getSettings({ request, response }: HttpContext) {
     try {
-      const user = auth.user!
+      const user = (request as any).user!
 
       // Get full user details
       const userDetails = await User.findById(user.id)
@@ -58,10 +57,10 @@ export default class PartnerController {
    * PUT /api/partner/settings/profile
    * Cập nhật thông tin profile của partner
    */
-  async updateProfile({ auth, request, response }: HttpContext) {
+  async updateProfile({ request, response }: HttpContext) {
     try {
       console.log('=== Partner Profile Update Request ===')
-      const user = auth.user!
+      const user = (request as any).user!
       console.log('User ID:', user.id)
 
       const userDetails = await User.findById(user.id)
@@ -96,7 +95,6 @@ export default class PartnerController {
 
         // Generate unique filename
         const fileName = `${cuid()}.${avatar.extname}`
-        const filePath = path.join(uploadsPath, fileName)
 
         // Move file
         await avatar.move(uploadsPath, {
@@ -172,9 +170,9 @@ export default class PartnerController {
    * PUT /api/partner/settings/password
    * Đổi mật khẩu
    */
-  async updatePassword({ auth, request, response }: HttpContext) {
+  async updatePassword({ request, response }: HttpContext) {
     try {
-      const user = auth.user!
+      const user = (request as any).user!
       const userDetails = await User.findById(user.id)
       if (!userDetails) {
         return response.notFound({ message: 'User not found' })
@@ -205,9 +203,9 @@ export default class PartnerController {
    * PUT /api/partner/settings/notifications
    * Cập nhật cài đặt thông báo
    */
-  async updateNotifications({ auth, request, response }: HttpContext) {
+  async updateNotifications({ request, response }: HttpContext) {
     try {
-      const user = auth.user!
+      const user = (request as any).user!
       const userDetails = await User.findById(user.id)
       if (!userDetails) {
         return response.notFound({ message: 'User not found' })
@@ -238,10 +236,10 @@ export default class PartnerController {
    * PUT /api/partner/settings/store
    * Cập nhật cài đặt cửa hàng
    */
-  async updateStore({ auth, request, response }: HttpContext) {
+  async updateStore({ request, response }: HttpContext) {
     try {
       console.log('=== Store Settings Update Request ===')
-      const user = auth.user!
+      const user = (request as any).user!
       const userDetails = await User.findById(user.id)
       if (!userDetails) {
         console.error('User not found with ID:', user.id)
