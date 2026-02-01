@@ -52,6 +52,7 @@ export default defineConfig({
     () => import('@adonisjs/lucid/database_provider'),
     () => import('#providers/mongo_provider'),
     () => import('#providers/socket_provider'),
+    () => import('@adonisjs/inertia/inertia_provider')
   ],
 
   /*
