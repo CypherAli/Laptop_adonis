@@ -36,6 +36,11 @@ export default class CartsController {
   async addItem({ request, response }: HttpContext) {
     try {
       const user = (request as any).user
+
+      if (!user || !user.id) {
+        return ResponseHelper.unauthorized(response, 'Vui lòng đăng nhập để thêm vào giỏ hàng')
+      }
+
       const userId = user.id
 
       // Admin không có giỏ hàng

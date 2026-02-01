@@ -13,8 +13,11 @@ const Header = () => {
   const { getCartCount } = useContext(CartContext)
   const { wishlist } = useContext(WishlistContext)
   const navigate = useNavigate()
-  const [searchQuery, setSearchQuery] = useState('')
   const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false)
+
+  // Search state - CHỈ cho client/partner
+  const [searchQuery, setSearchQuery] = useState('')
+  const isAdmin = user?.role === 'admin'
 
   // Debug log
   React.useEffect(() => {
@@ -29,6 +32,9 @@ const Header = () => {
 
   const handleSearch = (e) => {
     e.preventDefault()
+    // Bỏ qua nếu là admin
+    if (isAdmin) return
+    
     if (searchQuery.trim()) {
       // Navigate to home with search query (HomePage will handle the filter)
       navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`)
@@ -64,21 +70,23 @@ const Header = () => {
             </a>
           </div>
 
-          {/* Center Search Bar */}
-          <div className="nav-center">
-            <form className="header-search" onSubmit={handleSearch}>
-              <input
-                type="text"
-                placeholder="Search shoes, accessories..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="header-search-input"
-              />
-              <button type="submit" className="header-search-btn">
-                Search
-              </button>
-            </form>
-          </div>
+          {/* Center Search Bar - CHỈ dành cho client/partner, KHÔNG cho admin */}
+          {!isAdmin && (
+            <div className="nav-center">
+              <form className="header-search" onSubmit={handleSearch}>
+                <input
+                  type="text"
+                  placeholder="Search shoes, accessories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="header-search-input"
+                />
+                <button type="submit" className="header-search-btn">
+                  Search
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="nav-right">
             {/* Theme Toggle Button - Always visible */}
@@ -199,44 +207,8 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Navigation Menu */}
-      <div className="main-nav">
-        <div className="main-nav-container">
-          <Link to="/" className="nav-menu-item">
-            Home
-          </Link>
-          <Link
-            to="/#products"
-            className="nav-menu-item"
-            onClick={(e) => {
-              if (window.location.pathname === '/') {
-                e.preventDefault()
-                const productsSection = document.getElementById('products-section')
-                if (productsSection) {
-                  productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-              }
-            }}
-          >
-            Products
-          </Link>
-          <Link to="/deals" className="nav-menu-item hot-item">
-            Hot Deals
-          </Link>
-          <Link to="/best-sellers" className="nav-menu-item">
-            Best Sellers
-          </Link>
-          <Link to="/blog" className="nav-menu-item">
-            News & Reviews
-          </Link>
-          <Link to="/about" className="nav-menu-item">
-            About Us
-          </Link>
-          <Link to="/contact" className="nav-menu-item">
-            Contact
-          </Link>
-        </div>
-      </div>
+      {/* Navigation Menu - KHÔNG CÒN CẦN THIẾT CHO ADMIN */}
+      {/* Admin không cần Home, Products, Hot Deals, v.v... */}
 
       {/* Cart Sidebar - CHỈ render cho client (user), KHÔNG cho admin và partner */}
       {(!user || user.role === 'client') && (

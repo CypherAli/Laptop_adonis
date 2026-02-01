@@ -10,21 +10,31 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
-const DashboardController = () => import('#controllers/dashboard_controller')
+const AdminController = () => import('#controllers/admin_controller')
 
-// Public routes
-router.on('/').render('pages/home')
-
-// Admin routes (protected) - Server-side rendering for dashboard only
+// ==================== INERTIA ROUTES (Backoffice Admin) ====================
 router
   .group(() => {
-    // Dashboard
-    router.get('/dashboard', [DashboardController, 'index']).as('admin.dashboard')
+    // Admin Dashboard - Inertia SSR
+    router.get('/dashboard', [AdminController, 'dashboard']).as('admin.dashboard')
+
+    // Thêm các admin pages khác ở đây
+    // router.get('/products', [AdminController, 'products'])
+    // router.get('/orders', [AdminController, 'orders'])
   })
   .prefix('/admin')
-  .use(middleware.auth())
+  .use(middleware.inertia())
+  .use(middleware.jwtAuth())
+  .use(middleware.admin())
 
-// Import API routes for REST API (used by React frontend)
+// ==================== WEB-SHOP ROUTES (User/Partner Frontend) ====================
+// TODO: Thêm Inertia routes cho web-shop
+// router.group(() => {
+//   router.get('/', 'HomeController.index')
+//   router.get('/products', 'ProductsController.index')
+// }).use(middleware.inertia())
+
+// Import API routes for REST API
 import './api_routes.js'
 
 // SPA Catch-all route - serve React app for all routes that don't match API or static files

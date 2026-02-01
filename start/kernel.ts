@@ -48,4 +48,5 @@ export const middleware = router.named({
   jwtAuth: () => import('#middleware/jwt_auth_middleware'),
   admin: () => import('#middleware/admin_middleware'),
   partner: () => import('#middleware/partner_middleware'),
+  inertia: () => import('#middleware/inertia_middleware'),
 })

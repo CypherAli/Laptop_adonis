@@ -10,16 +10,9 @@ import { Settings } from '#models/settings'
 
 export default class AdminController {
   /**
-   * Get admin statistics (alias for dashboard)
+   * Get admin statistics - API JSON endpoint (cho SPA cũ)
    */
   async stats({ response }: HttpContext) {
-    return this.dashboard({ response } as HttpContext)
-  }
-
-  /**
-   * Get admin dashboard statistics
-   */
-  async dashboard({ response }: HttpContext) {
     try {
       const [
         totalClients,
@@ -51,12 +44,6 @@ export default class AdminController {
         Review.countDocuments({ isApproved: false }),
       ])
 
-      console.log(' Admin Stats Debug:', {
-        totalOrders,
-        totalProducts,
-        totalUsers: totalClients + totalPartners + totalAdmins,
-      })
-
       // Order statistics by status
       const orderStats = await Order.aggregate([
         {
@@ -76,6 +63,7 @@ export default class AdminController {
       const pendingOrders = await Order.countDocuments({ status: 'pending' })
       const deliveredOrders = await Order.countDocuments({ status: 'delivered' })
 
+      // API JSON Response
       return response.json({
         stats: {
           totalUsers: totalClients + totalPartners + totalAdmins,
@@ -97,7 +85,99 @@ export default class AdminController {
         orderStats,
       })
     } catch (error) {
-      console.error(' Admin dashboard error:', error)
+      console.error('❌ Admin stats error:', error)
+      return response.status(500).json({
+        message: 'Lỗi server',
+        error: error.message,
+      })
+    }
+  }
+
+  /**
+   * Admin Dashboard - Inertia SSR (cho frontend mới)
+   */
+  async dashboard({ request, response }: HttpContext) {
+    try {
+      const [
+        totalClients,
+        totalPartners,
+        totalAdmins,
+        totalProducts,
+        totalOrders,
+        pendingPartners,
+        activeProducts,
+        outOfStockProducts,
+        lowStockProducts,
+        totalReviews,
+        pendingReviews,
+      ] = await Promise.all([
+        User.countDocuments({ role: 'client' }),
+        User.countDocuments({ role: 'partner' }),
+        User.countDocuments({ role: 'admin' }),
+        Product.countDocuments(),
+        Order.countDocuments(),
+        User.countDocuments({ role: 'partner', isApproved: false }),
+        Product.countDocuments({ 'variants.stock': { $gt: 0 } }),
+        Product.countDocuments({
+          $or: [{ 'variants.stock': 0 }, { 'variants.stock': { $exists: false } }],
+        }),
+        Product.countDocuments({
+          'variants.stock': { $gt: 0, $lte: 10 },
+        }),
+        Review.countDocuments(),
+        Review.countDocuments({ isApproved: false }),
+      ])
+
+      // Order statistics by status
+      const orderStats = await Order.aggregate([
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+            total: { $sum: '$totalAmount' },
+          },
+        },
+      ])
+
+      // Revenue statistics
+      const paidOrders = await Order.find({ paymentStatus: 'paid' })
+      const totalRevenue = paidOrders.reduce((sum, order) => sum + order.totalAmount, 0)
+
+      // Pending and delivered counts
+      const pendingOrders = await Order.countDocuments({ status: 'pending' })
+      const deliveredOrders = await Order.countDocuments({ status: 'delivered' })
+
+      // Recent orders
+      const recentOrders = await Order.find()
+        .populate('user', 'username email')
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean()
+
+      // INERTIA RENDER: Truyền data vào React component
+      return (request as any).inertia.render('Admin/Dashboard', {
+        stats: {
+          totalUsers: totalClients + totalPartners + totalAdmins,
+          totalClients,
+          totalPartners,
+          totalAdmins,
+          totalProducts,
+          totalOrders,
+          pendingOrders,
+          deliveredOrders,
+          pendingPartners,
+          totalRevenue,
+          activeProducts,
+          outOfStockProducts,
+          lowStockProducts,
+          totalReviews,
+          pendingReviews,
+        },
+        orderStats,
+        recentOrders,
+      })
+    } catch (error) {
+      console.error('❌ Admin dashboard error:', error)
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,

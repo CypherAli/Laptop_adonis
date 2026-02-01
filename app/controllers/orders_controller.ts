@@ -11,6 +11,13 @@ export default class OrdersController {
   async index({ request, response }: HttpContext) {
     try {
       const user = (request as any).user
+
+      if (!user || !user.id) {
+        return response.status(401).json({
+          message: 'Vui lòng đăng nhập để xem đơn hàng',
+        })
+      }
+
       const { page = 1, limit = 10, status } = request.qs()
 
       // TẤT CẢ USERS chỉ xem orders của chính họ (những đơn họ đã mua)

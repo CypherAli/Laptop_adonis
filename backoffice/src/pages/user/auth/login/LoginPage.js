@@ -29,8 +29,8 @@ const LoginPage = () => {
         toast.success('Login successful!')
       }
 
-      // Redirect to intended page or home
-      const redirectPath = localStorage.getItem('redirectAfterLogin') || '/'
+      // Redirect based on backend response or default
+      const redirectPath = response?.redirectUrl || localStorage.getItem('redirectAfterLogin') || '/'
       localStorage.removeItem('redirectAfterLogin')
       setTimeout(() => navigate(redirectPath), 500)
     } catch (err) {

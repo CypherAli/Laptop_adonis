@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3333'
+// FIXED: Hardcode để đảm bảo không có /api duplicate
+const API_BASE_URL = 'http://localhost:3333'
+
+console.log('🔧 Axios Config - Base URL:', API_BASE_URL)
 
 const instance = axios.create({
   baseURL: API_BASE_URL,

@@ -66,7 +66,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('/auth/login', { email, password })
+      console.log('🔐 Attempting login with:', { email, password: password ? '***' : 'MISSING' })
+      const res = await axios.post('/api/auth/login', { email, password })
+      console.log('✅ Login response:', res.data)
 
       // Show warning if partner not approved
       if (res.data.warning) {
@@ -103,7 +105,7 @@ export const AuthProvider = ({ children }) => {
       if (role === 'partner' && shopName) {
         payload.shopName = shopName
       }
-      await axios.post('/auth/register', payload)
+      await axios.post('/api/auth/register', payload)
     } catch (err) {
       console.error('Registration failed', err)
       throw err

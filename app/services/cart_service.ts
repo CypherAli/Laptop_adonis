@@ -133,7 +133,7 @@ export class CartService {
                   product: productId,
                   variantSku: selectedVariantSku,
                   quantity,
-                  seller: product.createdBy._id,
+                  seller: product.createdBy?._id || null,
                 },
               },
             },
@@ -149,7 +149,7 @@ export class CartService {
               product: productId,
               variantSku: selectedVariantSku,
               quantity,
-              seller: product.createdBy._id,
+              seller: product.createdBy?._id || null,
             },
           ],
         })

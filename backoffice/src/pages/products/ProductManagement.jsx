@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
+import axios from '../../api/axiosConfig'
+import AuthContext from '../../context/AuthContext'
 import './ProductManagement.css'
 
 /**
@@ -44,10 +45,12 @@ import './ProductManagement.css'
  */
 
 const ProductManagement = () => {
+  // ==================== AUTH CONTEXT ====================
+  const { user: currentUser } = useContext(AuthContext)
+  
   // ==================== STATE MANAGEMENT ====================
   const [products, setProducts] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
-  const [currentUser, setCurrentUser] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
@@ -191,7 +194,12 @@ const ProductManagement = () => {
    * - inStock, sortBy
    */
   const fetchProducts = useCallback(async (page = 1) => {
-    console.log('Fetching products...', { page, filters })
+    console.log('🔍 Fetching products...', { 
+      page, 
+      filters,
+      axiosBaseURL: axios.defaults.baseURL,
+      axiosInstance: axios
+    })
     setLoading(true)
     setError(null)
 
@@ -209,16 +217,37 @@ const ProductManagement = () => {
         }
       })
 
-      const response = await axios.get('/api/products', { params })
+      // Debug: Check nếu baseURL có chứa /api
+      const hasApiInBase = axios.defaults.baseURL?.includes('/api')
+      const apiPath = hasApiInBase ? '/products' : '/api/products'
+      
+      console.log('📡 API Request:', {
+        hasApiInBase,
+        apiPath,
+        params,
+        baseURL: axios.defaults.baseURL,
+        finalUrl: `${axios.defaults.baseURL}${apiPath}`
+      })
+
+      const response = await axios.get(apiPath, { params })
 
       const { products: fetchedProducts, currentPage, totalPages, totalProducts } = response.data
-      console.log('Products fetched:', totalProducts)
+      console.log('✅ Products fetched:', {
+        total: totalProducts,
+        count: fetchedProducts?.length
+      })
 
       setProducts(fetchedProducts)
       setPagination({ ...pagination, page: currentPage, totalPages, totalProducts })
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải sản phẩm')
-      console.error('Fetch products error:', err)
+      const errorMsg = err.response?.data?.message || 'Lỗi khi tải sản phẩm'
+      console.error('❌ Fetch products error:', {
+        status: err.response?.status,
+        message: errorMsg,
+        url: err.config?.url,
+        fullError: err
+      })
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -469,22 +498,16 @@ const ProductManagement = () => {
   // ==================== LIFECYCLE ====================
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    if (user && user.id) {
-      setCurrentUser(user)
-      console.log('User loaded:', { id: user.id, role: user.role })
-    }
-  }, [])
-
-  useEffect(() => {
     if (currentUser) {
-      if (hasPermission('VIEW_OWN_PRODUCTS')) {
-        fetchMyProducts()
-      } else {
+      console.log('👤 User loaded:', { id: currentUser.id, role: currentUser.role, username: currentUser.username })
+      // Admin xem tất cả sản phẩm
+      if (currentUser.role === 'admin') {
         fetchProducts(1)
+      } else {
+        fetchMyProducts()
       }
     }
-  }, [currentUser, hasPermission, fetchMyProducts, fetchProducts])
+  }, [currentUser])
 
   // ==================== UI COMPONENTS ====================
 
@@ -499,9 +522,10 @@ const ProductManagement = () => {
         
         <div className="header-info">
           <div className="user-info">
-            <span>{currentUser?.fullName || currentUser?.username || 'Guest'}</span>
-            <span className={`role-badge role-${currentUser?.role}`}>
-              {currentUser?.role === 'customer' && 'KHÁCH HÀNG'}
+            <span>{currentUser?.username || 'Loading...'}</span>
+            <span className={`role-badge role-${currentUser?.role || 'guest'}`}>
+              {!currentUser && 'ĐANG TẢI...'}
+              {currentUser?.role === 'client' && 'KHÁCH HÀNG'}
               {currentUser?.role === 'partner' && 'CHỦ SHOP'}
               {currentUser?.role === 'admin' && 'QUẢN TRỊ'}
             </span>
@@ -519,7 +543,10 @@ const ProductManagement = () => {
               {hasPermission('DELETE_PRODUCT') && (
                 <span className="perm perm-delete">Xóa sản phẩm</span>
               )}
-              {!hasPermission('CREATE_PRODUCT') && (
+              {!hasPermission('CREATE_PRODUCT') && !currentUser && (
+                <span className="perm perm-view">Đang tải...</span>
+              )}
+              {!hasPermission('CREATE_PRODUCT') && currentUser && (
                 <span className="perm perm-view">Chỉ xem</span>
               )}
             </div>
@@ -532,11 +559,17 @@ const ProductManagement = () => {
 
       {/* TOOLBAR */}
       <div className="product-toolbar">
-        {hasPermission('CREATE_PRODUCT') && !createMode && (
-          <button className="btn btn-primary" onClick={() => setCreateMode(true)}>
-            + Tạo Sản Phẩm Mới
-          </button>
-        )}
+        {/* THÔNG TIN SỐ LƯỢNG SẢN PHẨM */}
+        <div className="product-count-info">
+          <span className="count-label">Tổng số:</span>
+          <span className="count-value">{pagination.totalProducts || 0}</span>
+          <span className="count-label">sản phẩm</span>
+          {pagination.totalPages > 1 && (
+            <span className="count-secondary">
+              • Trang {pagination.page}/{pagination.totalPages}
+            </span>
+          )}
+        </div>
 
         {/* FILTERS */}
         <div className="filter-group">
@@ -585,7 +618,14 @@ const ProductManagement = () => {
         {products.length === 0 ? (
           <div className="no-data">Không có sản phẩm nào</div>
         ) : (
-          products.map((product) => (
+          products.map((product) => {
+            // Tính tổng số lượng còn lại từ tất cả các variants
+            const totalStock = product.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0
+            
+            // Lấy thông tin shop/partner
+            const shopName = product.createdBy?.shopName || product.createdBy?.username || 'N/A'
+            
+            return (
             <div key={product._id} className="product-card">
               <div className="product-image">
                 <img 
@@ -593,10 +633,21 @@ const ProductManagement = () => {
                   alt={product.name}
                   onClick={() => fetchProductDetail(product._id)}
                 />
+                {/* Badge số lượng còn */}
+                <div className={`stock-badge ${totalStock === 0 ? 'out-of-stock' : totalStock < 10 ? 'low-stock' : ''}`}>
+                  {totalStock === 0 ? 'Hết hàng' : `Còn ${totalStock}`}
+                </div>
               </div>
               <div className="product-info">
                 <h3>{product.name}</h3>
                 <p className="brand">{product.brand}</p>
+                
+                {/* Thông tin shop */}
+                <div className="shop-info">
+                  <span className="shop-label">Shop:</span>
+                  <span className="shop-name">{shopName}</span>
+                </div>
+                
                 <p className="price">{product.basePrice.toLocaleString('vi-VN')}đ</p>
                 <div className="product-stats">
                   <span>Xem: {product.viewCount || 0}</span>
@@ -632,7 +683,8 @@ const ProductManagement = () => {
                 </button>
               </div>
             </div>
-          ))
+            )
+          })
         )}
       </div>
 

@@ -5,7 +5,7 @@
 .profile-page {
   min-height: 100vh;
   padding: 140px 20px 60px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f8f9fa;
 }
 
 .profile-container {
@@ -24,9 +24,10 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  font-size: 32px;
-  color: #2c3e50;
-  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
 }
 
 .profile-header h1 svg {
@@ -41,8 +42,8 @@
 /* Content */
 .profile-content {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -52,7 +53,7 @@
   align-items: center;
   gap: 30px;
   padding: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4c51bf 0%, #5b21b6 100%);
   color: white;
 }
 
@@ -93,19 +94,19 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #667eea;
+  background: #4c51bf;
   border: 2px solid white;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .avatar-upload-btn:hover {
-  background: #5568d3;
-  transform: scale(1.1);
+  background: #4338ca;
+  transform: scale(1.05);
 }
 
 .avatar-remove-btn {

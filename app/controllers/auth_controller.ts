@@ -82,37 +82,52 @@ export default class AuthController {
    */
   async login({ request, response }: HttpContext) {
     try {
+      // Debug: Log raw request
+      console.log('📨 Request body:', request.body())
+      console.log('📨 Request all:', request.all())
+      
       const { email, password } = request.only(['email', 'password'])
+
+      console.log('📧 Login attempt:', { email, passwordProvided: !!password })
 
       // Validation
       if (!email || !password) {
+        console.log('❌ Missing email or password')
         return response.status(400).json({
           message: 'Email và mật khẩu là bắt buộc',
         })
       }
 
       // Find user
+      console.log('🔍 Finding user with email:', email)
       const user = await User.findOne({ email })
       if (!user) {
+        console.log('❌ User not found')
         return response.status(400).json({
           message: 'Email hoặc mật khẩu không đúng',
         })
       }
+      console.log('✅ User found:', { id: user._id, username: user.username, isActive: user.isActive })
 
       // Check if account is active
       if (!user.isActive) {
+        console.log('❌ Account is not active')
         return response.status(403).json({
           message: 'Tài khoản đã bị khóa',
         })
       }
 
       // Compare password
+      console.log('🔐 Comparing password...')
       const isMatch = await user.comparePassword(password)
+      console.log('🔐 Password match result:', isMatch)
       if (!isMatch) {
+        console.log('❌ Password does not match')
         return response.status(400).json({
           message: 'Email hoặc mật khẩu không đúng',
         })
       }
+      console.log('✅ Password matched, generating token...')
 
       // Generate JWT token
       const token = jwt.sign(
@@ -140,6 +155,13 @@ export default class AuthController {
           isApproved: user.isApproved,
         },
         message: 'Đăng nhập thành công!',
+      }
+
+      // Redirect URL based on role
+      if (user.role === 'admin') {
+        responseData.redirectUrl = '/admin'
+      } else if (user.role === 'partner') {
+        responseData.redirectUrl = '/manager'
       }
 
       // Add warning if partner not approved

@@ -149,7 +149,7 @@ const AdminDashboardClean = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const res = await axios.get('/admin/stats')
+      const res = await axios.get('/api/admin/stats')
       setDashboardStats(res.data)
       setLoading(false)
     } catch (error) {
@@ -161,7 +161,7 @@ const AdminDashboardClean = () => {
 
   const fetchProducts = async (page = 1) => {
     try {
-      const res = await axios.get(`/admin/products?page=${page}&limit=10`)
+      const res = await axios.get(`/api/admin/products?page=${page}&limit=10`)
       setProducts(res.data.products || [])
       setTotalPages(res.data.totalPages || 1)
     } catch (error) {
@@ -171,7 +171,7 @@ const AdminDashboardClean = () => {
 
   const fetchOrders = async (page = 1) => {
     try {
-      const res = await axios.get(`/admin/orders?page=${page}&limit=10`)
+      const res = await axios.get(`/api/admin/orders?page=${page}&limit=10`)
       setOrders(res.data.orders || [])
       setTotalPages(res.data.totalPages || 1)
     } catch (error) {
@@ -181,7 +181,7 @@ const AdminDashboardClean = () => {
 
   const fetchUsers = async (page = 1) => {
     try {
-      const res = await axios.get(`/admin/users?page=${page}&limit=10`)
+      const res = await axios.get(`/api/admin/users?page=${page}&limit=10`)
       setUsers(res.data.users || [])
       setTotalPages(res.data.totalPages || 1)
     } catch (error) {
@@ -191,7 +191,7 @@ const AdminDashboardClean = () => {
 
   const fetchReviews = async (page = 1) => {
     try {
-      const res = await axios.get(`/admin/reviews?page=${page}&limit=10`)
+      const res = await axios.get(`/api/admin/reviews?page=${page}&limit=10`)
       setReviews(res.data.reviews || [])
       setTotalPages(res.data.totalPages || 1)
     } catch (error) {
@@ -202,7 +202,7 @@ const AdminDashboardClean = () => {
   // Action handlers
   const handleToggleFeatured = async (productId, currentStatus) => {
     try {
-      await axios.put(`/admin/products/${productId}/toggle-featured`)
+      await axios.put(`/api/admin/products/${productId}/toggle-featured`)
       toast.success(currentStatus ? 'Đã bỏ nổi bật' : 'Đã đánh dấu nổi bật')
       fetchProducts(currentPage)
     } catch (error) {
@@ -212,7 +212,7 @@ const AdminDashboardClean = () => {
 
   const handleApprovePartner = async (userId) => {
     try {
-      await axios.put(`/admin/users/${userId}/approve`)
+      await axios.put(`/api/admin/users/${userId}/approve`)
       toast.success('Đã duyệt Partner thành công!')
       fetchUsers(currentPage)
     } catch (error) {
@@ -222,7 +222,7 @@ const AdminDashboardClean = () => {
 
   const handleToggleUserStatus = async (userId) => {
     try {
-      await axios.put(`/admin/users/${userId}/toggle-status`)
+      await axios.put(`/api/admin/users/${userId}/toggle-status`)
       toast.success('Đã cập nhật trạng thái người dùng')
       fetchUsers(currentPage)
     } catch (error) {
@@ -232,7 +232,7 @@ const AdminDashboardClean = () => {
 
   const handleModerateReview = async (reviewId, isApproved) => {
     try {
-      await axios.put(`/admin/reviews/${reviewId}/moderate`, { isApproved })
+      await axios.put(`/api/admin/reviews/${reviewId}/moderate`, { isApproved })
       toast.success(isApproved ? 'Đã duyệt đánh giá' : 'Đã từ chối đánh giá')
       fetchReviews(currentPage)
     } catch (error) {
@@ -243,7 +243,7 @@ const AdminDashboardClean = () => {
   // Categories functions
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('/admin/categories/tree')
+      const res = await axios.get('/api/admin/categories/tree')
       const flattenTree = (items, result = [], level = 0) => {
         items.forEach(item => {
           result.push({ ...item, level })
@@ -261,7 +261,7 @@ const AdminDashboardClean = () => {
 
   const handleToggleCategoryActive = async (categoryId) => {
     try {
-      await axios.put(`/admin/categories/${categoryId}/toggle-active`)
+      await axios.put(`/api/admin/categories/${categoryId}/toggle-active`)
       toast.success('Đã cập nhật trạng thái danh mục')
       fetchCategories()
     } catch (error) {
@@ -272,7 +272,7 @@ const AdminDashboardClean = () => {
   // Brands functions
   const fetchBrands = async (page = 1) => {
     try {
-      const res = await axios.get(`/admin/brands?page=${page}&limit=10`)
+      const res = await axios.get(`/api/admin/brands?page=${page}&limit=10`)
       setBrands(res.data.brands || [])
       setTotalPages(res.data.totalPages || 1)
     } catch (error) {
@@ -282,7 +282,7 @@ const AdminDashboardClean = () => {
 
   const handleToggleBrandActive = async (brandId) => {
     try {
-      await axios.put(`/admin/brands/${brandId}/toggle-active`)
+      await axios.put(`/api/admin/brands/${brandId}/toggle-active`)
       toast.success('Đã cập nhật trạng thái thương hiệu')
       fetchBrands(currentPage)
     } catch (error) {
@@ -293,7 +293,7 @@ const AdminDashboardClean = () => {
   // Settings functions
   const fetchSettings = async () => {
     try {
-      const res = await axios.get('/admin/settings')
+      const res = await axios.get('/api/admin/settings')
       if (res.data) {
         // Merge with defaults to ensure no null/undefined values
         setSettings(prevSettings => ({
@@ -314,7 +314,7 @@ const AdminDashboardClean = () => {
   const handleUpdateSettings = async (e) => {
     e.preventDefault()
     try {
-      await axios.put('/admin/settings', settings)
+      await axios.put('/api/admin/settings', settings)
       toast.success('Đã cập nhật cài đặt thành công!')
     } catch (error) {
       toast.error('Không thể cập nhật cài đặt')
@@ -383,6 +383,14 @@ const AdminDashboardClean = () => {
               <FiPackage />
               <span>Products</span>
               <span className="nav-badge">{stats.totalProducts || 0}</span>
+            </button>
+            <button
+              className="nav-item-clean"
+              onClick={() => navigate('/manager')}
+              title="Go to Product Manager"
+            >
+              <FiGrid />
+              <span>Product Manager</span>
             </button>
             <button
               className={`nav-item-clean ${activeTab === 'orders' ? 'active' : ''}`}

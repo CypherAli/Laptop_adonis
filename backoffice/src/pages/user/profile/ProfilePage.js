@@ -4,46 +4,27 @@ import AuthContext from '../../../context/AuthContext'
 import { getAvatarUrl } from '../../../utils/imageHelpers'
 import './ProfilePage.css'
 
-// Tab components
+// Tab components - CHỈ giữ lại những tab cần thiết cho admin
 import ProfileOverview from '../../../components/profile/ProfileOverview'
 import PersonalInfoEnhanced from '../../../components/profile/PersonalInfoEnhanced'
 import AddressManagement from '../../../components/profile/AddressManagement'
 import PaymentMethods from '../../../components/profile/PaymentMethods'
-import OrderHistory from '../../../components/profile/OrderHistory'
-import WarrantyManagement from '../../../components/profile/WarrantyManagement'
-import Wishlist from '../../../components/profile/Wishlist'
-import ReviewsRatings from '../../../components/profile/ReviewsRatings'
-import VoucherWallet from '../../../components/profile/VoucherWallet'
-import SupportTickets from '../../../components/profile/SupportTickets'
-import NotificationCenter from '../../../components/profile/NotificationCenter'
-import SettingsPreferences from '../../../components/profile/SettingsPreferences'
 
 const ProfilePage = () => {
   const { user, userDetails } = useContext(AuthContext)
   const [activeTab, setActiveTab] = useState('overview')
   const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [unreadCount, setUnreadCount] = useState(0)
 
   const tabs = [
     { id: 'overview', label: 'Tổng quan' },
     { id: 'personal', label: 'Thông tin cá nhân' },
     { id: 'addresses', label: 'Địa chỉ' },
     { id: 'payment', label: 'Payment' },
-    { id: 'orders', label: 'Orders' },
-    { id: 'warranty', label: 'Bảo hành' },
-    { id: 'wishlist', label: 'Yêu thích' },
-    { id: 'reviews', label: 'Đánh giá' },
-    { id: 'vouchers', label: 'Voucher' },
-    { id: 'support', label: 'Support' },
-    { id: 'notifications', label: 'Notifications', badge: unreadCount },
-    { id: 'settings', label: 'Cài đặt' },
   ]
 
   useEffect(() => {
     fetchUserData()
-    fetchUnreadCount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Update userData when userDetails changes (after profile update)
@@ -58,11 +39,10 @@ const ProfilePage = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/auth/me')
+      const response = await axios.get('/api/auth/me')
       setUserData({
         ...response.data.user,
         stats: response.data.stats || {},
-        loyaltyPoints: response.data.loyaltyPoints || { available: 0, total: 0, used: 0 },
       })
     } catch (error) {
       console.error('Fetch user error:', error)
@@ -72,15 +52,6 @@ const ProfilePage = () => {
       }
     } finally {
       setLoading(false)
-    }
-  }
-
-  const fetchUnreadCount = async () => {
-    try {
-      const response = await axios.get('/notifications/unread-count')
-      setUnreadCount(response.data.unreadCount)
-    } catch (error) {
-      console.error('Fetch unread count error:', error)
     }
   }
 
@@ -94,22 +65,6 @@ const ProfilePage = () => {
         return <AddressManagement />
       case 'payment':
         return <PaymentMethods />
-      case 'orders':
-        return <OrderHistory />
-      case 'warranty':
-        return <WarrantyManagement />
-      case 'wishlist':
-        return <Wishlist />
-      case 'reviews':
-        return <ReviewsRatings />
-      case 'vouchers':
-        return <VoucherWallet />
-      case 'support':
-        return <SupportTickets />
-      case 'notifications':
-        return <NotificationCenter onCountChange={setUnreadCount} />
-      case 'settings':
-        return <SettingsPreferences userData={userData} onUpdate={fetchUserData} />
       default:
         return <ProfileOverview userData={userData} onRefresh={fetchUserData} />
     }
@@ -147,15 +102,6 @@ const ProfilePage = () => {
             </div>
             <h2>{userData?.name || userDetails?.name || user?.username || 'User'}</h2>
             <p className="profile-email">{userData?.email || userDetails?.email || user?.email}</p>
-            <div className="membership-badge">
-              <span className={`badge-${userData?.membershipTier || 'bronze'}`}>
-                {(userData?.membershipTier || 'bronze').toUpperCase()}
-              </span>
-            </div>
-            <div className="loyalty-points">
-              <span className="points-value">{userData?.loyaltyPoints?.available || 0}</span>
-              <span className="points-label">Điểm tích lũy</span>
-            </div>
           </div>
 
           <nav className="profile-nav">

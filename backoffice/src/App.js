@@ -25,6 +25,7 @@ const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboardClean'))
 const AddProduct = lazy(() => import('./pages/admin/AddProduct'))
 const EditProduct = lazy(() => import('./pages/admin/EditProduct'))
 const ProfilePage = lazy(() => import('./pages/user/profile/ProfilePage'))
+const ProductManagement = lazy(() => import('./pages/products/ProductManagement'))
 
 // Loading component
 const LoadingFallback = () => (
@@ -68,6 +69,7 @@ function App() {
           {/* === Protected Admin Only Routes === */}
           <Route element={<PrivateRoute allowedRoles={['admin']} />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/manager" element={<ProductManagement />} />
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
             <Route path="/admin/add-product" element={<AddProduct />} />
             <Route path="/admin/edit-product/:id" element={<EditProduct />} />

@@ -130,7 +130,9 @@ export const CartProvider = ({ children }) => {
         console.log('🔍 ADD TO CART RESPONSE:', response.data)
 
         // Update local state from API response WITH seller info
-        const apiCart = response.data.items.map((item) => {
+        // Handle both response formats: { items: [...] } and { data: { items: [...] } }
+        const items = response.data.data?.items || response.data.items || []
+        const apiCart = items.map((item) => {
           console.log('🔍 Mapping item after add:', item)
           return {
             _id: item.product._id,
