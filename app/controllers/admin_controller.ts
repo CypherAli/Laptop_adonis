@@ -94,58 +94,23 @@ export default class AdminController {
   }
 
   /**
-   * Admin Dashboard - Inertia SSR (cho frontend mới)
+   * Admin Dashboard - Inertia SSR
    */
-  async dashboard({ request, response }: HttpContext) {
+  async dashboard({ inertia }: HttpContext) {
     try {
-      const [
-        totalClients,
-        totalPartners,
-        totalAdmins,
-        totalProducts,
-        totalOrders,
-        pendingPartners,
-        activeProducts,
-        outOfStockProducts,
-        lowStockProducts,
-        totalReviews,
-        pendingReviews,
-      ] = await Promise.all([
-        User.countDocuments({ role: 'client' }),
-        User.countDocuments({ role: 'partner' }),
-        User.countDocuments({ role: 'admin' }),
-        Product.countDocuments(),
-        Order.countDocuments(),
-        User.countDocuments({ role: 'partner', isApproved: false }),
-        Product.countDocuments({ 'variants.stock': { $gt: 0 } }),
-        Product.countDocuments({
-          $or: [{ 'variants.stock': 0 }, { 'variants.stock': { $exists: false } }],
-        }),
-        Product.countDocuments({
-          'variants.stock': { $gt: 0, $lte: 10 },
-        }),
-        Review.countDocuments(),
-        Review.countDocuments({ isApproved: false }),
-      ])
-
-      // Order statistics by status
-      const orderStats = await Order.aggregate([
-        {
-          $group: {
-            _id: '$status',
-            count: { $sum: 1 },
-            total: { $sum: '$totalAmount' },
-          },
-        },
-      ])
+      // Get basic counts
+      const [totalClients, totalPartners, totalAdmins, totalProducts, totalOrders] =
+        await Promise.all([
+          User.countDocuments({ role: 'client' }),
+          User.countDocuments({ role: 'partner' }),
+          User.countDocuments({ role: 'admin' }),
+          Product.countDocuments(),
+          Order.countDocuments(),
+        ])
 
       // Revenue statistics
       const paidOrders = await Order.find({ paymentStatus: 'paid' })
       const totalRevenue = paidOrders.reduce((sum, order) => sum + order.totalAmount, 0)
-
-      // Pending and delivered counts
-      const pendingOrders = await Order.countDocuments({ status: 'pending' })
-      const deliveredOrders = await Order.countDocuments({ status: 'delivered' })
 
       // Recent orders
       const recentOrders = await Order.find()
@@ -154,34 +119,27 @@ export default class AdminController {
         .limit(10)
         .lean()
 
-      // INERTIA RENDER: Truyền data vào React component
-      return (request as any).inertia.render('Admin/Dashboard', {
+      // Format recent orders for display
+      const formattedOrders = recentOrders.map((order: any) => ({
+        id: order._id.toString(),
+        customerName: order.user?.username || 'Guest',
+        total: order.totalAmount,
+        status: order.status,
+      }))
+
+      // Render Inertia page
+      return inertia.render('admin/dashboard', {
         stats: {
           totalUsers: totalClients + totalPartners + totalAdmins,
-          totalClients,
-          totalPartners,
-          totalAdmins,
           totalProducts,
           totalOrders,
-          pendingOrders,
-          deliveredOrders,
-          pendingPartners,
           totalRevenue,
-          activeProducts,
-          outOfStockProducts,
-          lowStockProducts,
-          totalReviews,
-          pendingReviews,
         },
-        orderStats,
-        recentOrders,
+        recentOrders: formattedOrders,
       })
     } catch (error) {
       console.error('❌ Admin dashboard error:', error)
-      return response.status(500).json({
-        message: 'Lỗi server',
-        error: error.message,
-      })
+      throw error
     }
   }
 
