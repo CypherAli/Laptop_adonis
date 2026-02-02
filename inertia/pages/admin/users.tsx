@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import AdminLayout from '../../app/layouts/AdminLayout'
 import { formatDate } from '../../app/utils/dateFormat'
@@ -9,8 +9,27 @@ interface User {
   email: string
   shopName?: string
   role: string
+  adminLevel?: string
   isApproved: boolean
   createdAt: Date
+}
+
+const adminLevelInfo: Record<string, { label: string; description: string; color: string }> = {
+  super_admin: {
+    label: 'Super Admin',
+    description: 'Full system access, can manage all admins and settings',
+    color: 'bg-red-100 text-red-800',
+  },
+  admin: {
+    label: 'Admin',
+    description: 'Manage products, orders, users, but cannot manage other admins',
+    color: 'bg-purple-100 text-purple-800',
+  },
+  support_admin: {
+    label: 'Support Admin',
+    description: 'View and support orders, limited product management',
+    color: 'bg-indigo-100 text-indigo-800',
+  },
 }
 
 interface UsersProps {
@@ -26,6 +45,13 @@ interface UsersProps {
     search?: string
     isApproved?: string
   }
+  auth?: {
+    user: {
+      id: string
+      role: string
+      adminLevel?: string
+    }
+  }
 }
 
 const roleColors: Record<string, string> = {
@@ -34,10 +60,55 @@ const roleColors: Record<string, string> = {
   client: 'bg-green-100 text-green-800',
 }
 
-export default function Users({ users, pagination, filters }: UsersProps) {
+export default function Users({ users, pagination, filters, auth }: UsersProps) {
   const [searchInput, setSearchInput] = useState(filters.search || '')
   const [roleFilter, setRoleFilter] = useState(filters.role || '')
   const [approvalFilter, setApprovalFilter] = useState(filters.isApproved || '')
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [deletingUser, setDeletingUser] = useState<User | null>(null)
+  const [editForm, setEditForm] = useState({ role: '', adminLevel: '' })
+
+  const currentUser = auth?.user
+  const isSuperAdmin = currentUser?.role === 'admin' && currentUser?.adminLevel === 'super_admin'
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user)
+    setEditForm({
+      role: user.role,
+      adminLevel: user.adminLevel || '',
+    })
+  }
+
+  const handleSaveEdit = () => {
+    if (!editingUser) return
+
+    router.put(
+      `/admin/users/${editingUser.id}`,
+      {
+        role: editForm.role,
+        adminLevel: editForm.role === 'admin' ? editForm.adminLevel : undefined,
+      },
+      {
+        onSuccess: () => {
+          setEditingUser(null)
+        },
+      }
+    )
+  }
+
+  const handleDelete = (user: User) => {
+    setDeletingUser(user)
+  }
+
+  const confirmDelete = () => {
+    if (!deletingUser) return
+
+    router.delete(`/admin/users/${deletingUser.id}`, {
+      onSuccess: () => {
+        setDeletingUser(null)
+      },
+    })
+  }
 
   return (
     <AdminLayout>
@@ -97,12 +168,16 @@ export default function Users({ users, pagination, filters }: UsersProps) {
               </div>
 
               <div className="flex items-end">
-                <Link
-                  href={`/admin/users?search=${searchInput}&role=${roleFilter}&isApproved=${approvalFilter}`}
+                <button
+                  onClick={() =>
+                    router.visit(
+                      `/admin/users?search=${searchInput}&role=${roleFilter}&isApproved=${approvalFilter}`
+                    )
+                  }
                   className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-center"
                 >
                   Apply Filters
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -157,6 +232,11 @@ export default function Users({ users, pagination, filters }: UsersProps) {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Joined
                     </th>
+                    {isSuperAdmin && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Actions
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -170,11 +250,28 @@ export default function Users({ users, pagination, filters }: UsersProps) {
                         {user.shopName || '-'}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[user.role] || 'bg-gray-100 text-gray-800'}`}
-                        >
-                          {user.role}
-                        </span>
+                        <div>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[user.role] || 'bg-gray-100 text-gray-800'}`}
+                          >
+                            {user.role}
+                          </span>
+                          {user.role === 'admin' && user.adminLevel && (
+                            <div className="mt-2">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  adminLevelInfo[user.adminLevel]?.color || 'bg-gray-100 text-gray-800'
+                                }`}
+                                title={adminLevelInfo[user.adminLevel]?.description}
+                              >
+                                {adminLevelInfo[user.adminLevel]?.label || user.adminLevel}
+                              </span>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {adminLevelInfo[user.adminLevel]?.description}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-sm">
                         {user.isApproved ? (
@@ -190,6 +287,26 @@ export default function Users({ users, pagination, filters }: UsersProps) {
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {formatDate(user.createdAt)}
                       </td>
+                      {isSuperAdmin && (
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEdit(user)}
+                              className="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50"
+                              disabled={user.id === currentUser?.id}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(user)}
+                              className="px-3 py-1 text-xs font-medium text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50"
+                              disabled={user.id === currentUser?.id}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -223,6 +340,89 @@ export default function Users({ users, pagination, filters }: UsersProps) {
               </div>
             )}
           </div>
+
+          {/* Edit User Modal */}
+          {editingUser && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4">Edit User: {editingUser.username}</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select
+                      value={editForm.role}
+                      onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="client">Client</option>
+                      <option value="partner">Partner</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  {editForm.role === 'admin' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Admin Level
+                      </label>
+                      <select
+                        value={editForm.adminLevel}
+                        onChange={(e) => setEditForm({ ...editForm, adminLevel: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="support_admin">Support Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {adminLevelInfo[editForm.adminLevel]?.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 mt-6">
+                  <button
+                    onClick={handleSaveEdit}
+                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => setEditingUser(null)}
+                    className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {deletingUser && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4 text-red-600">Confirm Delete</h3>
+                <p className="text-gray-700 mb-6">
+                  Are you sure you want to delete user <strong>{deletingUser.username}</strong> (
+                  {deletingUser.email})? This action cannot be undone.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={confirmDelete}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => setDeletingUser(null)}
+                    className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>

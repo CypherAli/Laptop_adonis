@@ -54,19 +54,23 @@ export default function Attributes({ attributes }: AttributesProps) {
   }
 
   const handleSave = () => {
+    // Validate form
+    if (!formData.name.trim()) {
+      alert('Vui lòng nhập tên attribute')
+      return
+    }
+
+    if (formData.values.length === 0) {
+      alert('Vui lòng thêm ít nhất 1 giá trị')
+      return
+    }
+
     if (editingAttribute) {
-      router.put(`/admin/attributes/${editingAttribute.id}`, formData, {
-        onSuccess: () => {
-          setEditingAttribute(null)
-        },
-      })
+      console.log('📤 Updating attribute:', editingAttribute.id, formData)
+      router.put(`/admin/attributes/${editingAttribute.id}`, formData)
     } else if (isCreating) {
-      router.post('/admin/attributes', formData, {
-        onSuccess: () => {
-          setIsCreating(false)
-          setFormData({ name: '', values: [], isActive: true })
-        },
-      })
+      console.log('📤 Creating attribute:', formData)
+      router.post('/admin/attributes', formData)
     }
   }
 
@@ -154,9 +158,9 @@ export default function Attributes({ attributes }: AttributesProps) {
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">Values ({attribute.values.length}):</p>
                   <div className="flex flex-wrap gap-2">
-                    {attribute.values.slice(0, 8).map((value, idx) => (
+                    {attribute.values.slice(0, 8).map((value) => (
                       <span
-                        key={idx}
+                        key={value}
                         className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
                       >
                         {value}
@@ -278,7 +282,7 @@ export default function Attributes({ attributes }: AttributesProps) {
                 <div className="flex flex-wrap gap-2">
                   {formData.values.map((value, idx) => (
                     <span
-                      key={idx}
+                      key={`${value}-${idx}`}
                       className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm flex items-center gap-2"
                     >
                       {value}

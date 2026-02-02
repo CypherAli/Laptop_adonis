@@ -422,6 +422,7 @@ export default class UsersController {
         email: user.email,
         shopName: user.shopName,
         role: user.role,
+        adminLevel: user.adminLevel,
         isApproved: user.isApproved,
         createdAt: user.createdAt,
       })),
@@ -434,5 +435,84 @@ export default class UsersController {
       filters: { role, search, isApproved },
       currentPath: '/admin/users',
     })
+  }
+
+  /**
+   * Update user role and admin level (Super Admin only)
+   */
+  async updateUser({ params, request, response, session }: HttpContext) {
+    try {
+      const currentUser = session.get('user')
+      
+      // Check if current user is super admin
+      if (
+        !currentUser ||
+        currentUser.role !== 'admin' ||
+        currentUser.adminLevel !== 'super_admin'
+      ) {
+        return response.redirect().back()
+      }
+
+      const user = await User.findById(params.id)
+      if (!user) {
+        return response.redirect().back()
+      }
+
+      // Prevent editing own account
+      if (user._id.toString() === currentUser.id) {
+        return response.redirect().back()
+      }
+
+      const { role, adminLevel } = request.only(['role', 'adminLevel'])
+
+      user.role = role
+      if (role === 'admin' && adminLevel) {
+        user.adminLevel = adminLevel
+      } else {
+        user.adminLevel = undefined
+      }
+
+      await user.save()
+
+      return response.redirect().back()
+    } catch (error) {
+      console.error('Error updating user:', error)
+      return response.redirect().back()
+    }
+  }
+
+  /**
+   * Delete user (Super Admin only)
+   */
+  async deleteUser({ params, response, session }: HttpContext) {
+    try {
+      const currentUser = session.get('user')
+
+      // Check if current user is super admin
+      if (
+        !currentUser ||
+        currentUser.role !== 'admin' ||
+        currentUser.adminLevel !== 'super_admin'
+      ) {
+        return response.redirect().back()
+      }
+
+      const user = await User.findById(params.id)
+      if (!user) {
+        return response.redirect().back()
+      }
+
+      // Prevent deleting own account
+      if (user._id.toString() === currentUser.id) {
+        return response.redirect().back()
+      }
+
+      await User.findByIdAndDelete(params.id)
+
+      return response.redirect().back()
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      return response.redirect().back()
+    }
   }
 }

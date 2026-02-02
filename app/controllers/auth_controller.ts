@@ -287,9 +287,9 @@ export default class AuthController {
   }
 
   /**
-   * Logout user (client-side token removal)
+   * Logout user (client-side token removal for API)
    */
-  async logout({ response }: HttpContext) {
+  async logoutApi({ response }: HttpContext) {
     return response.json({
       message: 'Đăng xuất thành công',
     })
@@ -300,6 +300,72 @@ export default class AuthController {
    */
   async showLogin({ inertia }: HttpContext) {
     return inertia.render('auth/login')
+  }
+
+  /**
+   * Register admin account (Inertia)
+   */
+  async registerAdmin({ request, response, session }: HttpContext) {
+    try {
+      const { username, email, password, confirmPassword } = request.only([
+        'username',
+        'email',
+        'password',
+        'confirmPassword',
+      ])
+
+      // Validation
+      if (!username || !email || !password || !confirmPassword) {
+        session.flash('error', 'Vui lòng điền đầy đủ thông tin')
+        return response.redirect().back()
+      }
+
+      if (password !== confirmPassword) {
+        session.flash('error', 'Mật khẩu xác nhận không khớp')
+        return response.redirect().back()
+      }
+
+      if (password.length < 6) {
+        session.flash('error', 'Mật khẩu phải có ít nhất 6 ký tự')
+        return response.redirect().back()
+      }
+
+      // Check if email already exists
+      const existingUser = await User.findOne({ email })
+      if (existingUser) {
+        session.flash('error', 'Email đã được sử dụng')
+        return response.redirect().back()
+      }
+
+      // Create admin user
+      const user = new User({
+        username,
+        email,
+        password, // Will be hashed by pre-save hook
+        role: 'admin',
+        adminLevel: 'admin', // Default to regular admin
+        isActive: true,
+        isApproved: true,
+      })
+      await user.save()
+
+      console.log(' Admin registered:', { id: user._id, email: user.email })
+
+      // Auto login after registration
+      session.put('user', {
+        id: user._id.toString(),
+        role: user.role,
+        username: user.username,
+        email: user.email,
+      })
+
+      session.flash('success', 'Tạo tài khoản thành công!')
+      return response.redirect('/admin/dashboard')
+    } catch (error) {
+      console.error('Register admin error:', error)
+      session.flash('error', 'Lỗi khi tạo tài khoản')
+      return response.redirect().back()
+    }
   }
 
   /**
@@ -363,12 +429,15 @@ export default class AuthController {
 
       // Store in session for Inertia middleware
       session.put('user', {
-        id: user._id,
+        id: user._id.toString(),
         role: user.role,
         username: user.username,
         email: user.email,
+        adminLevel: user.adminLevel,
       })
       session.put('token', token)
+
+      console.log(' Login successful, session set:', session.get('user'))
 
       // Update last login
       user.lastLogin = new Date()

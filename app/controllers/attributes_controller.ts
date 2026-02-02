@@ -8,19 +8,24 @@ export default class AttributesController {
    */
   async index({ request, response, inertia }: HttpContext) {
     try {
-      // Check if request is from Inertia
-      if (request.header('X-Inertia')) {
+      const isInertia = request.header('X-Inertia')
+      
+      // Inertia request - render page
+      if (isInertia) {
         const attributes = await Attribute.find({})
           .sort({ order: 1, name: 1 })
           .lean()
 
         const serializedAttributes = attributes.map((attr) => ({
           ...attr,
+          id: attr._id.toString(),
           _id: attr._id.toString(),
           categoryIds: attr.categoryIds?.map((id: any) => id.toString()) || [],
           createdAt: attr.createdAt?.toISOString(),
           updatedAt: attr.updatedAt?.toISOString(),
         }))
+
+        console.log('📤 Rendering attributes page with', serializedAttributes.length, 'items')
 
         return inertia.render('admin/attributes', {
           attributes: serializedAttributes,
@@ -183,6 +188,15 @@ export default class AttributesController {
         'isActive',
       ])
 
+      // Validate required fields
+      if (!data.name || !data.name.trim()) {
+        if (isInertia) {
+          session.flash('error', 'Tên attribute không được để trống')
+          return response.redirect().back()
+        }
+        return response.status(400).json({ message: 'Tên attribute không được để trống' })
+      }
+
       // Validate category IDs if provided
       if (data.categoryIds && data.categoryIds.length > 0) {
         const validIds = data.categoryIds.filter((id: string) =>
@@ -200,40 +214,47 @@ export default class AttributesController {
         data.categoryIds = validIds.map((id: string) => new mongoose.Types.ObjectId(id))
       }
 
-      const attribute = await Attribute.create(data)
-
-      if (isInertia) {
-        session.flash('success', 'Tạo thuộc tính thành công')
-        return response.redirect('/admin/attributes')
+      // Prepare attribute data with defaults
+      const attributeData = {
+        name: data.name.trim(),
+        slug: data.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, ''),
+        type: data.type || 'select',
+        values: Array.isArray(data.values) ? data.values : [],
+        categoryIds: data.categoryIds || [],
+        isRequired: data.isRequired === true,
+        isFilterable: data.isFilterable !== false,
+        isVariant: data.isVariant === true,
+        order: Number(data.order) || 0,
+        unit: data.unit || '',
+        isActive: data.isActive !== false,
       }
 
-      return response.status(201).json({
-        message: 'Tạo thuộc tính thành công',
-        attribute,
+      const attribute = await Attribute.create(attributeData)
+
+      console.log('✅ Attribute created:', {
+        id: attribute._id,
+        name: attribute.name,
+        values: attribute.values.length,
       })
+
+      session.flash('success', 'Tạo thuộc tính thành công')
+      return response.redirect('/admin/attributes')
     } catch (error) {
       console.error('Create attribute error:', error)
-      const isInertia = request.header('X-Inertia')
 
       if (error.code === 11000) {
-        if (isInertia) {
-          session.flash('error', 'Tên thuộc tính đã tồn tại')
-          return response.redirect('/admin/attributes')
-        }
-        return response.status(400).json({
-          message: 'Tên thuộc tính đã tồn tại',
-        })
+        session.flash('error', 'Tên thuộc tính đã tồn tại')
+        return response.redirect().back()
       }
 
-      if (isInertia) {
-        session.flash('error', 'Lỗi server')
-        return response.redirect('/admin/attributes')
-      }
-
-      return response.status(500).json({
-        message: 'Lỗi server',
-        error: error.message,
-      })
+      session.flash('error', 'Lỗi server')
+      return response.redirect().back()
     }
   }
 

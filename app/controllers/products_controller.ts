@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import { Product } from '#models/product'
 import { Review } from '#models/review'
 import { Cart } from '#models/cart'
-import { User } from '#models/user'
+import '#models/user' // Import to register User model for populate
 import { ValidationHelper } from '#utils/validation'
 
 export default class ProductsController {
@@ -669,7 +669,7 @@ export default class ProductsController {
     // Import Brand and Category models
     const { Brand } = await import('#models/brand')
     const { Category } = await import('#models/category')
-    
+
     const [brands, categories] = await Promise.all([
       Brand.find({ isActive: true }).sort({ name: 1 }).lean(),
       Category.find({ isActive: true }).sort({ name: 1 }).lean(),
@@ -695,6 +695,11 @@ export default class ProductsController {
     try {
       const user = (request as any).user
 
+      if (!user) {
+        session.flash('error', 'Unauthorized')
+        return response.redirect('/auth/login')
+      }
+
       const data = request.only([
         'name',
         'description',
@@ -705,17 +710,77 @@ export default class ProductsController {
         'variants',
       ])
 
-      // Create product
+      // Validate required fields
+      if (!data.name || !data.brand || !data.category || !data.basePrice) {
+        session.flash('error', 'Vui lòng điền đầy đủ thông tin bắt buộc')
+        return response.redirect().back()
+      }
+
+      if (!data.variants || data.variants.length === 0) {
+        session.flash('error', 'Sản phẩm phải có ít nhất 1 variant')
+        return response.redirect().back()
+      }
+
+      // Format variants according to Product schema
+      const formattedVariants = data.variants.map((v: any, index: number) => ({
+        variantName: `${v.size || ''} - ${v.color || ''}`.trim(),
+        sku: `${data.brand}-${Date.now()}-${index}`,
+        price: Number(v.price) || Number(data.basePrice),
+        originalPrice: Number(v.price) || Number(data.basePrice),
+        stock: Number(v.stock) || 0,
+        specifications: {
+          size: v.size || '',
+          color: v.color || '',
+          material: v.material || '',
+        },
+        isAvailable: true,
+      }))
+
+      // Generate slug manually
+      const slug =
+        data.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') +
+        '-' +
+        Date.now().toString().slice(-6)
+
+      // Create product with proper schema
       const product = await Product.create({
-        ...data,
-        createdBy: user?.id || null,
+        name: data.name,
+        description: data.description || 'No description',
+        brand: data.brand,
+        category: data.category,
+        basePrice: Number(data.basePrice),
+        images: data.images || [],
+        variants: formattedVariants,
+        createdBy: new mongoose.Types.ObjectId(user.id),
+        slug: slug,
+        isActive: true,
+        isFeatured: false,
+        soldCount: 0,
+        viewCount: 0,
       })
 
+      console.log(' Product created:', {
+        id: product._id,
+        name: product.name,
+        variants: product.variants.length,
+        createdBy: product.createdBy,
+        userId: user.id,
+      })
+
+      // Inertia POST should redirect
       session.flash('success', 'Tạo sản phẩm thành công')
       return response.redirect('/admin/products')
     } catch (error) {
-      console.error('Store product error:', error)
-      session.flash('error', 'Lỗi khi tạo sản phẩm')
+      console.error(' Store product error:', error)
+      console.error('Error stack:', error.stack)
+
+      session.flash('error', `Lỗi khi tạo sản phẩm: ${error.message}`)
       return response.redirect().back()
     }
   }

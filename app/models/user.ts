@@ -130,6 +130,13 @@ const UserSchema = new Schema<UserDocument>(
       enum: ['client', 'partner', 'admin'],
       default: 'client',
     },
+    adminLevel: {
+      type: String,
+      enum: ['super_admin', 'admin', 'support_admin'],
+      required: function() {
+        return this.role === 'admin'
+      },
+    },
     shopName: {
       type: String,
       trim: true,
