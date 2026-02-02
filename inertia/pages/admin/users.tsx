@@ -70,6 +70,30 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
 
   const currentUser = auth?.user
   const isSuperAdmin = currentUser?.role === 'admin' && currentUser?.adminLevel === 'super_admin'
+  const isAdmin = currentUser?.role === 'admin'
+
+  // Check if current user can edit target user
+  const canEdit = (user: User) => {
+    // Cannot edit yourself
+    if (user.id === currentUser?.id) return false
+    
+    // Super admin can edit anyone
+    if (isSuperAdmin) return true
+    
+    // Regular admin/support admin can only edit client and partner
+    if (isAdmin && (user.role === 'client' || user.role === 'partner')) return true
+    
+    return false
+  }
+
+  // Check if current user can delete target user
+  const canDelete = (user: User) => {
+    // Cannot delete yourself
+    if (user.id === currentUser?.id) return false
+    
+    // Only super admin can delete
+    return isSuperAdmin
+  }
 
   const handleEdit = (user: User) => {
     setEditingUser(user)
@@ -232,7 +256,7 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Joined
                     </th>
-                    {isSuperAdmin && (
+                    {isAdmin && (
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Actions
                       </th>
@@ -287,23 +311,33 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {formatDate(user.createdAt)}
                       </td>
-                      {isSuperAdmin && (
+                      {isAdmin && (
                         <td className="px-6 py-4 text-sm">
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEdit(user)}
-                              className="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50"
-                              disabled={user.id === currentUser?.id}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(user)}
-                              className="px-3 py-1 text-xs font-medium text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50"
-                              disabled={user.id === currentUser?.id}
-                            >
-                              Delete
-                            </button>
+                            {canEdit(user) ? (
+                              <button
+                                onClick={() => handleEdit(user)}
+                                className="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50"
+                              >
+                                Edit
+                              </button>
+                            ) : (
+                              <span className="px-3 py-1 text-xs font-medium text-gray-400 border border-gray-200 rounded cursor-not-allowed">
+                                Edit
+                              </span>
+                            )}
+                            {canDelete(user) ? (
+                              <button
+                                onClick={() => handleDelete(user)}
+                                className="px-3 py-1 text-xs font-medium text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50"
+                              >
+                                Delete
+                              </button>
+                            ) : (
+                              <span className="px-3 py-1 text-xs font-medium text-gray-400 border border-gray-200 rounded cursor-not-allowed">
+                                Delete
+                              </span>
+                            )}
                           </div>
                         </td>
                       )}
@@ -356,10 +390,15 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
                     >
                       <option value="client">Client</option>
                       <option value="partner">Partner</option>
-                      <option value="admin">Admin</option>
+                      {isSuperAdmin && <option value="admin">Admin</option>}
                     </select>
+                    {!isSuperAdmin && editForm.role === 'admin' && (
+                      <p className="text-xs text-red-500 mt-1">
+                        Only Super Admin can manage admin roles
+                      </p>
+                    )}
                   </div>
-                  {editForm.role === 'admin' && (
+                  {editForm.role === 'admin' && isSuperAdmin && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Admin Level

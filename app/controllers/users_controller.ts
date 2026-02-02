@@ -438,18 +438,16 @@ export default class UsersController {
   }
 
   /**
-   * Update user role and admin level (Super Admin only)
+   * Update user role and admin level
+   * - Super Admin: can edit anyone
+   * - Regular Admin/Support Admin: can only edit client and partner
    */
   async updateUser({ params, request, response, session }: HttpContext) {
     try {
       const currentUser = session.get('user')
-      
-      // Check if current user is super admin
-      if (
-        !currentUser ||
-        currentUser.role !== 'admin' ||
-        currentUser.adminLevel !== 'super_admin'
-      ) {
+
+      // Check if user is authenticated and is admin
+      if (!currentUser || currentUser.role !== 'admin') {
         return response.redirect().back()
       }
 
@@ -458,12 +456,22 @@ export default class UsersController {
         return response.redirect().back()
       }
 
-      // Prevent editing own account
+      // Prevent editing yourself
       if (user._id.toString() === currentUser.id) {
         return response.redirect().back()
       }
 
       const { role, adminLevel } = request.only(['role', 'adminLevel'])
+
+      // Check permissions based on admin level
+      const isSuperAdmin = currentUser.adminLevel === 'super_admin'
+
+      if (!isSuperAdmin) {
+        // Regular admin/support admin can only edit client and partner
+        if (user.role === 'admin' || role === 'admin') {
+          return response.redirect().back()
+        }
+      }
 
       user.role = role
       if (role === 'admin' && adminLevel) {
