@@ -19,7 +19,6 @@ router.on('/').renderInertia('home')
 // ==================== AUTH ROUTES (Inertia) ====================
 router.get('/auth/login', [AuthController, 'showLogin']).as('auth.login')
 router.post('/auth/login', [AuthController, 'loginInertia']).as('auth.login.post')
-router.post('/auth/register', [AuthController, 'registerAdmin']).as('auth.register')
 router.post('/auth/logout', [AuthController, 'logout']).as('auth.logout')
 
 // ==================== ADMIN ROUTES (Inertia SSR for Backoffice) ====================
@@ -68,6 +67,7 @@ router
     // Orders, Users, Reviews
     router.get('/orders', [OrdersController, 'showOrders']).as('admin.orders')
     router.get('/users', [UsersController, 'showUsers']).as('admin.users')
+    router.post('/users', [UsersController, 'createUser']).as('admin.users.create')
     router.put('/users/:id', [UsersController, 'updateUser']).as('admin.users.update')
     router.delete('/users/:id', [UsersController, 'deleteUser']).as('admin.users.delete')
     router.get('/reviews', [ReviewsController, 'showReviews']).as('admin.reviews')

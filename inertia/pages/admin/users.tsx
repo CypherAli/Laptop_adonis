@@ -66,7 +66,15 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
   const [approvalFilter, setApprovalFilter] = useState(filters.isApproved || '')
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [deletingUser, setDeletingUser] = useState<User | null>(null)
+  const [creatingUser, setCreatingUser] = useState(false)
   const [editForm, setEditForm] = useState({ role: '', adminLevel: '' })
+  const [createForm, setCreateForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'client',
+    adminLevel: '',
+  })
 
   const currentUser = auth?.user
   const isSuperAdmin = currentUser?.role === 'admin' && currentUser?.adminLevel === 'super_admin'
@@ -134,6 +142,31 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
     })
   }
 
+  const handleCreateUser = () => {
+    router.post(
+      '/admin/users',
+      {
+        username: createForm.username,
+        email: createForm.email,
+        password: createForm.password,
+        role: createForm.role,
+        adminLevel: createForm.role === 'admin' ? createForm.adminLevel : undefined,
+      },
+      {
+        onSuccess: () => {
+          setCreatingUser(false)
+          setCreateForm({
+            username: '',
+            email: '',
+            password: '',
+            role: 'client',
+            adminLevel: '',
+          })
+        },
+      }
+    )
+  }
+
   return (
     <AdminLayout>
       <Head title="Users Management" />
@@ -141,9 +174,20 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-            <p className="mt-2 text-sm text-gray-600">Manage users, partners, and admins</p>
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
+              <p className="mt-2 text-sm text-gray-600">Manage users, partners, and admins</p>
+            </div>
+            {isSuperAdmin && (
+              <button
+                onClick={() => setCreatingUser(true)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+              >
+                <span className="text-lg">+</span>
+                Add User
+              </button>
+            )}
           </div>
 
           {/* Filters */}
@@ -374,6 +418,101 @@ export default function Users({ users, pagination, filters, auth }: UsersProps) 
               </div>
             )}
           </div>
+
+          {/* Create User Modal */}
+          {creatingUser && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4">Create New User</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      value={createForm.username}
+                      onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="johndoe"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={createForm.email}
+                      onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="user@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={createForm.password}
+                      onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select
+                      value={createForm.role}
+                      onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="client">Client</option>
+                      <option value="partner">Partner</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  {createForm.role === 'admin' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Admin Level
+                      </label>
+                      <select
+                        value={createForm.adminLevel}
+                        onChange={(e) =>
+                          setCreateForm({ ...createForm, adminLevel: e.target.value })
+                        }
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                      >
+                        <option value="">Select Level</option>
+                        <option value="admin">Admin</option>
+                        <option value="support_admin">Support Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                      </select>
+                      {createForm.adminLevel && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {adminLevelInfo[createForm.adminLevel]?.description}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2 mt-6">
+                  <button
+                    onClick={handleCreateUser}
+                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  >
+                    Create User
+                  </button>
+                  <button
+                    onClick={() => setCreatingUser(false)}
+                    className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Edit User Modal */}
           {editingUser && (

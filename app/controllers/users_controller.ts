@@ -438,6 +438,74 @@ export default class UsersController {
   }
 
   /**
+   * Create new user (Super Admin only)
+   */
+  async createUser({ request, response, session }: HttpContext) {
+    try {
+      const currentUser = session.get('user')
+
+      // Only super admin can create users
+      if (
+        !currentUser ||
+        currentUser.role !== 'admin' ||
+        currentUser.adminLevel !== 'super_admin'
+      ) {
+        session.flash('error', 'Unauthorized')
+        return response.redirect().back()
+      }
+
+      const { username, email, password, role, adminLevel } = request.only([
+        'username',
+        'email',
+        'password',
+        'role',
+        'adminLevel',
+      ])
+
+      // Validation
+      if (!username || !email || !password || !role) {
+        session.flash('error', 'Please fill all required fields')
+        return response.redirect().back()
+      }
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ $or: [{ email }, { username }] })
+      if (existingUser) {
+        session.flash('error', 'Username or email already exists')
+        return response.redirect().back()
+      }
+
+      // Create user data
+      const userData: any = {
+        username,
+        email,
+        password, // Will be hashed by pre-save hook
+        role,
+        isActive: true,
+        isApproved: role === 'partner' ? false : true,
+      }
+
+      // Set admin level if role is admin
+      if (role === 'admin' && adminLevel) {
+        userData.adminLevel = adminLevel
+      }
+
+      // Create user
+      const user = new User(userData)
+      await user.save()
+
+      console.log('✅ User created by admin:', { id: user._id, username: user.username, role: user.role })
+
+      session.flash('success', 'User created successfully')
+      return response.redirect().back()
+    } catch (error) {
+      console.error('Error creating user:', error)
+      session.flash('error', 'Failed to create user')
+      return response.redirect().back()
+    }
+  }
+
+  /**
    * Update user role and admin level
    * - Super Admin: can edit anyone
    * - Regular Admin/Support Admin: can only edit client and partner
