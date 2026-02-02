@@ -16,7 +16,9 @@ export default class NotificationsController {
         })
       }
 
-      const unreadCount = await (Notification as unknown as NotificationModel).getUnreadCount(userId)
+      const unreadCount = await (Notification as unknown as NotificationModel).getUnreadCount(
+        userId
+      )
 
       return response.json({
         unreadCount,
@@ -293,7 +295,9 @@ export default class NotificationsController {
           break
       }
 
-      const notification = await (Notification as unknown as NotificationModel).createNotification(notificationData)
+      const notification = await (Notification as unknown as NotificationModel).createNotification(
+        notificationData
+      )
 
       return response.json({
         message: 'Test notification created',

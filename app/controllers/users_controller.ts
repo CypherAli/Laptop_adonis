@@ -380,4 +380,59 @@ export default class UsersController {
       })
     }
   }
+
+  /**
+   * Show users page (Inertia - Admin only)
+   */
+  async showUsers({ inertia, request }: HttpContext) {
+    const { page = 1, limit = 20, role, search, isApproved } = request.qs()
+
+    const filter: any = {}
+    if (role) filter.role = role
+    if (search) {
+      const searchRegex = new RegExp(search, 'i')
+      filter.$or = [
+        { username: searchRegex },
+        { email: searchRegex },
+        { shopName: searchRegex },
+      ]
+    }
+    if (isApproved !== undefined) {
+      filter.isApproved = isApproved === 'true'
+    }
+
+    const pageNum = Number(page)
+    const limitNum = Number(limit)
+    const skip = (pageNum - 1) * limitNum
+
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      User.countDocuments(filter),
+    ])
+
+    return inertia.render('admin/users', {
+      users: users.map((user: any) => ({
+        id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        shopName: user.shopName,
+        role: user.role,
+        isApproved: user.isApproved,
+        createdAt: user.createdAt,
+      })),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      filters: { role, search, isApproved },
+      currentPath: '/admin/users',
+    })
+  }
 }

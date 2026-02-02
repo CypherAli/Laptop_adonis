@@ -50,12 +50,32 @@ const EditProduct = () => {
   ]
 
   const sizes = ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45']
-  const colors = ['Đen', 'Trắng', 'Xám', 'Đỏ', 'Xanh dương', 'Xanh lá', 'Vàng', 'Cam', 'Hồng', 'Nâu']
+  const colors = [
+    'Đen',
+    'Trắng',
+    'Xám',
+    'Đỏ',
+    'Xanh dương',
+    'Xanh lá',
+    'Vàng',
+    'Cam',
+    'Hồng',
+    'Nâu',
+  ]
   const genders = ['Nam', 'Nữ', 'Unisex']
   const materials = ['Da thật', 'Da tổng hợp', 'Vải canvas', 'Vải mesh', 'Vải dệt kim', 'Nhựa EVA']
   const categories = ['Giày Thể Thao', 'Giày Cao Gót', 'Giày Sandal', 'Giày Boot', 'Giày Lười']
   const collarHeights = ['Thấp cổ', 'Cổ vừa', 'Cao cổ']
-  const styles = ['Thể thao', 'Thời trang', 'Chạy bộ', 'Bóng đá', 'Bóng rổ', 'Tennis', 'Casual', 'Formal']
+  const styles = [
+    'Thể thao',
+    'Thời trang',
+    'Chạy bộ',
+    'Bóng đá',
+    'Bóng rổ',
+    'Tennis',
+    'Casual',
+    'Formal',
+  ]
   const soles = ['Cao su', 'EVA', 'PU', 'Boost', 'Air', 'Gel']
 
   useEffect(() => {
@@ -72,7 +92,7 @@ const EditProduct = () => {
       // Extract data from product
       const firstVariant = product.variants?.[0] || {}
       const attributes = firstVariant.attributes || {}
-      
+
       setFormData({
         name: product.name || '',
         description: product.description || '',
@@ -260,7 +280,12 @@ const EditProduct = () => {
                   <label>
                     Danh mục <span className="required">*</span>
                   </label>
-                  <select name="category" value={formData.category} onChange={handleInputChange} required>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    required
+                  >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
                         {cat}
@@ -273,7 +298,12 @@ const EditProduct = () => {
                   <label>
                     Giới tính <span className="required">*</span>
                   </label>
-                  <select name="gender" value={formData.gender} onChange={handleInputChange} required>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    required
+                  >
                     {genders.map((gender) => (
                       <option key={gender} value={gender}>
                         {gender}
@@ -314,7 +344,12 @@ const EditProduct = () => {
                   <label>
                     Chất liệu <span className="required">*</span>
                   </label>
-                  <select name="material" value={formData.material} onChange={handleInputChange} required>
+                  <select
+                    name="material"
+                    value={formData.material}
+                    onChange={handleInputChange}
+                    required
+                  >
                     {materials.map((material) => (
                       <option key={material} value={material}>
                         {material}
@@ -325,7 +360,11 @@ const EditProduct = () => {
 
                 <div className="form-group">
                   <label>Chiều cao cổ giày</label>
-                  <select name="collarHeight" value={formData.collarHeight} onChange={handleInputChange}>
+                  <select
+                    name="collarHeight"
+                    value={formData.collarHeight}
+                    onChange={handleInputChange}
+                  >
                     {collarHeights.map((height) => (
                       <option key={height} value={height}>
                         {height}

@@ -192,7 +192,9 @@ const OrderDetailPage = () => {
                     </div>
                     <div className="product-price">
                       <p className="quantity">x{item.quantity || 1}</p>
-                      <p className="price">{((item.price || 0) * (item.quantity || 1)).toLocaleString()}đ</p>
+                      <p className="price">
+                        {((item.price || 0) * (item.quantity || 1)).toLocaleString()}đ
+                      </p>
                     </div>
                   </div>
                 )) || []}
@@ -257,10 +259,18 @@ const OrderDetailPage = () => {
                     {order.shippingAddress.email && <p>📧 {order.shippingAddress.email}</p>}
                     {typeof order.shippingAddress.address === 'object' ? (
                       <>
-                        {order.shippingAddress.address.street && <p>📍 {order.shippingAddress.address.street}</p>}
-                        {order.shippingAddress.address.ward && <p>{order.shippingAddress.address.ward}</p>}
-                        {order.shippingAddress.address.district && <p>{order.shippingAddress.address.district}</p>}
-                        {order.shippingAddress.address.city && <p>{order.shippingAddress.address.city}</p>}
+                        {order.shippingAddress.address.street && (
+                          <p>📍 {order.shippingAddress.address.street}</p>
+                        )}
+                        {order.shippingAddress.address.ward && (
+                          <p>{order.shippingAddress.address.ward}</p>
+                        )}
+                        {order.shippingAddress.address.district && (
+                          <p>{order.shippingAddress.address.district}</p>
+                        )}
+                        {order.shippingAddress.address.city && (
+                          <p>{order.shippingAddress.address.city}</p>
+                        )}
                       </>
                     ) : (
                       <>

@@ -1,11 +1,11 @@
 /**
  * ==================== USER MANAGEMENT COMPONENT ====================
- * 
+ *
  * PHÂN QUYỀN HỆ THỐNG:
  * - All logged-in users can manage their own addresses, payment methods, preferences
  * - Ownership-based: Users can only access their own data
  * - No admin override needed (personal data management)
- * 
+ *
  * CORE FUNCTIONS:
  * 1. Addresses Management
  *    - getAddresses() - GET /api/users/addresses
@@ -13,16 +13,16 @@
  *    - updateAddress() - PUT /api/users/addresses/:addressId
  *    - deleteAddress() - DELETE /api/users/addresses/:addressId
  *    - setDefaultAddress() - PUT /api/users/addresses/:addressId/set-default
- * 
+ *
  * 2. Payment Methods Management
  *    - getPaymentMethods() - GET /api/users/payment-methods
  *    - addPaymentMethod() - POST /api/users/payment-methods
  *    - deletePaymentMethod() - DELETE /api/users/payment-methods/:methodId
- * 
+ *
  * 3. Preferences Management
  *    - getPreferences() - GET /api/users/preferences
  *    - updatePreferences() - PUT /api/users/preferences
- * 
+ *
  * BACKEND LOGIC NOTES:
  * - Addresses: Auto-unset other defaults when setting one as default
  * - Payment Methods: Support multiple types (card/bank/ewallet)
@@ -30,159 +30,159 @@
  * - All operations are user-scoped (userId from JWT token)
  */
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '../../api/axiosConfig';
-import './UserManagement.css';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from '../../api/axiosConfig'
+import './UserManagement.css'
 
 export default function UserManagement() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('addresses'); // addresses | payments | preferences
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState('addresses') // addresses | payments | preferences
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   // Addresses state
-  const [addresses, setAddresses] = useState([]);
-  const [showAddressModal, setShowAddressModal] = useState(false);
-  const [editingAddress, setEditingAddress] = useState(null);
+  const [addresses, setAddresses] = useState([])
+  const [showAddressModal, setShowAddressModal] = useState(false)
+  const [editingAddress, setEditingAddress] = useState(null)
   const [addressForm, setAddressForm] = useState({
     label: '',
     fullName: '',
     phone: '',
     address: '',
-    isDefault: false
-  });
+    isDefault: false,
+  })
 
   // Payment methods state
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState([])
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentForm, setPaymentForm] = useState({
     type: 'card', // card | bank | ewallet
     provider: '',
     lastFourDigits: '',
     accountName: '',
     expiryDate: '',
-    isDefault: false
-  });
+    isDefault: false,
+  })
 
   // Preferences state
   const [preferences, setPreferences] = useState({
     notifications: {
       email: true,
       push: true,
-      sms: false
+      sms: false,
     },
     language: 'vi',
-    currency: 'VND'
-  });
+    currency: 'VND',
+  })
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (!token) {
-      navigate('/login');
-      return;
+      navigate('/login')
+      return
     }
-    loadData();
-  }, [activeTab, navigate]);
+    loadData()
+  }, [activeTab, navigate])
 
   const loadData = async () => {
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
     try {
       if (activeTab === 'addresses') {
-        await fetchAddresses();
+        await fetchAddresses()
       } else if (activeTab === 'payments') {
-        await fetchPaymentMethods();
+        await fetchPaymentMethods()
       } else if (activeTab === 'preferences') {
-        await fetchPreferences();
+        await fetchPreferences()
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải dữ liệu');
+      setError(err.response?.data?.message || 'Lỗi khi tải dữ liệu')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // ==================== ADDRESSES ====================
 
   const fetchAddresses = async () => {
-    const response = await axios.get('/api/users/addresses');
-    setAddresses(response.data.addresses || []);
-  };
+    const response = await axios.get('/api/users/addresses')
+    setAddresses(response.data.addresses || [])
+  }
 
   const handleAddAddress = () => {
-    setEditingAddress(null);
+    setEditingAddress(null)
     setAddressForm({
       label: '',
       fullName: '',
       phone: '',
       address: '',
-      isDefault: false
-    });
-    setShowAddressModal(true);
-  };
+      isDefault: false,
+    })
+    setShowAddressModal(true)
+  }
 
   const handleEditAddress = (address) => {
-    setEditingAddress(address);
+    setEditingAddress(address)
     setAddressForm({
       label: address.label || '',
       fullName: address.fullName || '',
       phone: address.phone || '',
       address: address.address || '',
-      isDefault: address.isDefault || false
-    });
-    setShowAddressModal(true);
-  };
+      isDefault: address.isDefault || false,
+    })
+    setShowAddressModal(true)
+  }
 
   const handleSaveAddress = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
     try {
       if (editingAddress) {
-        await axios.put(`/api/users/addresses/${editingAddress._id}`, addressForm);
-        setSuccess('Cập nhật địa chỉ thành công');
+        await axios.put(`/api/users/addresses/${editingAddress._id}`, addressForm)
+        setSuccess('Cập nhật địa chỉ thành công')
       } else {
-        await axios.post('/api/users/addresses', addressForm);
-        setSuccess('Thêm địa chỉ thành công');
+        await axios.post('/api/users/addresses', addressForm)
+        setSuccess('Thêm địa chỉ thành công')
       }
-      setShowAddressModal(false);
-      await fetchAddresses();
+      setShowAddressModal(false)
+      await fetchAddresses()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi lưu địa chỉ');
+      setError(err.response?.data?.message || 'Lỗi khi lưu địa chỉ')
     }
-  };
+  }
 
   const handleDeleteAddress = async (addressId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa địa chỉ này?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa địa chỉ này?')) return
 
     try {
-      await axios.delete(`/api/users/addresses/${addressId}`);
-      setSuccess('Xóa địa chỉ thành công');
-      await fetchAddresses();
+      await axios.delete(`/api/users/addresses/${addressId}`)
+      setSuccess('Xóa địa chỉ thành công')
+      await fetchAddresses()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi xóa địa chỉ');
+      setError(err.response?.data?.message || 'Lỗi khi xóa địa chỉ')
     }
-  };
+  }
 
   const handleSetDefaultAddress = async (addressId) => {
     try {
-      await axios.put(`/api/users/addresses/${addressId}/set-default`);
-      setSuccess('Đã đặt làm địa chỉ mặc định');
-      await fetchAddresses();
+      await axios.put(`/api/users/addresses/${addressId}/set-default`)
+      setSuccess('Đã đặt làm địa chỉ mặc định')
+      await fetchAddresses()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi đặt địa chỉ mặc định');
+      setError(err.response?.data?.message || 'Lỗi khi đặt địa chỉ mặc định')
     }
-  };
+  }
 
   // ==================== PAYMENT METHODS ====================
 
   const fetchPaymentMethods = async () => {
-    const response = await axios.get('/api/users/payment-methods');
-    setPaymentMethods(response.data.paymentMethods || []);
-  };
+    const response = await axios.get('/api/users/payment-methods')
+    setPaymentMethods(response.data.paymentMethods || [])
+  }
 
   const handleAddPaymentMethod = () => {
     setPaymentForm({
@@ -191,64 +191,66 @@ export default function UserManagement() {
       lastFourDigits: '',
       accountName: '',
       expiryDate: '',
-      isDefault: false
-    });
-    setShowPaymentModal(true);
-  };
+      isDefault: false,
+    })
+    setShowPaymentModal(true)
+  }
 
   const handleSavePaymentMethod = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
     try {
-      await axios.post('/api/users/payment-methods', paymentForm);
-      setSuccess('Thêm phương thức thanh toán thành công');
-      setShowPaymentModal(false);
-      await fetchPaymentMethods();
+      await axios.post('/api/users/payment-methods', paymentForm)
+      setSuccess('Thêm phương thức thanh toán thành công')
+      setShowPaymentModal(false)
+      await fetchPaymentMethods()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi lưu phương thức thanh toán');
+      setError(err.response?.data?.message || 'Lỗi khi lưu phương thức thanh toán')
     }
-  };
+  }
 
   const handleDeletePaymentMethod = async (methodId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa phương thức thanh toán này?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa phương thức thanh toán này?')) return
 
     try {
-      await axios.delete(`/api/users/payment-methods/${methodId}`);
-      setSuccess('Xóa phương thức thanh toán thành công');
-      await fetchPaymentMethods();
+      await axios.delete(`/api/users/payment-methods/${methodId}`)
+      setSuccess('Xóa phương thức thanh toán thành công')
+      await fetchPaymentMethods()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi xóa phương thức thanh toán');
+      setError(err.response?.data?.message || 'Lỗi khi xóa phương thức thanh toán')
     }
-  };
+  }
 
   // ==================== PREFERENCES ====================
 
   const fetchPreferences = async () => {
-    const response = await axios.get('/api/users/preferences');
-    setPreferences(response.data.preferences || {
-      notifications: { email: true, push: true, sms: false },
-      language: 'vi',
-      currency: 'VND'
-    });
-  };
+    const response = await axios.get('/api/users/preferences')
+    setPreferences(
+      response.data.preferences || {
+        notifications: { email: true, push: true, sms: false },
+        language: 'vi',
+        currency: 'VND',
+      }
+    )
+  }
 
   const handleUpdatePreferences = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
     try {
-      await axios.put('/api/users/preferences', preferences);
-      setSuccess('Cập nhật cài đặt thành công');
+      await axios.put('/api/users/preferences', preferences)
+      setSuccess('Cập nhật cài đặt thành công')
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi cập nhật cài đặt');
+      setError(err.response?.data?.message || 'Lỗi khi cập nhật cài đặt')
     }
-  };
+  }
 
   if (loading) {
-    return <div className="user-loading">Đang tải...</div>;
+    return <div className="user-loading">Đang tải...</div>
   }
 
   return (
@@ -298,7 +300,10 @@ export default function UserManagement() {
           ) : (
             <div className="addresses-grid">
               {addresses.map((address) => (
-                <div key={address._id} className={`address-card ${address.isDefault ? 'default' : ''}`}>
+                <div
+                  key={address._id}
+                  className={`address-card ${address.isDefault ? 'default' : ''}`}
+                >
                   {address.isDefault && <span className="default-badge">Mặc Định</span>}
                   <div className="address-label">{address.label}</div>
                   <div className="address-details">
@@ -307,15 +312,24 @@ export default function UserManagement() {
                     <p className="address-text">{address.address}</p>
                   </div>
                   <div className="address-actions">
-                    <button className="btn btn-sm btn-secondary" onClick={() => handleEditAddress(address)}>
+                    <button
+                      className="btn btn-sm btn-secondary"
+                      onClick={() => handleEditAddress(address)}
+                    >
                       Chỉnh Sửa
                     </button>
                     {!address.isDefault && (
-                      <button className="btn btn-sm btn-primary" onClick={() => handleSetDefaultAddress(address._id)}>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => handleSetDefaultAddress(address._id)}
+                      >
                         Đặt Mặc Định
                       </button>
                     )}
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteAddress(address._id)}>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDeleteAddress(address._id)}
+                    >
                       Xóa
                     </button>
                   </div>
@@ -343,17 +357,33 @@ export default function UserManagement() {
           ) : (
             <div className="payments-grid">
               {paymentMethods.map((method) => (
-                <div key={method._id} className={`payment-card ${method.isDefault ? 'default' : ''}`}>
+                <div
+                  key={method._id}
+                  className={`payment-card ${method.isDefault ? 'default' : ''}`}
+                >
                   {method.isDefault && <span className="default-badge">Mặc Định</span>}
-                  <div className="payment-type">{method.type === 'card' ? 'Thẻ' : method.type === 'bank' ? 'Ngân Hàng' : 'Ví Điện Tử'}</div>
+                  <div className="payment-type">
+                    {method.type === 'card'
+                      ? 'Thẻ'
+                      : method.type === 'bank'
+                        ? 'Ngân Hàng'
+                        : 'Ví Điện Tử'}
+                  </div>
                   <div className="payment-details">
                     <p className="payment-provider">{method.provider}</p>
                     {method.accountName && <p className="payment-account">{method.accountName}</p>}
-                    {method.lastFourDigits && <p className="payment-number">**** {method.lastFourDigits}</p>}
-                    {method.expiryDate && <p className="payment-expiry">Hết hạn: {method.expiryDate}</p>}
+                    {method.lastFourDigits && (
+                      <p className="payment-number">**** {method.lastFourDigits}</p>
+                    )}
+                    {method.expiryDate && (
+                      <p className="payment-expiry">Hết hạn: {method.expiryDate}</p>
+                    )}
                   </div>
                   <div className="payment-actions">
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDeletePaymentMethod(method._id)}>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDeletePaymentMethod(method._id)}
+                    >
                       Xóa
                     </button>
                   </div>
@@ -375,10 +405,12 @@ export default function UserManagement() {
                 <input
                   type="checkbox"
                   checked={preferences.notifications?.email || false}
-                  onChange={(e) => setPreferences({
-                    ...preferences,
-                    notifications: { ...preferences.notifications, email: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setPreferences({
+                      ...preferences,
+                      notifications: { ...preferences.notifications, email: e.target.checked },
+                    })
+                  }
                 />
                 <span>Nhận thông báo qua Email</span>
               </label>
@@ -386,10 +418,12 @@ export default function UserManagement() {
                 <input
                   type="checkbox"
                   checked={preferences.notifications?.push || false}
-                  onChange={(e) => setPreferences({
-                    ...preferences,
-                    notifications: { ...preferences.notifications, push: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setPreferences({
+                      ...preferences,
+                      notifications: { ...preferences.notifications, push: e.target.checked },
+                    })
+                  }
                 />
                 <span>Nhận thông báo đẩy (Push)</span>
               </label>
@@ -397,10 +431,12 @@ export default function UserManagement() {
                 <input
                   type="checkbox"
                   checked={preferences.notifications?.sms || false}
-                  onChange={(e) => setPreferences({
-                    ...preferences,
-                    notifications: { ...preferences.notifications, sms: e.target.checked }
-                  })}
+                  onChange={(e) =>
+                    setPreferences({
+                      ...preferences,
+                      notifications: { ...preferences.notifications, sms: e.target.checked },
+                    })
+                  }
                 />
                 <span>Nhận thông báo qua SMS</span>
               </label>
@@ -488,13 +524,19 @@ export default function UserManagement() {
                   <input
                     type="checkbox"
                     checked={addressForm.isDefault}
-                    onChange={(e) => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
+                    onChange={(e) =>
+                      setAddressForm({ ...addressForm, isDefault: e.target.checked })
+                    }
                   />
                   <span>Đặt làm địa chỉ mặc định</span>
                 </label>
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAddressModal(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowAddressModal(false)}
+                >
                   Hủy
                 </button>
                 <button type="submit" className="btn btn-primary">
@@ -542,7 +584,9 @@ export default function UserManagement() {
                   <input
                     type="text"
                     value={paymentForm.lastFourDigits}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, lastFourDigits: e.target.value })}
+                    onChange={(e) =>
+                      setPaymentForm({ ...paymentForm, lastFourDigits: e.target.value })
+                    }
                     className="form-control"
                     maxLength="4"
                     pattern="[0-9]{4}"
@@ -576,13 +620,19 @@ export default function UserManagement() {
                   <input
                     type="checkbox"
                     checked={paymentForm.isDefault}
-                    onChange={(e) => setPaymentForm({ ...paymentForm, isDefault: e.target.checked })}
+                    onChange={(e) =>
+                      setPaymentForm({ ...paymentForm, isDefault: e.target.checked })
+                    }
                   />
                   <span>Đặt làm phương thức mặc định</span>
                 </label>
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowPaymentModal(false)}
+                >
                   Hủy
                 </button>
                 <button type="submit" className="btn btn-primary">
@@ -594,5 +644,5 @@ export default function UserManagement() {
         </div>
       )}
     </div>
-  );
+  )
 }

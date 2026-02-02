@@ -42,7 +42,7 @@
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .form-container h2 {
@@ -69,7 +69,7 @@
   font-size: 14px;
 }
 
-.form-group input[type="text"],
+.form-group input[type='text'],
 .form-group select {
   width: 100%;
   padding: 10px 12px;
@@ -168,7 +168,7 @@
   cursor: pointer;
 }
 
-.form-checkboxes input[type="checkbox"] {
+.form-checkboxes input[type='checkbox'] {
   margin-right: 8px;
   width: 18px;
   height: 18px;
@@ -215,7 +215,7 @@
   background: white;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow-x: auto;
 }
 

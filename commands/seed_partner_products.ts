@@ -79,9 +79,7 @@ export default class SeedPartnerProducts extends BaseCommand {
                 isAvailable: true,
               },
             ],
-            images: [
-              'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800',
-            ],
+            images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'],
             features: ['Thiết kế iconic', 'Đệm Air cushion', 'Da cao cấp', 'Grip tuyệt vời'],
             warranty: {
               duration: '6 tháng',
@@ -111,9 +109,7 @@ export default class SeedPartnerProducts extends BaseCommand {
                 isAvailable: true,
               },
             ],
-            images: [
-              'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=800',
-            ],
+            images: ['https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=800'],
             features: ['Air Max cushioning', 'Breathable mesh', 'Lightweight'],
             warranty: {
               duration: '6 tháng',
@@ -161,9 +157,7 @@ export default class SeedPartnerProducts extends BaseCommand {
                 isAvailable: true,
               },
             ],
-            images: [
-              'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800',
-            ],
+            images: ['https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800'],
             features: ['Boost cushioning', 'Primeknit upper', 'Continental rubber outsole'],
             warranty: {
               duration: '6 tháng',
@@ -335,10 +329,13 @@ export default class SeedPartnerProducts extends BaseCommand {
 
       let totalProductsCreated = 0
 
+      // Type for brand keys
+      type BrandKey = keyof typeof productTemplates
+
       // Create products for each partner based on their shop name
       for (const partner of partners) {
         const shopName = partner.shopName || ''
-        let brandKey = ''
+        let brandKey: BrandKey | '' = ''
 
         // Match partner to brand
         if (shopName.includes('Nike')) brandKey = 'Nike'

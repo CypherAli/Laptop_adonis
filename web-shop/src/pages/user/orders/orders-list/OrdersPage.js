@@ -59,8 +59,9 @@ const OrdersPage = () => {
   const hasReviewed = (productId) => {
     // Check if user has already reviewed this product
     const prodId = typeof productId === 'object' ? productId._id : productId
-    return userReviews.some(review => {
-      const reviewProductId = typeof review.product === 'object' ? review.product._id : review.product
+    return userReviews.some((review) => {
+      const reviewProductId =
+        typeof review.product === 'object' ? review.product._id : review.product
       return reviewProductId === prodId
     })
   }
@@ -303,19 +304,19 @@ const OrdersPage = () => {
                       <div className="item-price">
                         {(item.price * item.quantity).toLocaleString()} VNĐ
                       </div>
-                      {['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) && !hasReviewed(item.product || item._id) && (
-                        <button 
-                          className="btn-review-item"
-                          onClick={() => handleOpenReview(order, item)}
-                        >
-                          ⭐ Đánh giá
-                        </button>
-                      )}
-                      {['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) && hasReviewed(item.product || item._id) && (
-                        <span className="reviewed-badge">
-                          ✓ Đã đánh giá
-                        </span>
-                      )}
+                      {['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) &&
+                        !hasReviewed(item.product || item._id) && (
+                          <button
+                            className="btn-review-item"
+                            onClick={() => handleOpenReview(order, item)}
+                          >
+                            ⭐ Đánh giá
+                          </button>
+                        )}
+                      {['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) &&
+                        hasReviewed(item.product || item._id) && (
+                          <span className="reviewed-badge">✓ Đã đánh giá</span>
+                        )}
                     </div>
                   ))}
                 </div>

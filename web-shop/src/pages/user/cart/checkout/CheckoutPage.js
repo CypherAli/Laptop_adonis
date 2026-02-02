@@ -38,7 +38,7 @@ const CheckoutPage = () => {
       navigate('/login')
       return
     }
-    
+
     // Reload cart to ensure fresh data
     if (loadCartFromAPI) {
       loadCartFromAPI()

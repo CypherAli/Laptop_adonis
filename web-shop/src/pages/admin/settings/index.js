@@ -1,1 +1,1 @@
-export { default as SettingsManagement } from './SettingsManagement';
+export { default as SettingsManagement } from './SettingsManagement'

@@ -280,8 +280,9 @@ const AnimatedProductCard = ({
           </span>
 
           {/* Admin và Partner không cần add to cart */}
-          {userRole !== 'admin' && userRole !== 'partner' && (
-            totalStock > 0 ? (
+          {userRole !== 'admin' &&
+            userRole !== 'partner' &&
+            (totalStock > 0 ? (
               <motion.button
                 className="animated-add-btn"
                 onClick={() => onAddToCart(product)}
@@ -295,8 +296,7 @@ const AnimatedProductCard = ({
               <motion.button className="animated-notify-btn" disabled>
                 Thông báo
               </motion.button>
-            )
-          )}
+            ))}
         </div>
       </div>
     </motion.div>

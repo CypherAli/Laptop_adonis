@@ -37,12 +37,15 @@ export default class AuthController {
         })
       }
 
-      // Prepare user data
+      // Prepare user data - SECURITY: Only allow 'client' or 'partner' roles
+      const allowedRoles = ['client', 'partner']
+      const safeRole = role && allowedRoles.includes(role) ? role : 'client'
+
       const userData: any = {
         username,
         email,
         password,
-        role: role || 'client',
+        role: safeRole,
       }
 
       // Partner-specific validation
@@ -82,63 +85,57 @@ export default class AuthController {
    */
   async login({ request, response }: HttpContext) {
     try {
-      // Debug: Log raw request
-      console.log('📨 Request body:', request.body())
-      console.log('📨 Request all:', request.all())
-      
       const { email, password } = request.only(['email', 'password'])
-
-      console.log('📧 Login attempt:', { email, passwordProvided: !!password })
 
       // Validation
       if (!email || !password) {
-        console.log('❌ Missing email or password')
         return response.status(400).json({
           message: 'Email và mật khẩu là bắt buộc',
         })
       }
 
       // Find user
-      console.log('🔍 Finding user with email:', email)
       const user = await User.findOne({ email })
       if (!user) {
-        console.log('❌ User not found')
         return response.status(400).json({
           message: 'Email hoặc mật khẩu không đúng',
         })
       }
-      console.log('✅ User found:', { id: user._id, username: user.username, isActive: user.isActive })
 
       // Check if account is active
       if (!user.isActive) {
-        console.log('❌ Account is not active')
         return response.status(403).json({
           message: 'Tài khoản đã bị khóa',
         })
       }
 
       // Compare password
-      console.log('🔐 Comparing password...')
       const isMatch = await user.comparePassword(password)
-      console.log('🔐 Password match result:', isMatch)
       if (!isMatch) {
-        console.log('❌ Password does not match')
         return response.status(400).json({
           message: 'Email hoặc mật khẩu không đúng',
         })
       }
-      console.log('✅ Password matched, generating token...')
 
-      // Generate JWT token
+      // Generate JWT token - SECURITY: Use required JWT_SECRET, no fallback
+      const jwtSecret = env.get('JWT_SECRET')
+      if (!jwtSecret) {
+        console.error('JWT_SECRET is not configured!')
+        return response.status(500).json({
+          message: 'Lỗi cấu hình server',
+        })
+      }
+
       const token = jwt.sign(
         {
           id: user._id,
           role: user.role,
           username: user.username,
           email: user.email,
-          isApproved: user.isApproved || true,
+          // FIXED: isApproved should use user's actual value, not fallback to true
+          isApproved: user.isApproved ?? false,
         },
-        env.get('JWT_SECRET', 'your-secret-key'),
+        jwtSecret,
         { expiresIn: '24h' }
       )
 
@@ -296,5 +293,103 @@ export default class AuthController {
     return response.json({
       message: 'Đăng xuất thành công',
     })
+  }
+
+  /**
+   * Show login page (Inertia)
+   */
+  async showLogin({ inertia }: HttpContext) {
+    return inertia.render('auth/login')
+  }
+
+  /**
+   * Handle login for Inertia (sets session)
+   */
+  async loginInertia({ request, response, session }: HttpContext) {
+    try {
+      const { email, password } = request.only(['email', 'password'])
+
+      // Validation
+      if (!email || !password) {
+        session.flash('error', 'Email và mật khẩu là bắt buộc')
+        return response.redirect().back()
+      }
+
+      // Find user
+      const user = await User.findOne({ email })
+      if (!user) {
+        session.flash('error', 'Email hoặc mật khẩu không đúng')
+        return response.redirect().back()
+      }
+
+      // Check if account is active
+      if (!user.isActive) {
+        session.flash('error', 'Tài khoản đã bị khóa')
+        return response.redirect().back()
+      }
+
+      // Compare password
+      const isMatch = await user.comparePassword(password)
+      if (!isMatch) {
+        session.flash('error', 'Email hoặc mật khẩu không đúng')
+        return response.redirect().back()
+      }
+
+      // Check if user is admin
+      if (user.role !== 'admin') {
+        session.flash('error', 'Chỉ Admin mới được phép đăng nhập')
+        return response.redirect().back()
+      }
+
+      // Generate JWT token
+      const jwtSecret = env.get('JWT_SECRET')
+      if (!jwtSecret) {
+        console.error('JWT_SECRET is not configured!')
+        session.flash('error', 'Lỗi cấu hình server')
+        return response.redirect().back()
+      }
+
+      const token = jwt.sign(
+        {
+          id: user._id,
+          role: user.role,
+          username: user.username,
+          email: user.email,
+          isApproved: user.isApproved ?? false,
+        },
+        jwtSecret,
+        { expiresIn: '24h' }
+      )
+
+      // Store in session for Inertia middleware
+      session.put('user', {
+        id: user._id,
+        role: user.role,
+        username: user.username,
+        email: user.email,
+      })
+      session.put('token', token)
+
+      // Update last login
+      user.lastLogin = new Date()
+      await user.save()
+
+      // Redirect to admin dashboard
+      return response.redirect('/admin/dashboard')
+    } catch (error) {
+      console.error('Login error:', error)
+      session.flash('error', 'Đăng nhập thất bại')
+      return response.redirect().back()
+    }
+  }
+
+  /**
+   * Logout user (Inertia)
+   */
+  async logout({ response, session }: HttpContext) {
+    session.forget('user')
+    session.forget('token')
+    session.flash('success', 'Đã đăng xuất thành công')
+    return response.redirect('/auth/login')
   }
 }

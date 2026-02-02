@@ -106,7 +106,6 @@ const AdminChatWidget = () => {
         fetchClients()
       }
     }
-     
   }, [isOpen, activeTab])
 
   useEffect(() => {
@@ -279,7 +278,6 @@ const AdminChatWidget = () => {
         document.removeEventListener('mouseup', handleMouseUp)
       }
     }
-     
   }, [isDragging, handleMouseMove, handleMouseUp])
 
   const handleSendMessage = async (e) => {

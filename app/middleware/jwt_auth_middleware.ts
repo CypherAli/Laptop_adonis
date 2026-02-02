@@ -19,8 +19,17 @@ export default class JwtAuthMiddleware {
 
       const token = authHeader.substring(7) // Remove 'Bearer ' prefix
 
+      // SECURITY: Get JWT_SECRET without fallback - fail if not configured
+      const jwtSecret = env.get('JWT_SECRET')
+      if (!jwtSecret) {
+        console.error('JWT_SECRET is not configured!')
+        return response.status(500).json({
+          message: 'Lỗi cấu hình server',
+        })
+      }
+
       // Verify token
-      const decoded = jwt.verify(token, env.get('JWT_SECRET', 'your-secret-key'))
+      const decoded = jwt.verify(token, jwtSecret)
 
       // Attach user to both request and auth for compatibility
       ;(request as any).user = decoded

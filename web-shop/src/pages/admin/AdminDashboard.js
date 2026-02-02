@@ -68,7 +68,6 @@ const AdminDashboard = () => {
       return
     }
     fetchDashboardData()
-     
   }, [user])
 
   useEffect(() => {
@@ -81,7 +80,6 @@ const AdminDashboard = () => {
     else if (activeTab === 'brands') fetchBrands()
     else if (activeTab === 'attributes') fetchAttributes()
     else if (activeTab === 'settings') fetchSettings()
-     
   }, [activeTab, currentPage])
 
   const fetchDashboardData = async () => {
@@ -297,7 +295,7 @@ const AdminDashboard = () => {
       const tree = res.data.tree || []
       // Flatten tree to show all categories
       const flattenTree = (items, result = []) => {
-        items.forEach(item => {
+        items.forEach((item) => {
           result.push(item)
           if (item.children && item.children.length > 0) {
             flattenTree(item.children, result)
@@ -991,11 +989,15 @@ const AdminDashboard = () => {
                     ) : (
                       categories.map((category) => (
                         <tr key={category._id}>
-                          <td><strong>{category.name}</strong></td>
+                          <td>
+                            <strong>{category.name}</strong>
+                          </td>
                           <td>/{category.slug}</td>
                           <td>Level {category.level || 0}</td>
                           <td>
-                            <span className={`status-badge ${category.isActive ? 'approved' : 'pending'}`}>
+                            <span
+                              className={`status-badge ${category.isActive ? 'approved' : 'pending'}`}
+                            >
                               {category.isActive ? 'Hoạt động' : 'Ẩn'}
                             </span>
                           </td>
@@ -1037,8 +1039,8 @@ const AdminDashboard = () => {
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               {brand.logo && (
-                                <img 
-                                  src={brand.logo} 
+                                <img
+                                  src={brand.logo}
                                   alt={brand.name}
                                   style={{ width: '30px', height: '30px', objectFit: 'contain' }}
                                 />
@@ -1057,7 +1059,9 @@ const AdminDashboard = () => {
                             )}
                           </td>
                           <td>
-                            <span className={`status-badge ${brand.isActive ? 'approved' : 'pending'}`}>
+                            <span
+                              className={`status-badge ${brand.isActive ? 'approved' : 'pending'}`}
+                            >
                               {brand.isActive ? 'Hoạt động' : 'Ẩn'}
                             </span>
                           </td>
@@ -1098,14 +1102,18 @@ const AdminDashboard = () => {
                     ) : (
                       attributes.map((attr) => (
                         <tr key={attr._id}>
-                          <td><strong>{attr.name}</strong></td>
+                          <td>
+                            <strong>{attr.name}</strong>
+                          </td>
                           <td>/{attr.slug}</td>
                           <td>{attr.type}</td>
                           <td>{attr.values?.length || 0}</td>
                           <td>{attr.isVariant ? '✓' : '✗'}</td>
                           <td>{attr.isFilterable ? '✓' : '✗'}</td>
                           <td>
-                            <span className={`status-badge ${attr.isActive ? 'approved' : 'pending'}`}>
+                            <span
+                              className={`status-badge ${attr.isActive ? 'approved' : 'pending'}`}
+                            >
                               {attr.isActive ? 'Hoạt động' : 'Ẩn'}
                             </span>
                           </td>
@@ -1128,7 +1136,14 @@ const AdminDashboard = () => {
                 </div>
               ) : (
                 <div className="settings-display">
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', padding: '20px' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '20px',
+                      padding: '20px',
+                    }}
+                  >
                     <div className="setting-item">
                       <strong>Tên website:</strong>
                       <p>{settings.siteName || 'Chưa cài đặt'}</p>

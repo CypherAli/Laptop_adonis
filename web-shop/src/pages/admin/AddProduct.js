@@ -210,7 +210,8 @@ const AddProduct = () => {
         isActive: true,
         variants: formData.variants.map((v) => ({
           variantName: v.variantName || `${v.specifications.size} - ${v.specifications.color}`,
-          sku: v.sku || `${formData.brand}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          sku:
+            v.sku || `${formData.brand}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           price: Number(v.price),
           originalPrice: v.originalPrice ? Number(v.originalPrice) : undefined,
           stock: Number(v.stock),

@@ -40,7 +40,6 @@ const PartnerOrders = () => {
       return
     }
     fetchOrders()
-     
   }, [currentPage, selectedStatus])
 
   const fetchOrders = async () => {

@@ -1,1 +1,1 @@
-export { default as BrandsManagement } from './BrandsManagement';
+export { default as BrandsManagement } from './BrandsManagement'

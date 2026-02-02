@@ -4,10 +4,31 @@ import mongoose from 'mongoose'
 
 export default class AttributesController {
   /**
-   * Get all attributes with pagination
+   * Get all attributes with pagination or render Inertia page
    */
-  async index({ request, response }: HttpContext) {
+  async index({ request, response, inertia }: HttpContext) {
     try {
+      // Check if request is from Inertia
+      if (request.header('X-Inertia')) {
+        const attributes = await Attribute.find({})
+          .sort({ order: 1, name: 1 })
+          .lean()
+
+        const serializedAttributes = attributes.map((attr) => ({
+          ...attr,
+          _id: attr._id.toString(),
+          categoryIds: attr.categoryIds?.map((id: any) => id.toString()) || [],
+          createdAt: attr.createdAt?.toISOString(),
+          updatedAt: attr.updatedAt?.toISOString(),
+        }))
+
+        return inertia.render('admin/attributes', {
+          attributes: serializedAttributes,
+          currentPath: '/admin/attributes',
+        })
+      }
+
+      // API response with pagination
       const {
         page = 1,
         limit = 50,
@@ -145,8 +166,10 @@ export default class AttributesController {
   /**
    * Create new attribute (Admin only)
    */
-  async store({ request, response }: HttpContext) {
+  async store({ request, response, session }: HttpContext) {
     try {
+      const isInertia = request.header('X-Inertia')
+      
       const data = request.only([
         'name',
         'type',
@@ -166,6 +189,10 @@ export default class AttributesController {
           mongoose.Types.ObjectId.isValid(id)
         )
         if (validIds.length !== data.categoryIds.length) {
+          if (isInertia) {
+            session.flash('error', 'Một hoặc nhiều ID danh mục không hợp lệ')
+            return response.redirect('/admin/attributes')
+          }
           return response.status(400).json({
             message: 'Một hoặc nhiều ID danh mục không hợp lệ',
           })
@@ -175,17 +202,32 @@ export default class AttributesController {
 
       const attribute = await Attribute.create(data)
 
+      if (isInertia) {
+        session.flash('success', 'Tạo thuộc tính thành công')
+        return response.redirect('/admin/attributes')
+      }
+
       return response.status(201).json({
         message: 'Tạo thuộc tính thành công',
         attribute,
       })
     } catch (error) {
       console.error('Create attribute error:', error)
+      const isInertia = request.header('X-Inertia')
 
       if (error.code === 11000) {
+        if (isInertia) {
+          session.flash('error', 'Tên thuộc tính đã tồn tại')
+          return response.redirect('/admin/attributes')
+        }
         return response.status(400).json({
           message: 'Tên thuộc tính đã tồn tại',
         })
+      }
+
+      if (isInertia) {
+        session.flash('error', 'Lỗi server')
+        return response.redirect('/admin/attributes')
       }
 
       return response.status(500).json({
@@ -198,17 +240,26 @@ export default class AttributesController {
   /**
    * Update attribute (Admin only)
    */
-  async update({ params, request, response }: HttpContext) {
+  async update({ params, request, response, session }: HttpContext) {
     try {
+      const isInertia = request.header('X-Inertia')
+      
       if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        if (isInertia) {
+          session.flash('error', 'ID thuộc tính không hợp lệ')
+          return response.redirect('/admin/attributes')
+        }
         return response.status(400).json({
           message: 'ID thuộc tính không hợp lệ',
         })
       }
-
       const attribute = await Attribute.findById(params.id)
 
       if (!attribute) {
+        if (isInertia) {
+          session.flash('error', 'Không tìm thấy thuộc tính')
+          return response.redirect('/admin/attributes')
+        }
         return response.status(404).json({
           message: 'Không tìm thấy thuộc tính',
         })
@@ -234,6 +285,10 @@ export default class AttributesController {
             mongoose.Types.ObjectId.isValid(id)
           )
           if (validIds.length !== data.categoryIds.length) {
+            if (isInertia) {
+              session.flash('error', 'Một hoặc nhiều ID danh mục không hợp lệ')
+              return response.redirect('/admin/attributes')
+            }
             return response.status(400).json({
               message: 'Một hoặc nhiều ID danh mục không hợp lệ',
             })
@@ -245,17 +300,32 @@ export default class AttributesController {
       Object.assign(attribute, data)
       await attribute.save()
 
+      if (isInertia) {
+        session.flash('success', 'Cập nhật thuộc tính thành công')
+        return response.redirect('/admin/attributes')
+      }
+
       return response.json({
         message: 'Cập nhật thuộc tính thành công',
         attribute,
       })
     } catch (error) {
       console.error('Update attribute error:', error)
+      const isInertia = request.header('X-Inertia')
 
       if (error.code === 11000) {
+        if (isInertia) {
+          session.flash('error', 'Tên thuộc tính đã tồn tại')
+          return response.redirect('/admin/attributes')
+        }
         return response.status(400).json({
           message: 'Tên thuộc tính đã tồn tại',
         })
+      }
+
+      if (isInertia) {
+        session.flash('error', 'Lỗi server')
+        return response.redirect('/admin/attributes')
       }
 
       return response.status(500).json({
@@ -268,9 +338,15 @@ export default class AttributesController {
   /**
    * Delete attribute (Admin only)
    */
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ params, request, response, session }: HttpContext) {
     try {
+      const isInertia = request.header('X-Inertia')
+      
       if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        if (isInertia) {
+          session.flash('error', 'ID thuộc tính không hợp lệ')
+          return response.redirect('/admin/attributes')
+        }
         return response.status(400).json({
           message: 'ID thuộc tính không hợp lệ',
         })
@@ -279,6 +355,10 @@ export default class AttributesController {
       const attribute = await Attribute.findById(params.id)
 
       if (!attribute) {
+        if (isInertia) {
+          session.flash('error', 'Không tìm thấy thuộc tính')
+          return response.redirect('/admin/attributes')
+        }
         return response.status(404).json({
           message: 'Không tìm thấy thuộc tính',
         })
@@ -289,6 +369,10 @@ export default class AttributesController {
       //   'specifications.attributeId': params.id
       // })
       // if (productsCount > 0) {
+      //   if (isInertia) {
+      //     session.flash('error', 'Không thể xóa thuộc tính đang được sử dụng trong sản phẩm')
+      //     return response.redirect('/admin/attributes')
+      //   }
       //   return response.status(400).json({
       //     message: 'Không thể xóa thuộc tính đang được sử dụng trong sản phẩm',
       //   })
@@ -296,11 +380,23 @@ export default class AttributesController {
 
       await Attribute.findByIdAndDelete(params.id)
 
+      if (isInertia) {
+        session.flash('success', 'Xóa thuộc tính thành công')
+        return response.redirect('/admin/attributes')
+      }
+
       return response.json({
         message: 'Xóa thuộc tính thành công',
       })
     } catch (error) {
       console.error('Delete attribute error:', error)
+      const isInertia = request.header('X-Inertia')
+      
+      if (isInertia) {
+        session.flash('error', 'Lỗi server')
+        return response.redirect('/admin/attributes')
+      }
+
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,

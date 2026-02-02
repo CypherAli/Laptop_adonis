@@ -293,6 +293,23 @@ export default class OrdersController {
       const { status, note } = request.only(['status', 'note'])
       const user = (request as any).user
 
+      // SECURITY: Validate status is in allowed list
+      const allowedStatuses = [
+        'pending',
+        'confirmed',
+        'processing',
+        'shipping',
+        'delivered',
+        'cancelled',
+        'refunded',
+      ]
+      if (!status || !allowedStatuses.includes(status)) {
+        return response.status(400).json({
+          message: 'Trạng thái không hợp lệ',
+          allowedStatuses,
+        })
+      }
+
       const order = await Order.findById(params.id).populate('items.product', 'createdBy')
 
       if (!order) {
@@ -425,5 +442,64 @@ export default class OrdersController {
     } finally {
       session.endSession()
     }
+  }
+
+  /**
+   * Show orders page (Inertia - Admin only)
+   */
+  async showOrders({ inertia, request }: HttpContext) {
+    const { page = 1, limit = 20, status, search } = request.qs()
+
+    const filter: any = {}
+    if (status) filter.status = status
+    if (search) {
+      filter.$or = [
+        { customerName: new RegExp(search, 'i') },
+        { customerPhone: new RegExp(search, 'i') },
+      ]
+    }
+
+    const pageNum = Number(page)
+    const limitNum = Number(limit)
+    const skip = (pageNum - 1) * limitNum
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .populate('user', 'username email shopName')
+        .populate('items.product', 'name brand images price')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Order.countDocuments(filter),
+    ])
+
+    return inertia.render('admin/orders', {
+      orders: orders.map((order: any) => ({
+        id: order._id.toString(),
+        customerName: order.shippingAddress?.fullName || 'N/A',
+        customerPhone: order.shippingAddress?.phone || 'N/A',
+        total: order.totalAmount,
+        status: order.status,
+        paymentMethod: order.paymentMethod,
+        itemCount: order.items?.length || 0,
+        createdAt: order.createdAt,
+        user: order.user
+          ? {
+              id: order.user._id?.toString(),
+              username: order.user.username,
+              email: order.user.email,
+            }
+          : null,
+      })),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      filters: { status, search },
+      currentPath: '/admin/orders',
+    })
   }
 }

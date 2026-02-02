@@ -1,25 +1,25 @@
 /**
  * ==================== CHAT MANAGER COMPONENT ====================
- * 
+ *
  * PHÂN QUYỀN HỆ THỐNG:
  * - Customer: Can chat with partners, view own conversations
  * - Partner: Can view all customer conversations, respond to messages
  * - Anonymous: Can chat with partners using anonymousId header
  * - Socket.IO: Real-time message delivery (if implemented)
- * 
+ *
  * CORE FUNCTIONS:
  * 1. Conversation Management
  *    - createConversation() - POST /api/chat/conversations (create or get existing)
  *    - getGuestConversations() - GET /api/chat/guest-conversations (for anonymous)
  *    - getPartnerCustomers() - GET /api/chat/partners/:partnerId/customers (partner view)
- * 
+ *
  * 2. Message Operations
  *    - getMessages() - GET /api/chat/conversations/:conversationId/messages
  *    - sendMessage() - POST /api/chat/messages
- * 
+ *
  * 3. Partner Discovery
  *    - getActivePartners() - GET /api/chat/active-partners (list available partners)
- * 
+ *
  * BACKEND LOGIC NOTES:
  * - Anonymous users: Use X-Anonymous-Id and X-Anonymous-Name headers
  * - Conversations: Unique per participant pair
@@ -28,62 +28,62 @@
  * - lastMessage: Auto-updated on conversation when message sent
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '../../api/axiosConfig';
-import './ChatManager.css';
+import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from '../../api/axiosConfig'
+import './ChatManager.css'
 
 export default function ChatManager() {
-  const navigate = useNavigate();
-  const messagesEndRef = useRef(null);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const navigate = useNavigate()
+  const messagesEndRef = useRef(null)
+  const [currentUser, setCurrentUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   // Chat state
-  const [conversations, setConversations] = useState([]);
-  const [activeConversation, setActiveConversation] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [messageInput, setMessageInput] = useState('');
-  const [sendingMessage, setSendingMessage] = useState(false);
+  const [conversations, setConversations] = useState([])
+  const [activeConversation, setActiveConversation] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [messageInput, setMessageInput] = useState('')
+  const [sendingMessage, setSendingMessage] = useState(false)
 
   // Partner list (for starting new conversations)
-  const [activePartners, setActivePartners] = useState([]);
-  const [showPartnerList, setShowPartnerList] = useState(false);
+  const [activePartners, setActivePartners] = useState([])
+  const [showPartnerList, setShowPartnerList] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token')
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
     if (!token) {
-      navigate('/login');
-      return;
+      navigate('/login')
+      return
     }
-    setCurrentUser(user);
-    initializeChat(user);
-  }, [navigate]);
+    setCurrentUser(user)
+    initializeChat(user)
+  }, [navigate])
 
   useEffect(() => {
     if (activeConversation) {
-      scrollToBottom();
+      scrollToBottom()
     }
-  }, [messages, activeConversation]);
+  }, [messages, activeConversation])
 
   const initializeChat = async (user) => {
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
     try {
       if (user.role === 'partner') {
-        await fetchPartnerCustomers(user.id);
+        await fetchPartnerCustomers(user.id)
       } else {
-        await fetchConversations();
+        await fetchConversations()
       }
-      await fetchActivePartners();
+      await fetchActivePartners()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải chat');
+      setError(err.response?.data?.message || 'Lỗi khi tải chat')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // ==================== FETCH CONVERSATIONS ====================
 
@@ -94,70 +94,70 @@ export default function ChatManager() {
       // For now, we'll use partner customers endpoint as reference
       const response = await axios.get('/api/chat/guest-conversations', {
         headers: {
-          'X-Anonymous-Id': localStorage.getItem('anonymousId') || crypto.randomUUID()
-        }
-      });
-      setConversations(response.data.conversations || []);
+          'X-Anonymous-Id': localStorage.getItem('anonymousId') || crypto.randomUUID(),
+        },
+      })
+      setConversations(response.data.conversations || [])
     } catch (err) {
-      console.error('Error fetching conversations:', err);
+      console.error('Error fetching conversations:', err)
     }
-  };
+  }
 
   const fetchPartnerCustomers = async (partnerId) => {
     try {
-      const response = await axios.get(`/api/chat/partners/${partnerId}/customers`);
-      setConversations(response.data.customers || []);
+      const response = await axios.get(`/api/chat/partners/${partnerId}/customers`)
+      setConversations(response.data.customers || [])
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải khách hàng');
+      setError(err.response?.data?.message || 'Lỗi khi tải khách hàng')
     }
-  };
+  }
 
   const fetchActivePartners = async () => {
     try {
-      const response = await axios.get('/api/chat/active-partners');
-      setActivePartners(response.data.partners || []);
+      const response = await axios.get('/api/chat/active-partners')
+      setActivePartners(response.data.partners || [])
     } catch (err) {
-      console.error('Error fetching partners:', err);
+      console.error('Error fetching partners:', err)
     }
-  };
+  }
 
   // ==================== MESSAGES ====================
 
   const fetchMessages = async (conversationId) => {
     try {
-      const response = await axios.get(`/api/chat/conversations/${conversationId}/messages`);
-      setMessages(response.data.messages || []);
+      const response = await axios.get(`/api/chat/conversations/${conversationId}/messages`)
+      setMessages(response.data.messages || [])
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải tin nhắn');
+      setError(err.response?.data?.message || 'Lỗi khi tải tin nhắn')
     }
-  };
+  }
 
   const handleSelectConversation = async (conversation) => {
-    setActiveConversation(conversation);
-    await fetchMessages(conversation.conversationId || conversation._id);
-  };
+    setActiveConversation(conversation)
+    await fetchMessages(conversation.conversationId || conversation._id)
+  }
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!messageInput.trim() || !activeConversation || sendingMessage) return;
+    e.preventDefault()
+    if (!messageInput.trim() || !activeConversation || sendingMessage) return
 
-    setSendingMessage(true);
-    setError('');
+    setSendingMessage(true)
+    setError('')
 
     try {
       const response = await axios.post('/api/chat/messages', {
         conversationId: activeConversation.conversationId || activeConversation._id,
-        content: messageInput.trim()
-      });
+        content: messageInput.trim(),
+      })
 
-      setMessages([...messages, response.data.message]);
-      setMessageInput('');
+      setMessages([...messages, response.data.message])
+      setMessageInput('')
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi gửi tin nhắn');
+      setError(err.response?.data?.message || 'Lỗi khi gửi tin nhắn')
     } finally {
-      setSendingMessage(false);
+      setSendingMessage(false)
     }
-  };
+  }
 
   // ==================== START NEW CONVERSATION ====================
 
@@ -165,53 +165,53 @@ export default function ChatManager() {
     try {
       const response = await axios.post('/api/chat/conversations', {
         targetUserId: partner._id,
-        subject: `Chat với ${partner.shopName || partner.username}`
-      });
+        subject: `Chat với ${partner.shopName || partner.username}`,
+      })
 
-      const newConversation = response.data.conversation;
-      setActiveConversation(newConversation);
-      setMessages([]);
-      setShowPartnerList(false);
+      const newConversation = response.data.conversation
+      setActiveConversation(newConversation)
+      setMessages([])
+      setShowPartnerList(false)
 
       // Refresh conversations list
       if (currentUser?.role === 'partner') {
-        await fetchPartnerCustomers(currentUser.id);
+        await fetchPartnerCustomers(currentUser.id)
       } else {
-        await fetchConversations();
+        await fetchConversations()
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tạo cuộc trò chuyện');
+      setError(err.response?.data?.message || 'Lỗi khi tạo cuộc trò chuyện')
     }
-  };
+  }
 
   // ==================== HELPERS ====================
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const formatMessageTime = (date) => {
-    const messageDate = new Date(date);
-    const now = new Date();
-    const diffMs = now - messageDate;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
+    const messageDate = new Date(date)
+    const now = new Date()
+    const diffMs = now - messageDate
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
 
-    if (diffMins < 1) return 'Vừa xong';
-    if (diffMins < 60) return `${diffMins} phút`;
-    if (diffHours < 24) return `${diffHours} giờ`;
-    return messageDate.toLocaleDateString('vi-VN');
-  };
+    if (diffMins < 1) return 'Vừa xong'
+    if (diffMins < 60) return `${diffMins} phút`
+    if (diffHours < 24) return `${diffHours} giờ`
+    return messageDate.toLocaleDateString('vi-VN')
+  }
 
   const getConversationName = (conversation) => {
     if (currentUser?.role === 'partner') {
-      return conversation.customerName || 'Khách hàng';
+      return conversation.customerName || 'Khách hàng'
     }
-    return conversation.participants?.find(p => p.role === 'partner')?.shopName || 'Đối tác';
-  };
+    return conversation.participants?.find((p) => p.role === 'partner')?.shopName || 'Đối tác'
+  }
 
   if (loading) {
-    return <div className="chat-loading">Đang tải...</div>;
+    return <div className="chat-loading">Đang tải...</div>
   }
 
   return (
@@ -255,7 +255,9 @@ export default function ChatManager() {
                   </div>
                   {conversation.lastMessage && (
                     <div className="conversation-time">
-                      {formatMessageTime(conversation.lastMessage.timestamp || conversation.updatedAt)}
+                      {formatMessageTime(
+                        conversation.lastMessage.timestamp || conversation.updatedAt
+                      )}
                     </div>
                   )}
                 </div>
@@ -288,9 +290,7 @@ export default function ChatManager() {
                     >
                       <div className="message-bubble">
                         <div className="message-content">{message.content}</div>
-                        <div className="message-time">
-                          {formatMessageTime(message.createdAt)}
-                        </div>
+                        <div className="message-time">{formatMessageTime(message.createdAt)}</div>
                       </div>
                     </div>
                   ))
@@ -307,7 +307,11 @@ export default function ChatManager() {
                   className="message-input"
                   disabled={sendingMessage}
                 />
-                <button type="submit" className="btn btn-primary" disabled={sendingMessage || !messageInput.trim()}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={sendingMessage || !messageInput.trim()}
+                >
                   Gửi
                 </button>
               </form>
@@ -356,5 +360,5 @@ export default function ChatManager() {
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -1,1 +1,1 @@
-export { default as CategoriesManagement } from './CategoriesManagement';
+export { default as CategoriesManagement } from './CategoriesManagement'

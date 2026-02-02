@@ -104,6 +104,26 @@ export class ValidationHelper {
   }
 
   /**
+   * Escape special regex characters to prevent ReDoS attacks
+   * @param str - User input string
+   * @returns Escaped string safe for use in RegExp
+   */
+  static escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  }
+
+  /**
+   * Create safe regex search pattern
+   * @param search - User search input
+   * @param options - Regex options (default 'i' for case insensitive)
+   * @returns Safe RegExp object
+   */
+  static createSafeSearchRegex(search: string, options: string = 'i'): RegExp {
+    const escaped = this.escapeRegex(this.sanitizeString(search))
+    return new RegExp(escaped, options)
+  }
+
+  /**
    * Validate URL
    */
   static isValidUrl(url: string): boolean {

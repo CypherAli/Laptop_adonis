@@ -7,19 +7,19 @@ import './AuthPages.css'
  * ============================================
  * AUTHENTICATION SYSTEM - REACT TEMPLATE
  * ============================================
- * 
+ *
  * 5 CORE FUNCTIONS:
  * 1. register() - POST /api/auth/register - Đăng ký user mới
  * 2. login() - POST /api/auth/login - Đăng nhập + JWT token
  * 3. me() - GET /api/auth/me - Lấy thông tin user hiện tại
  * 4. updateProfile() - PUT /api/auth/profile - Cập nhật profile
  * 5. logout() - POST /api/auth/logout - Đăng xuất (clear token)
- * 
+ *
  * ROLES:
  * - customer (default): Người mua hàng
  * - partner: Chủ shop (cần isApproved = true)
  * - admin: Quản trị viên (backend only)
- * 
+ *
  * JWT TOKEN:
  * - Expires: 24h
  * - Payload: { id, role, username, email, isApproved }
@@ -81,7 +81,7 @@ export const LoginPage = () => {
     <div className="auth-container">
       <div className="auth-box">
         <h1>Đăng Nhập</h1>
-        
+
         {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={handleLogin}>
@@ -189,7 +189,7 @@ export const RegisterPage = () => {
     <div className="auth-container">
       <div className="auth-box">
         <h1>Đăng Ký</h1>
-        
+
         {error && <div className="alert alert-error">{error}</div>}
         {success && (
           <div className="alert alert-success">
@@ -443,7 +443,7 @@ export const ProfilePage = () => {
       <div className="profile-content">
         <div className="profile-info">
           <h2>Thông Tin</h2>
-          
+
           {!editMode ? (
             <div className="info-display">
               <div className="info-item">
@@ -527,7 +527,7 @@ export const ProfilePage = () => {
               )}
 
               <h3>Đổi Mật Khẩu (Tùy chọn)</h3>
-              
+
               <div className="form-group">
                 <label>Mật khẩu hiện tại</label>
                 <input

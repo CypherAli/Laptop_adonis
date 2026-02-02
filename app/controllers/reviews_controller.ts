@@ -428,4 +428,64 @@ export default class ReviewsController {
       console.error('Update product rating error:', error)
     }
   }
+
+  /**
+   * Show reviews page (Inertia - Admin only)
+   */
+  async showReviews({ inertia, request }: HttpContext) {
+    const { page = 1, limit = 20, isApproved, search } = request.qs()
+
+    const filter: any = {}
+    if (isApproved !== undefined) filter.isApproved = isApproved === 'true'
+    if (search) {
+      filter.$or = [{ comment: new RegExp(search, 'i') }]
+    }
+
+    const pageNum = Number(page)
+    const limitNum = Number(limit)
+    const skip = (pageNum - 1) * limitNum
+
+    const [reviews, total] = await Promise.all([
+      Review.find(filter)
+        .populate('user', 'username email')
+        .populate('product', 'name brand images')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Review.countDocuments(filter),
+    ])
+
+    return inertia.render('admin/reviews', {
+      reviews: reviews.map((review: any) => ({
+        id: review._id.toString(),
+        rating: review.rating,
+        comment: review.comment,
+        isApproved: review.isApproved,
+        user: review.user
+          ? {
+              id: review.user._id?.toString(),
+              username: review.user.username,
+              email: review.user.email,
+            }
+          : null,
+        product: review.product
+          ? {
+              id: review.product._id?.toString(),
+              name: review.product.name,
+              brand: review.product.brand,
+            }
+          : null,
+        createdAt: review.createdAt,
+      })),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      filters: { isApproved, search },
+      currentPath: '/admin/reviews',
+    })
+  }
 }

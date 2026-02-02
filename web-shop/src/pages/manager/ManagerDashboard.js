@@ -30,7 +30,6 @@ const ManagerDashboard = () => {
     }
 
     fetchMyProducts()
-     
   }, [user])
 
   const fetchMyProducts = async () => {
@@ -91,8 +90,7 @@ const ManagerDashboard = () => {
             {user?.shopName && <span className="shop-name-badge">{user.shopName}</span>}
           </h1>
         </div>
-        <div className="header-actions">
-        </div>
+        <div className="header-actions"></div>
       </div>
 
       {/* Partner Approval Status */}
@@ -187,8 +185,8 @@ const ManagerDashboard = () => {
                     </div>
 
                     <div className="product-actions">
-                      <button 
-                        className="btn-edit" 
+                      <button
+                        className="btn-edit"
                         onClick={() => navigate(`/admin/edit-product/${product._id}`)}
                       >
                         ✏️ Sửa

@@ -252,7 +252,6 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
     setShowImageModal(false)
   }
 
-   
   const handleOpenImageModal = (index) => {
     setModalImageIndex(index)
     setShowImageModal(true)

@@ -89,9 +89,7 @@ export default class SeedProducts extends BaseCommand {
               isAvailable: true,
             },
           ],
-          images: [
-            'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800',
-          ],
+          images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'],
           features: ['Thiết kế iconic', 'Đệm Air cushion', 'Da cao cấp', 'Grip tuyệt vời'],
           warranty: {
             duration: '6 tháng',
@@ -146,9 +144,7 @@ export default class SeedProducts extends BaseCommand {
               isAvailable: true,
             },
           ],
-          images: [
-            'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800',
-          ],
+          images: ['https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=800'],
           features: ['Boost cushioning', 'Primeknit upper', 'Continental rubber outsole'],
           warranty: {
             duration: '6 tháng',

@@ -1,7 +1,6 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import { Product } from '#models/product'
 import { User } from '#models/user'
-import mongoose from 'mongoose'
 
 export default class extends BaseSeeder {
   async run() {

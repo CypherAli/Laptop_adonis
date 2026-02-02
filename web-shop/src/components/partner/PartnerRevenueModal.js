@@ -35,7 +35,6 @@ const PartnerRevenueModal = ({ partnerId, onClose }) => {
 
   useEffect(() => {
     fetchPartnerRevenue()
-     
   }, [partnerId])
 
   const fetchPartnerRevenue = async () => {

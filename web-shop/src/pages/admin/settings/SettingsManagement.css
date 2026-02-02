@@ -75,7 +75,7 @@
   background: white;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .settings-section h2 {
@@ -110,11 +110,11 @@
   font-size: 14px;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="url"],
-.form-group input[type="tel"],
-.form-group input[type="number"],
+.form-group input[type='text'],
+.form-group input[type='email'],
+.form-group input[type='url'],
+.form-group input[type='tel'],
+.form-group input[type='number'],
 .form-group textarea {
   width: 100%;
   padding: 10px 12px;
@@ -145,7 +145,7 @@
   cursor: pointer;
 }
 
-.checkbox-group input[type="checkbox"] {
+.checkbox-group input[type='checkbox'] {
   margin-right: 8px;
   margin-top: 2px;
   width: 18px;

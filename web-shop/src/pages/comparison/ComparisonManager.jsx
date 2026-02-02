@@ -1,24 +1,24 @@
 /**
  * ==================== COMPARISON MANAGER COMPONENT ====================
- * 
+ *
  * PHÂN QUYỀN HỆ THỐNG:
  * - Public: Anyone can compare products (no authentication required)
  * - Limitations: Min 2 products, max 4 products per comparison
  * - Optional: Save comparisons for sharing (requires auth)
- * 
+ *
  * CORE FUNCTIONS:
  * 1. Product Comparison
  *    - compare() - POST /api/comparisons/compare (productIds array)
  *    - Validates 2-4 products, fetches full details
- * 
+ *
  * 2. Comparison Display
  *    - Side-by-side table format
  *    - Categories: Price, Stock, Rating, Specifications, Warranty, Features
- * 
+ *
  * 3. Optional Save/Share
  *    - save() - POST /api/comparisons/save (generates shareable slug)
  *    - getBySlug() - GET /api/comparisons/:slug (load saved comparison)
- * 
+ *
  * BACKEND LOGIC NOTES:
  * - Price: Calculated from variants (lowest price)
  * - Stock: Sum of all variant stocks
@@ -27,130 +27,132 @@
  * - Features: Array of feature strings
  */
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from '../../api/axiosConfig';
-import './ComparisonManager.css';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import axios from '../../api/axiosConfig'
+import './ComparisonManager.css'
 
 export default function ComparisonManager() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   // Products state
-  const [comparisonProducts, setComparisonProducts] = useState([]);
-  const [selectedProductIds, setSelectedProductIds] = useState([]);
-  
+  const [comparisonProducts, setComparisonProducts] = useState([])
+  const [selectedProductIds, setSelectedProductIds] = useState([])
+
   // Search for products to add
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching] = useState(false)
 
   useEffect(() => {
     // Load product IDs from URL params if present
-    const idsParam = searchParams.get('ids');
+    const idsParam = searchParams.get('ids')
     if (idsParam) {
-      const ids = idsParam.split(',');
-      setSelectedProductIds(ids);
+      const ids = idsParam.split(',')
+      setSelectedProductIds(ids)
       if (ids.length >= 2) {
-        handleCompare(ids);
+        handleCompare(ids)
       }
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   // ==================== SEARCH PRODUCTS ====================
 
   const handleSearchProducts = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) return
 
-    setSearching(true);
+    setSearching(true)
     try {
       const response = await axios.get('/api/products', {
-        params: { search: searchQuery, limit: 10 }
-      });
-      setSearchResults(response.data.products || []);
+        params: { search: searchQuery, limit: 10 },
+      })
+      setSearchResults(response.data.products || [])
     } catch (err) {
-      setError('Lỗi khi tìm kiếm sản phẩm');
+      setError('Lỗi khi tìm kiếm sản phẩm')
     } finally {
-      setSearching(false);
+      setSearching(false)
     }
-  };
+  }
 
   const handleAddProduct = (productId) => {
     if (selectedProductIds.includes(productId)) {
-      setError('Sản phẩm đã được thêm vào so sánh');
-      return;
+      setError('Sản phẩm đã được thêm vào so sánh')
+      return
     }
 
     if (selectedProductIds.length >= 4) {
-      setError('Bạn chỉ có thể so sánh tối đa 4 sản phẩm');
-      return;
+      setError('Bạn chỉ có thể so sánh tối đa 4 sản phẩm')
+      return
     }
 
-    const newIds = [...selectedProductIds, productId];
-    setSelectedProductIds(newIds);
-    setSearchResults([]);
-    setSearchQuery('');
+    const newIds = [...selectedProductIds, productId]
+    setSelectedProductIds(newIds)
+    setSearchResults([])
+    setSearchQuery('')
 
     if (newIds.length >= 2) {
-      handleCompare(newIds);
+      handleCompare(newIds)
     }
-  };
+  }
 
   const handleRemoveProduct = (productId) => {
-    const newIds = selectedProductIds.filter(id => id !== productId);
-    setSelectedProductIds(newIds);
+    const newIds = selectedProductIds.filter((id) => id !== productId)
+    setSelectedProductIds(newIds)
 
     if (newIds.length >= 2) {
-      handleCompare(newIds);
+      handleCompare(newIds)
     } else {
-      setComparisonProducts([]);
+      setComparisonProducts([])
     }
-  };
+  }
 
   // ==================== COMPARE ====================
 
   const handleCompare = async (productIds) => {
     if (productIds.length < 2) {
-      setError('Vui lòng chọn ít nhất 2 sản phẩm để so sánh');
-      return;
+      setError('Vui lòng chọn ít nhất 2 sản phẩm để so sánh')
+      return
     }
 
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
     try {
-      const response = await axios.post('/api/comparisons/compare', { productIds });
-      setComparisonProducts(response.data.products || []);
-      
+      const response = await axios.post('/api/comparisons/compare', { productIds })
+      setComparisonProducts(response.data.products || [])
+
       // Update URL with product IDs
-      navigate(`/compare?ids=${productIds.join(',')}`, { replace: true });
+      navigate(`/compare?ids=${productIds.join(',')}`, { replace: true })
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi so sánh sản phẩm');
+      setError(err.response?.data?.message || 'Lỗi khi so sánh sản phẩm')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // ==================== HELPERS ====================
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'VND'
-    }).format(amount);
-  };
+      currency: 'VND',
+    }).format(amount)
+  }
 
   const renderRating = (rating) => {
-    const stars = [];
+    const stars = []
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>★</span>
-      );
+        <span key={i} className={`star ${i <= rating ? 'filled' : ''}`}>
+          ★
+        </span>
+      )
     }
-    return <div className="rating-stars">{stars}</div>;
-  };
+    return <div className="rating-stars">{stars}</div>
+  }
 
   return (
     <div className="comparison-container">
@@ -284,7 +286,9 @@ export default function ComparisonManager() {
               </tr>
 
               {/* Specifications */}
-              {comparisonProducts.some(p => p.specifications && Object.keys(p.specifications).length > 0) && (
+              {comparisonProducts.some(
+                (p) => p.specifications && Object.keys(p.specifications).length > 0
+              ) && (
                 <>
                   <tr className="section-header">
                     <td colSpan={comparisonProducts.length + 1}>THÔNG SỐ KỸ THUẬT</td>
@@ -301,7 +305,7 @@ export default function ComparisonManager() {
               )}
 
               {/* Features */}
-              {comparisonProducts.some(p => p.features && p.features.length > 0) && (
+              {comparisonProducts.some((p) => p.features && p.features.length > 0) && (
                 <tr>
                   <td className="attribute-label">Tính Năng</td>
                   {comparisonProducts.map((p) => (
@@ -335,5 +339,5 @@ export default function ComparisonManager() {
         </div>
       )}
     </div>
-  );
+  )
 }
