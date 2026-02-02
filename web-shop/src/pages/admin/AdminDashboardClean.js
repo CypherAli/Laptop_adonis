@@ -52,14 +52,10 @@ const StatusBadge = ({ status }) => {
     approved: { label: 'Approved', class: 'success' },
     rejected: { label: 'Rejected', class: 'danger' },
   }
-  
+
   const badge = statusMap[status] || { label: status, class: 'gray' }
-  
-  return (
-    <span className={`status-badge ${badge.class}`}>
-      {badge.label}
-    </span>
-  )
+
+  return <span className={`status-badge ${badge.class}`}>{badge.label}</span>
 }
 
 const AdminDashboardClean = () => {
@@ -109,7 +105,7 @@ const AdminDashboardClean = () => {
     metaDescription: '',
     metaKeywords: '',
     googleAnalyticsId: '',
-    facebookPixelId: ''
+    facebookPixelId: '',
   })
   const [settingsTab, setSettingsTab] = useState('site')
 
@@ -245,7 +241,7 @@ const AdminDashboardClean = () => {
     try {
       const res = await axios.get('/admin/categories/tree')
       const flattenTree = (items, result = [], level = 0) => {
-        items.forEach(item => {
+        items.forEach((item) => {
           result.push({ ...item, level })
           if (item.children && item.children.length > 0) {
             flattenTree(item.children, result, level + 1)
@@ -296,14 +292,11 @@ const AdminDashboardClean = () => {
       const res = await axios.get('/admin/settings')
       if (res.data) {
         // Merge with defaults to ensure no null/undefined values
-        setSettings(prevSettings => ({
+        setSettings((prevSettings) => ({
           ...prevSettings,
           ...Object.fromEntries(
-            Object.entries(res.data).map(([key, value]) => [
-              key,
-              value ?? prevSettings[key] ?? ''
-            ])
-          )
+            Object.entries(res.data).map(([key, value]) => [key, value ?? prevSettings[key] ?? ''])
+          ),
         }))
       }
     } catch (error) {
@@ -342,9 +335,7 @@ const AdminDashboardClean = () => {
         </div>
         <div className="admin-header-right">
           <div className="admin-user-badge">
-            <div className="admin-avatar">
-              {user?.username?.charAt(0).toUpperCase() || 'A'}
-            </div>
+            <div className="admin-avatar">{user?.username?.charAt(0).toUpperCase() || 'A'}</div>
             <div className="admin-user-details">
               <div className="admin-username">{user?.username || 'Admin'}</div>
               <div className="admin-role-tag">Administrator</div>
@@ -452,16 +443,14 @@ const AdminDashboardClean = () => {
                   value={stats.totalProducts}
                   colorClass="purple"
                 />
-                <StatCard
-                  icon={FiUsers}
-                  title="Users"
-                  value={stats.totalUsers}
-                  colorClass="cyan"
-                />
+                <StatCard icon={FiUsers} title="Users" value={stats.totalUsers} colorClass="cyan" />
               </div>
 
               {/* Quick Stats */}
-              <div className="stats-grid-clean" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+              <div
+                className="stats-grid-clean"
+                style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}
+              >
                 <StatCard
                   icon={FiAlertCircle}
                   title="Out of Stock"
@@ -511,13 +500,28 @@ const AdminDashboardClean = () => {
                   </div>
                   <div style={{ padding: '1.5rem' }}>
                     {stats.pendingPartners > 0 && (
-                      <div style={{ padding: '0.75rem', background: 'var(--admin-gray-50)', borderRadius: '8px', marginBottom: '1rem' }}>
-                        <strong>{stats.pendingPartners}</strong> partner approval{stats.pendingPartners > 1 ? 's' : ''} pending
+                      <div
+                        style={{
+                          padding: '0.75rem',
+                          background: 'var(--admin-gray-50)',
+                          borderRadius: '8px',
+                          marginBottom: '1rem',
+                        }}
+                      >
+                        <strong>{stats.pendingPartners}</strong> partner approval
+                        {stats.pendingPartners > 1 ? 's' : ''} pending
                       </div>
                     )}
                     {stats.lowStockProducts > 0 && (
-                      <div style={{ padding: '0.75rem', background: 'var(--admin-gray-50)', borderRadius: '8px' }}>
-                        <strong>{stats.lowStockProducts}</strong> product{stats.lowStockProducts > 1 ? 's' : ''} low on stock
+                      <div
+                        style={{
+                          padding: '0.75rem',
+                          background: 'var(--admin-gray-50)',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <strong>{stats.lowStockProducts}</strong> product
+                        {stats.lowStockProducts > 1 ? 's' : ''} low on stock
                       </div>
                     )}
                   </div>
@@ -550,7 +554,9 @@ const AdminDashboardClean = () => {
                     <tr>
                       <td colSpan="6">
                         <div className="empty-state-clean">
-                          <div className="empty-state-icon"><FiPackage /></div>
+                          <div className="empty-state-icon">
+                            <FiPackage />
+                          </div>
                           <div className="empty-state-text">No products found</div>
                         </div>
                       </td>
@@ -590,7 +596,7 @@ const AdminDashboardClean = () => {
                 <div className="pagination-clean">
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -600,7 +606,7 @@ const AdminDashboardClean = () => {
                   </span>
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -633,7 +639,9 @@ const AdminDashboardClean = () => {
                     <tr>
                       <td colSpan="5">
                         <div className="empty-state-clean">
-                          <div className="empty-state-icon"><FiShoppingBag /></div>
+                          <div className="empty-state-icon">
+                            <FiShoppingBag />
+                          </div>
                           <div className="empty-state-text">No orders found</div>
                         </div>
                       </td>
@@ -644,7 +652,9 @@ const AdminDashboardClean = () => {
                         <td className="text-bold">#{order._id.slice(-8)}</td>
                         <td>{order.user?.username || order.user?.email || 'N/A'}</td>
                         <td>{order.totalAmount?.toLocaleString()}đ</td>
-                        <td><StatusBadge status={order.status} /></td>
+                        <td>
+                          <StatusBadge status={order.status} />
+                        </td>
                         <td className="text-muted text-sm">
                           {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                         </td>
@@ -657,7 +667,7 @@ const AdminDashboardClean = () => {
                 <div className="pagination-clean">
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -667,7 +677,7 @@ const AdminDashboardClean = () => {
                   </span>
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -700,7 +710,9 @@ const AdminDashboardClean = () => {
                     <tr>
                       <td colSpan="5">
                         <div className="empty-state-clean">
-                          <div className="empty-state-icon"><FiUsers /></div>
+                          <div className="empty-state-icon">
+                            <FiUsers />
+                          </div>
                           <div className="empty-state-text">No users found</div>
                         </div>
                       </td>
@@ -711,7 +723,9 @@ const AdminDashboardClean = () => {
                         <td className="text-bold">{u.username}</td>
                         <td className="text-muted text-sm">{u.email}</td>
                         <td>
-                          <span className={`status-badge ${u.role === 'admin' ? 'danger' : u.role === 'partner' ? 'info' : 'gray'}`}>
+                          <span
+                            className={`status-badge ${u.role === 'admin' ? 'danger' : u.role === 'partner' ? 'info' : 'gray'}`}
+                          >
                             {u.role}
                           </span>
                         </td>
@@ -751,7 +765,7 @@ const AdminDashboardClean = () => {
                 <div className="pagination-clean">
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -761,7 +775,7 @@ const AdminDashboardClean = () => {
                   </span>
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -795,7 +809,9 @@ const AdminDashboardClean = () => {
                     <tr>
                       <td colSpan="6">
                         <div className="empty-state-clean">
-                          <div className="empty-state-icon"><FiMessageSquare /></div>
+                          <div className="empty-state-icon">
+                            <FiMessageSquare />
+                          </div>
                           <div className="empty-state-text">No reviews found</div>
                         </div>
                       </td>
@@ -811,13 +827,15 @@ const AdminDashboardClean = () => {
                         <td>
                           <div style={{ maxWidth: '300px' }}>
                             <strong>{review.title}</strong>
-                            <div style={{ 
-                              fontSize: '0.875rem', 
-                              color: '#6b7280',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
+                            <div
+                              style={{
+                                fontSize: '0.875rem',
+                                color: '#6b7280',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
                               {review.comment}
                             </div>
                           </div>
@@ -852,7 +870,7 @@ const AdminDashboardClean = () => {
                 <div className="pagination-clean">
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -862,7 +880,7 @@ const AdminDashboardClean = () => {
                   </span>
                   <button
                     className="pagination-btn"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -876,18 +894,30 @@ const AdminDashboardClean = () => {
             <div className="data-section-clean">
               <div className="data-section-header">
                 <h3 className="data-section-title">
-                  {activeTab === 'categories' && <><FiGrid /> Categories Management</>}
-                  {activeTab === 'brands' && <><FiTag /> Brands Management</>}
-                  {activeTab === 'settings' && <><FiSettings /> System Settings</>}
+                  {activeTab === 'categories' && (
+                    <>
+                      <FiGrid /> Categories Management
+                    </>
+                  )}
+                  {activeTab === 'brands' && (
+                    <>
+                      <FiTag /> Brands Management
+                    </>
+                  )}
+                  {activeTab === 'settings' && (
+                    <>
+                      <FiSettings /> System Settings
+                    </>
+                  )}
                 </h3>
               </div>
-              
+
               {/* Categories Content */}
               {activeTab === 'categories' && (
                 <table className="data-table-clean">
                   <thead>
                     <tr>
-                      <th style={{width: '40%'}}>Category Name</th>
+                      <th style={{ width: '40%' }}>Category Name</th>
                       <th>Slug</th>
                       <th>Products</th>
                       <th>Status</th>
@@ -897,7 +927,7 @@ const AdminDashboardClean = () => {
                   <tbody>
                     {categories.length === 0 ? (
                       <tr>
-                        <td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
                           No categories found
                         </td>
                       </tr>
@@ -905,27 +935,33 @@ const AdminDashboardClean = () => {
                       categories.map((category) => (
                         <tr key={category._id}>
                           <td>
-                            <div style={{ 
-                              paddingLeft: `${category.level * 24}px`, 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              gap: '8px' 
-                            }}>
-                              {category.level > 0 && <span style={{color: '#94a3b8'}}>└─</span>}
+                            <div
+                              style={{
+                                paddingLeft: `${category.level * 24}px`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                              }}
+                            >
+                              {category.level > 0 && <span style={{ color: '#94a3b8' }}>└─</span>}
                               <span style={{ fontWeight: category.level === 0 ? '600' : '400' }}>
                                 {category.name}
                               </span>
                             </div>
                           </td>
-                          <td><span className="badge-clean">{category.slug}</span></td>
+                          <td>
+                            <span className="badge-clean">{category.slug}</span>
+                          </td>
                           <td>{category.productCount || 0} products</td>
                           <td>
-                            <span className={`status-badge ${category.isActive ? 'active' : 'inactive'}`}>
+                            <span
+                              className={`status-badge ${category.isActive ? 'active' : 'inactive'}`}
+                            >
                               {category.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </td>
                           <td>
-                            <button 
+                            <button
                               className="action-btn-clean"
                               onClick={() => handleToggleCategoryActive(category._id)}
                             >
@@ -945,8 +981,8 @@ const AdminDashboardClean = () => {
                   <table className="data-table-clean">
                     <thead>
                       <tr>
-                        <th style={{width: '10%'}}>Logo</th>
-                        <th style={{width: '25%'}}>Brand Name</th>
+                        <th style={{ width: '10%' }}>Logo</th>
+                        <th style={{ width: '25%' }}>Brand Name</th>
                         <th>Slug</th>
                         <th>Products</th>
                         <th>Status</th>
@@ -956,69 +992,81 @@ const AdminDashboardClean = () => {
                     <tbody>
                       {brands.length === 0 ? (
                         <tr>
-                          <td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>
+                          <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
                             No brands found
                           </td>
                         </tr>
                       ) : (
                         brands.map((brand) => {
-                          const hasValidLogo = brand.logo && (brand.logo.startsWith('http://') || brand.logo.startsWith('https://') || brand.logo.startsWith('/'))
+                          const hasValidLogo =
+                            brand.logo &&
+                            (brand.logo.startsWith('http://') ||
+                              brand.logo.startsWith('https://') ||
+                              brand.logo.startsWith('/'))
                           return (
-                          <tr key={brand._id}>
-                            <td>
-                              <div className="brand-logo-cell" style={{position: 'relative'}}>
-                                {hasValidLogo && (
-                                  <img 
-                                    src={brand.logo} 
-                                    alt={brand.name} 
+                            <tr key={brand._id}>
+                              <td>
+                                <div className="brand-logo-cell" style={{ position: 'relative' }}>
+                                  {hasValidLogo && (
+                                    <img
+                                      src={brand.logo}
+                                      alt={brand.name}
+                                      style={{
+                                        width: '40px',
+                                        height: '40px',
+                                        objectFit: 'contain',
+                                        borderRadius: '4px',
+                                      }}
+                                      onLoad={(e) => {
+                                        const placeholder = e.target.nextElementSibling
+                                        if (placeholder) placeholder.style.display = 'none'
+                                      }}
+                                      onError={(e) => {
+                                        e.target.style.display = 'none'
+                                        const placeholder = e.target.nextElementSibling
+                                        if (placeholder) placeholder.style.display = 'flex'
+                                      }}
+                                    />
+                                  )}
+                                  <div
                                     style={{
                                       width: '40px',
                                       height: '40px',
-                                      objectFit: 'contain',
-                                      borderRadius: '4px'
-                                    }} 
-                                    onLoad={(e) => {
-                                      const placeholder = e.target.nextElementSibling
-                                      if (placeholder) placeholder.style.display = 'none'
+                                      background: '#f1f5f9',
+                                      borderRadius: '4px',
+                                      display: hasValidLogo ? 'none' : 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: '#94a3b8',
                                     }}
-                                    onError={(e) => {
-                                      e.target.style.display = 'none'
-                                      const placeholder = e.target.nextElementSibling
-                                      if (placeholder) placeholder.style.display = 'flex'
-                                    }}
-                                  />
-                                )}
-                                <div style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  background: '#f1f5f9',
-                                  borderRadius: '4px',
-                                  display: hasValidLogo ? 'none' : 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#94a3b8'
-                                }}>
-                                  <FiPackage size={20} />
+                                  >
+                                    <FiPackage size={20} />
+                                  </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td><strong>{brand.name}</strong></td>
-                            <td><span className="badge-clean">{brand.slug}</span></td>
-                            <td>{brand.productCount || 0} products</td>
-                            <td>
-                              <span className={`status-badge ${brand.isActive ? 'active' : 'inactive'}`}>
-                                {brand.isActive ? 'Active' : 'Inactive'}
-                              </span>
-                            </td>
-                            <td>
-                              <button 
-                                className="action-btn-clean"
-                                onClick={() => handleToggleBrandActive(brand._id)}
-                              >
-                                {brand.isActive ? 'Deactivate' : 'Activate'}
-                              </button>
-                            </td>
-                          </tr>
+                              </td>
+                              <td>
+                                <strong>{brand.name}</strong>
+                              </td>
+                              <td>
+                                <span className="badge-clean">{brand.slug}</span>
+                              </td>
+                              <td>{brand.productCount || 0} products</td>
+                              <td>
+                                <span
+                                  className={`status-badge ${brand.isActive ? 'active' : 'inactive'}`}
+                                >
+                                  {brand.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                              </td>
+                              <td>
+                                <button
+                                  className="action-btn-clean"
+                                  onClick={() => handleToggleBrandActive(brand._id)}
+                                >
+                                  {brand.isActive ? 'Deactivate' : 'Activate'}
+                                </button>
+                              </td>
+                            </tr>
                           )
                         })
                       )}
@@ -1059,37 +1107,37 @@ const AdminDashboardClean = () => {
                 <div className="settings-wrapper">
                   {/* Settings Tabs */}
                   <div className="settings-tabs">
-                    <button 
+                    <button
                       className={`settings-tab ${settingsTab === 'site' ? 'active' : ''}`}
                       onClick={() => setSettingsTab('site')}
                     >
                       <FiGlobe /> Site Info
                     </button>
-                    <button 
+                    <button
                       className={`settings-tab ${settingsTab === 'email' ? 'active' : ''}`}
                       onClick={() => setSettingsTab('email')}
                     >
                       <FiMessageSquare /> Email
                     </button>
-                    <button 
+                    <button
                       className={`settings-tab ${settingsTab === 'order' ? 'active' : ''}`}
                       onClick={() => setSettingsTab('order')}
                     >
                       <FiShoppingBag /> Orders
                     </button>
-                    <button 
+                    <button
                       className={`settings-tab ${settingsTab === 'product' ? 'active' : ''}`}
                       onClick={() => setSettingsTab('product')}
                     >
                       <FiPackage /> Products
                     </button>
-                    <button 
+                    <button
                       className={`settings-tab ${settingsTab === 'social' ? 'active' : ''}`}
                       onClick={() => setSettingsTab('social')}
                     >
                       <FiUsers /> Social
                     </button>
-                    <button 
+                    <button
                       className={`settings-tab ${settingsTab === 'seo' ? 'active' : ''}`}
                       onClick={() => setSettingsTab('seo')}
                     >
@@ -1101,79 +1149,97 @@ const AdminDashboardClean = () => {
                     {/* Site Info Tab */}
                     {settingsTab === 'site' && (
                       <div className="settings-section">
-                        <h4><FiGlobe /> Website Information</h4>
+                        <h4>
+                          <FiGlobe /> Website Information
+                        </h4>
                         <div className="form-grid">
                           <div className="form-group">
                             <label>Site Name *</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.siteName}
-                              onChange={(e) => setSettings({...settings, siteName: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, siteName: e.target.value })
+                              }
                               required
                               placeholder="Enter your site name"
                             />
                           </div>
                           <div className="form-group">
                             <label>Site Logo URL</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.siteLogo}
-                              onChange={(e) => setSettings({...settings, siteLogo: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, siteLogo: e.target.value })
+                              }
                               placeholder="https://example.com/logo.png"
                             />
                           </div>
                           <div className="form-group">
                             <label>Contact Email</label>
-                            <input 
-                              type="email" 
+                            <input
+                              type="email"
                               value={settings.contactEmail}
-                              onChange={(e) => setSettings({...settings, contactEmail: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, contactEmail: e.target.value })
+                              }
                               placeholder="contact@example.com"
                             />
                           </div>
                           <div className="form-group">
                             <label>Contact Phone</label>
-                            <input 
-                              type="tel" 
+                            <input
+                              type="tel"
                               value={settings.contactPhone}
-                              onChange={(e) => setSettings({...settings, contactPhone: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, contactPhone: e.target.value })
+                              }
                               placeholder="+84 123 456 789"
                             />
                           </div>
                           <div className="form-group full-width">
                             <label>Site Description</label>
-                            <textarea 
+                            <textarea
                               value={settings.siteDescription}
-                              onChange={(e) => setSettings({...settings, siteDescription: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, siteDescription: e.target.value })
+                              }
                               rows="3"
                               placeholder="Brief description of your website"
                             />
                           </div>
                           <div className="form-group full-width">
                             <label>Address</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.address}
-                              onChange={(e) => setSettings({...settings, address: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, address: e.target.value })
+                              }
                               placeholder="Physical store address"
                             />
                           </div>
                           <div className="form-group full-width">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.maintenanceMode}
-                                onChange={(e) => setSettings({...settings, maintenanceMode: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, maintenanceMode: e.target.checked })
+                                }
                               />
                               <span>Enable Maintenance Mode</span>
                             </label>
                             {settings.maintenanceMode && (
-                              <textarea 
+                              <textarea
                                 value={settings.maintenanceMessage}
-                                onChange={(e) => setSettings({...settings, maintenanceMessage: e.target.value})}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, maintenanceMessage: e.target.value })
+                                }
                                 rows="2"
                                 placeholder="Maintenance message to display"
-                                style={{marginTop: '8px'}}
+                                style={{ marginTop: '8px' }}
                               />
                             )}
                           </div>
@@ -1184,42 +1250,55 @@ const AdminDashboardClean = () => {
                     {/* Email Settings Tab */}
                     {settingsTab === 'email' && (
                       <div className="settings-section">
-                        <h4><FiMessageSquare /> Email Configuration</h4>
+                        <h4>
+                          <FiMessageSquare /> Email Configuration
+                        </h4>
                         <div className="form-grid">
                           <div className="form-group">
                             <label>Email From Name</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.emailFromName}
-                              onChange={(e) => setSettings({...settings, emailFromName: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, emailFromName: e.target.value })
+                              }
                               placeholder="Your Store Name"
                             />
                           </div>
                           <div className="form-group">
                             <label>Email From Address</label>
-                            <input 
-                              type="email" 
+                            <input
+                              type="email"
                               value={settings.emailFromAddress}
-                              onChange={(e) => setSettings({...settings, emailFromAddress: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, emailFromAddress: e.target.value })
+                              }
                               placeholder="noreply@example.com"
                             />
                           </div>
                           <div className="form-group full-width">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.emailNotifications}
-                                onChange={(e) => setSettings({...settings, emailNotifications: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, emailNotifications: e.target.checked })
+                                }
                               />
                               <span>Enable Email Notifications</span>
                             </label>
                           </div>
                           <div className="form-group full-width">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.orderConfirmationEmail}
-                                onChange={(e) => setSettings({...settings, orderConfirmationEmail: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({
+                                    ...settings,
+                                    orderConfirmationEmail: e.target.checked,
+                                  })
+                                }
                               />
                               <span>Send Order Confirmation Emails</span>
                             </label>
@@ -1231,61 +1310,90 @@ const AdminDashboardClean = () => {
                     {/* Order Settings Tab */}
                     {settingsTab === 'order' && (
                       <div className="settings-section">
-                        <h4><FiShoppingBag /> Order Configuration</h4>
+                        <h4>
+                          <FiShoppingBag /> Order Configuration
+                        </h4>
                         <div className="form-grid">
                           <div className="form-group">
                             <label>Minimum Order Amount (VND)</label>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={settings.minOrderAmount}
-                              onChange={(e) => setSettings({...settings, minOrderAmount: parseInt(e.target.value) || 0})}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  minOrderAmount: parseInt(e.target.value) || 0,
+                                })
+                              }
                               min="0"
                             />
                           </div>
                           <div className="form-group">
                             <label>Maximum Order Amount (VND)</label>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={settings.maxOrderAmount}
-                              onChange={(e) => setSettings({...settings, maxOrderAmount: parseInt(e.target.value) || 0})}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  maxOrderAmount: parseInt(e.target.value) || 0,
+                                })
+                              }
                               min="0"
                             />
                           </div>
                           <div className="form-group">
                             <label>Free Shipping Threshold (VND)</label>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={settings.freeShippingThreshold}
-                              onChange={(e) => setSettings({...settings, freeShippingThreshold: parseInt(e.target.value) || 0})}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  freeShippingThreshold: parseInt(e.target.value) || 0,
+                                })
+                              }
                               min="0"
                             />
                             <small>Orders above this amount get free shipping</small>
                           </div>
                           <div className="form-group">
                             <label>Default Shipping Fee (VND)</label>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={settings.defaultShippingFee}
-                              onChange={(e) => setSettings({...settings, defaultShippingFee: parseInt(e.target.value) || 0})}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  defaultShippingFee: parseInt(e.target.value) || 0,
+                                })
+                              }
                               min="0"
                             />
                           </div>
                           <div className="form-group">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.codEnabled}
-                                onChange={(e) => setSettings({...settings, codEnabled: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, codEnabled: e.target.checked })
+                                }
                               />
                               <span>Enable Cash on Delivery (COD)</span>
                             </label>
                           </div>
                           <div className="form-group">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.bankTransferEnabled}
-                                onChange={(e) => setSettings({...settings, bankTransferEnabled: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({
+                                    ...settings,
+                                    bankTransferEnabled: e.target.checked,
+                                  })
+                                }
                               />
                               <span>Enable Bank Transfer</span>
                             </label>
@@ -1297,44 +1405,63 @@ const AdminDashboardClean = () => {
                     {/* Product Settings Tab */}
                     {settingsTab === 'product' && (
                       <div className="settings-section">
-                        <h4><FiPackage /> Product Configuration</h4>
+                        <h4>
+                          <FiPackage /> Product Configuration
+                        </h4>
                         <div className="form-grid">
                           <div className="form-group">
                             <label>Products Per Page</label>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={settings.defaultProductsPerPage}
-                              onChange={(e) => setSettings({...settings, defaultProductsPerPage: parseInt(e.target.value) || 12})}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  defaultProductsPerPage: parseInt(e.target.value) || 12,
+                                })
+                              }
                               min="1"
                               max="100"
                             />
                           </div>
                           <div className="form-group">
                             <label>Max Product Images</label>
-                            <input 
-                              type="number" 
+                            <input
+                              type="number"
                               value={settings.maxProductImages}
-                              onChange={(e) => setSettings({...settings, maxProductImages: parseInt(e.target.value) || 10})}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  maxProductImages: parseInt(e.target.value) || 10,
+                                })
+                              }
                               min="1"
                               max="50"
                             />
                           </div>
                           <div className="form-group full-width">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.allowGuestReviews}
-                                onChange={(e) => setSettings({...settings, allowGuestReviews: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, allowGuestReviews: e.target.checked })
+                                }
                               />
                               <span>Allow Guest Reviews (without login)</span>
                             </label>
                           </div>
                           <div className="form-group full-width">
                             <label className="checkbox-label">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 checked={settings.requireReviewApproval}
-                                onChange={(e) => setSettings({...settings, requireReviewApproval: e.target.checked})}
+                                onChange={(e) =>
+                                  setSettings({
+                                    ...settings,
+                                    requireReviewApproval: e.target.checked,
+                                  })
+                                }
                               />
                               <span>Require Review Approval Before Publishing</span>
                             </label>
@@ -1346,41 +1473,51 @@ const AdminDashboardClean = () => {
                     {/* Social Links Tab */}
                     {settingsTab === 'social' && (
                       <div className="settings-section">
-                        <h4><FiUsers /> Social Media Links</h4>
+                        <h4>
+                          <FiUsers /> Social Media Links
+                        </h4>
                         <div className="form-grid">
                           <div className="form-group">
                             <label>Facebook URL</label>
-                            <input 
-                              type="url" 
+                            <input
+                              type="url"
                               value={settings.facebookUrl}
-                              onChange={(e) => setSettings({...settings, facebookUrl: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, facebookUrl: e.target.value })
+                              }
                               placeholder="https://facebook.com/yourpage"
                             />
                           </div>
                           <div className="form-group">
                             <label>Instagram URL</label>
-                            <input 
-                              type="url" 
+                            <input
+                              type="url"
                               value={settings.instagramUrl}
-                              onChange={(e) => setSettings({...settings, instagramUrl: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, instagramUrl: e.target.value })
+                              }
                               placeholder="https://instagram.com/yourprofile"
                             />
                           </div>
                           <div className="form-group">
                             <label>Twitter URL</label>
-                            <input 
-                              type="url" 
+                            <input
+                              type="url"
                               value={settings.twitterUrl}
-                              onChange={(e) => setSettings({...settings, twitterUrl: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, twitterUrl: e.target.value })
+                              }
                               placeholder="https://twitter.com/yourhandle"
                             />
                           </div>
                           <div className="form-group">
                             <label>YouTube URL</label>
-                            <input 
-                              type="url" 
+                            <input
+                              type="url"
                               value={settings.youtubeUrl}
-                              onChange={(e) => setSettings({...settings, youtubeUrl: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, youtubeUrl: e.target.value })
+                              }
                               placeholder="https://youtube.com/yourchannel"
                             />
                           </div>
@@ -1391,14 +1528,18 @@ const AdminDashboardClean = () => {
                     {/* SEO Settings Tab */}
                     {settingsTab === 'seo' && (
                       <div className="settings-section">
-                        <h4><FiBarChart2 /> SEO & Analytics</h4>
+                        <h4>
+                          <FiBarChart2 /> SEO & Analytics
+                        </h4>
                         <div className="form-grid">
                           <div className="form-group full-width">
                             <label>Meta Title</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.metaTitle}
-                              onChange={(e) => setSettings({...settings, metaTitle: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, metaTitle: e.target.value })
+                              }
                               placeholder="Your Site - Best Shoes Online"
                               maxLength="60"
                             />
@@ -1406,9 +1547,11 @@ const AdminDashboardClean = () => {
                           </div>
                           <div className="form-group full-width">
                             <label>Meta Description</label>
-                            <textarea 
+                            <textarea
                               value={settings.metaDescription}
-                              onChange={(e) => setSettings({...settings, metaDescription: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, metaDescription: e.target.value })
+                              }
                               rows="3"
                               placeholder="Description for search engines"
                               maxLength="160"
@@ -1417,29 +1560,35 @@ const AdminDashboardClean = () => {
                           </div>
                           <div className="form-group full-width">
                             <label>Meta Keywords</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.metaKeywords}
-                              onChange={(e) => setSettings({...settings, metaKeywords: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, metaKeywords: e.target.value })
+                              }
                               placeholder="shoes, sneakers, footwear"
                             />
                             <small>Separate keywords with commas</small>
                           </div>
                           <div className="form-group">
                             <label>Google Analytics ID</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.googleAnalyticsId}
-                              onChange={(e) => setSettings({...settings, googleAnalyticsId: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, googleAnalyticsId: e.target.value })
+                              }
                               placeholder="G-XXXXXXXXXX"
                             />
                           </div>
                           <div className="form-group">
                             <label>Facebook Pixel ID</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               value={settings.facebookPixelId}
-                              onChange={(e) => setSettings({...settings, facebookPixelId: e.target.value})}
+                              onChange={(e) =>
+                                setSettings({ ...settings, facebookPixelId: e.target.value })
+                              }
                               placeholder="123456789012345"
                             />
                           </div>

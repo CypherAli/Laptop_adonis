@@ -133,7 +133,9 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   font-size: 15px;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
 }
 
 /* ==================== TOP BAR ==================== */

@@ -1,174 +1,280 @@
 @layout('layouts/admin')
 
-@set('title', 'Dashboard')
+  @set('title', 'Dashboard')
 
-@section('content')
-  <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 2rem;">Dashboard Overview</h1>
+    @section('content')
+      <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 2rem;">
+        Dashboard Overview
+      </h1>
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon green">💵</div>
-      <div class="stat-title">Total Revenue</div>
-      <div class="stat-value">{{ (stats.totalRevenue || 0).toLocaleString() }}đ</div>
-      <div class="stat-footer">All time earnings</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon blue">🛍️</div>
-      <div class="stat-title">Total Orders</div>
-      <div class="stat-value">{{ stats.totalOrders || 0 }}</div>
-      <div class="stat-footer">{{ stats.pendingOrders || 0 }} pending</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon orange">📦</div>
-      <div class="stat-title">Products</div>
-      <div class="stat-value">{{ stats.totalProducts || 0 }}</div>
-      <div class="stat-footer">{{ stats.activeProducts || 0 }} active</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon blue">👥</div>
-      <div class="stat-title">Total Users</div>
-      <div class="stat-value">{{ (stats.totalClients || 0) + (stats.totalPartners || 0) }}</div>
-      <div class="stat-footer">{{ stats.totalPartners || 0 }} partners</div>
-    </div>
-  </div>
-
-  <!-- Quick Stats -->
-  <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-    <div class="stat-card">
-      <div class="stat-icon orange">⚠️</div>
-      <div class="stat-title">Low Stock</div>
-      <div class="stat-value">{{ stats.lowStockProducts || 0 }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon red">📭</div>
-      <div class="stat-title">Out of Stock</div>
-      <div class="stat-value">{{ stats.outOfStockProducts || 0 }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon orange">👤</div>
-      <div class="stat-title">Pending Partners</div>
-      <div class="stat-value">{{ stats.pendingPartners || 0 }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon blue">💬</div>
-      <div class="stat-title">Pending Reviews</div>
-      <div class="stat-value">{{ stats.pendingReviews || 0 }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon green">✅</div>
-      <div class="stat-title">Delivered</div>
-      <div class="stat-value">{{ stats.deliveredOrders || 0 }}</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon orange">⏳</div>
-      <div class="stat-title">Processing</div>
-      <div class="stat-value">{{ stats.processingOrders || 0 }}</div>
-    </div>
-  </div>
-
-  @if(stats.pendingPartners > 0 || stats.lowStockProducts > 0)
-    <!-- Alerts -->
-    <div class="data-section">
-      <div class="section-header">⚠️ Requires Attention</div>
-      <div style="padding: 1.5rem;">
-        @if(stats.pendingPartners > 0)
-          <div style="padding: 0.75rem; background: var(--gray-50); border-radius: 8px; margin-bottom: 1rem;">
-            <strong>{{ stats.pendingPartners }}</strong> partner approval{{ stats.pendingPartners > 1 ? 's' : '' }} pending
-            <a href="/admin/users" class="btn btn-sm btn-primary" style="margin-left: 1rem;">Review Now</a>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon green">
+            💵
           </div>
-        @endif
-
-        @if(stats.lowStockProducts > 0)
-          <div style="padding: 0.75rem; background: var(--gray-50); border-radius: 8px;">
-            <strong>{{ stats.lowStockProducts }}</strong> product{{ stats.lowStockProducts > 1 ? 's' : '' }} low on stock
-            <a href="/admin/products" class="btn btn-sm btn-primary" style="margin-left: 1rem;">View Products</a>
+          <div class="stat-title">
+            Total Revenue
           </div>
-        @endif
+          <div class="stat-value">
+            {{ (stats.totalRevenue || 0).toLocaleString() }}đ
+          </div>
+          <div class="stat-footer">
+            All time earnings
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            🛍️
+          </div>
+          <div class="stat-title">
+            Total Orders
+          </div>
+          <div class="stat-value">
+            {{ stats.totalOrders || 0 }}
+          </div>
+          <div class="stat-footer">
+            {{ stats.pendingOrders || 0 }} pending
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            📦
+          </div>
+          <div class="stat-title">
+            Products
+          </div>
+          <div class="stat-value">
+            {{ stats.totalProducts || 0 }}
+          </div>
+          <div class="stat-footer">
+            {{ stats.activeProducts || 0 }} active
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            👥
+          </div>
+          <div class="stat-title">
+            Total Users
+          </div>
+          <div class="stat-value">
+            {{ (stats.totalClients || 0) + (stats.totalPartners || 0) }}
+          </div>
+          <div class="stat-footer">
+            {{ stats.totalPartners || 0 }} partners
+          </div>
+        </div>
       </div>
-    </div>
-  @endif
 
-  <!-- Recent Orders -->
-  @if(recentOrders && recentOrders.length > 0)
-    <div class="data-section">
-      <div class="section-header">🛍️ Recent Orders</div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          @each(order in recentOrders)
-            <tr>
-              <td style="font-weight: 600;">#{{ order._id.toString().slice(-8) }}</td>
-              <td>{{ order.user?.username || order.user?.email || 'N/A' }}</td>
-              <td>{{ (order.totalAmount || 0).toLocaleString() }}đ</td>
-              <td>
-                @if(order.status === 'delivered')
-                  <span class="status-badge success">Delivered</span>
-                @elseif(order.status === 'processing')
-                  <span class="status-badge warning">Processing</span>
-                @elseif(order.status === 'confirmed')
-                  <span class="status-badge info">Confirmed</span>
-                @else
-                  <span class="status-badge warning">{{ order.status }}</span>
-                @endif
-              </td>
-              <td style="color: var(--gray-600); font-size: 0.875rem;">
-                {{ new Date(order.createdAt).toLocaleDateString('vi-VN') }}
-              </td>
-            </tr>
-          @endeach
-        </tbody>
-      </table>
-    </div>
-  @endif
+      <!-- Quick Stats -->
+      <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            ⚠️
+          </div>
+          <div class="stat-title">
+            Low Stock
+          </div>
+          <div class="stat-value">
+            {{ stats.lowStockProducts || 0 }}
+          </div>
+        </div>
 
-  <!-- Low Stock Products -->
-  @if(lowStockProducts && lowStockProducts.length > 0)
-    <div class="data-section">
-      <div class="section-header">⚠️ Low Stock Products</div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Brand</th>
-            <th>Total Stock</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          @each(product in lowStockProducts)
-            @set('totalStock', product.variants.reduce((sum, v) => sum + (v.stock || 0), 0))
-            <tr>
-              <td style="font-weight: 600;">{{ product.name }}</td>
-              <td style="color: var(--gray-600);">{{ product.brand }}</td>
-              <td>{{ totalStock }}</td>
-              <td>
-                @if(totalStock === 0)
-                  <span class="status-badge danger">Out of Stock</span>
-                @else
-                  <span class="status-badge warning">Low Stock</span>
-                @endif
-              </td>
-            </tr>
-          @endeach
-        </tbody>
-      </table>
-    </div>
-  @endif
-@endsection
+        <div class="stat-card">
+          <div class="stat-icon red">
+            📭
+          </div>
+          <div class="stat-title">
+            Out of Stock
+          </div>
+          <div class="stat-value">
+            {{ stats.outOfStockProducts || 0 }}
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            👤
+          </div>
+          <div class="stat-title">
+            Pending Partners
+          </div>
+          <div class="stat-value">
+            {{ stats.pendingPartners || 0 }}
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            💬
+          </div>
+          <div class="stat-title">
+            Pending Reviews
+          </div>
+          <div class="stat-value">
+            {{ stats.pendingReviews || 0 }}
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            ✅
+          </div>
+          <div class="stat-title">
+            Delivered
+          </div>
+          <div class="stat-value">
+            {{ stats.deliveredOrders || 0 }}
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            ⏳
+          </div>
+          <div class="stat-title">
+            Processing
+          </div>
+          <div class="stat-value">
+            {{ stats.processingOrders || 0 }}
+          </div>
+        </div>
+      </div>
+
+      @if(stats.pendingPartners > 0 || stats.lowStockProducts > 0)
+        <!-- Alerts -->
+        <div class="data-section">
+          <div class="section-header">
+            ⚠️ Requires Attention
+          </div>
+          <div style="padding: 1.5rem;">
+            @if(stats.pendingPartners > 0)
+              <div style="padding: 0.75rem; background: var(--gray-50); border-radius: 8px; margin-bottom: 1rem;">
+                <strong>{{ stats.pendingPartners }}</strong>partner approval{{ stats.pendingPartners > 1 ? 's' : '' }} pending
+            <a href="/admin/users" class="btn btn-sm btn-primary" style="margin-left: 1rem;">Review Now</a>
+              </div>
+            @endif
+            
+            @if(stats.lowStockProducts > 0)
+              <div style="padding: 0.75rem; background: var(--gray-50); border-radius: 8px;">
+                <strong>{{ stats.lowStockProducts }}</strong>product{{ stats.lowStockProducts > 1 ? 's' : '' }} low on stock
+            <a href="/admin/products" class="btn btn-sm btn-primary" style="margin-left: 1rem;">View Products</a>
+              </div>
+            @endif
+          </div>
+        </div>
+      @endif
+      
+      <!-- Recent Orders -->
+      @if(recentOrders && recentOrders.length > 0)
+        <div class="data-section">
+          <div class="section-header">
+            🛍️ Recent Orders
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>
+                  Order ID
+                </th>
+                <th>
+                  Customer
+                </th>
+                <th>
+                  Total
+                </th>
+                <th>
+                  Status
+                </th>
+                <th>
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @each(order in recentOrders)
+                <tr>
+                  <td style="font-weight: 600;">
+                    #{{ order._id.toString().slice(-8) }}
+                  </td>
+                  <td>
+                    {{ order.user?.username || order.user?.email || 'N/A' }}
+                  </td>
+                  <td>
+                    {{ (order.totalAmount || 0).toLocaleString() }}đ
+                  </td>
+                  <td>
+                    @if(order.status === 'delivered')
+                      <span class="status-badge success">Delivered</span>
+                    @elseif(order.status === 'processing')
+                      <span class="status-badge warning">Processing</span>
+                    @elseif(order.status === 'confirmed')
+                      <span class="status-badge info">Confirmed</span>
+                    @else
+                      <span class="status-badge warning">{{ order.status }}</span>
+                    @endif
+                  </td>
+                  <td style="color: var(--gray-600); font-size: 0.875rem;">
+                    {{ new Date(order.createdAt).toLocaleDateString('vi-VN') }}
+                  </td>
+                </tr>
+              @endeach
+            </tbody>
+          </table>
+        </div>
+      @endif
+      
+      <!-- Low Stock Products -->
+      @if(lowStockProducts && lowStockProducts.length > 0)
+        <div class="data-section">
+          <div class="section-header">
+            ⚠️ Low Stock Products
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>
+                  Product
+                </th>
+                <th>
+                  Brand
+                </th>
+                <th>
+                  Total Stock
+                </th>
+                <th>
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @each(product in lowStockProducts)
+                @set('totalStock', product.variants.reduce((sum, v) => sum + (v.stock || 0), 0))
+                  <tr>
+                    <td style="font-weight: 600;">
+                      {{ product.name }}
+                    </td>
+                    <td style="color: var(--gray-600);">
+                      {{ product.brand }}
+                    </td>
+                    <td>
+                      {{ totalStock }}
+                    </td>
+                    <td>
+                      @if(totalStock === 0)
+                        <span class="status-badge danger">Out of Stock</span>
+                      @else
+                        <span class="status-badge warning">Low Stock</span>
+                      @endif
+                    </td>
+                  </tr>
+                @endeach
+              </tbody>
+            </table>
+          </div>
+        @endif
+      @endsection

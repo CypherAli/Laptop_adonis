@@ -1,94 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../../../api/axiosConfig';
-import './SettingsManagement.css';
+import React, { useState, useEffect } from 'react'
+import axios from '../../../api/axiosConfig'
+import './SettingsManagement.css'
 
 export default function SettingsManagement() {
-  const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('site');
+  const [settings, setSettings] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState('site')
 
   useEffect(() => {
-    loadSettings();
-  }, []);
+    loadSettings()
+  }, [])
 
   const loadSettings = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get('/admin/settings');
-      setSettings(response.data || {});
+      setLoading(true)
+      const response = await axios.get('/admin/settings')
+      setSettings(response.data || {})
     } catch (err) {
-      setError('Không thể tải cài đặt');
-      console.error(err);
+      setError('Không thể tải cài đặt')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSave = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setSaving(true);
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+    setSaving(true)
 
     // Validation
     if (!settings.siteName || !settings.siteName.trim()) {
-      setError('Tên website không được để trống');
-      setSaving(false);
-      setActiveTab('site');
-      return;
+      setError('Tên website không được để trống')
+      setSaving(false)
+      setActiveTab('site')
+      return
     }
 
     if (settings.siteName.length > 100) {
-      setError('Tên website không được quá 100 ký tự');
-      setSaving(false);
-      setActiveTab('site');
-      return;
+      setError('Tên website không được quá 100 ký tự')
+      setSaving(false)
+      setActiveTab('site')
+      return
     }
 
     if (settings.contactEmail && !isValidEmail(settings.contactEmail)) {
-      setError('Email liên hệ không hợp lệ');
-      setSaving(false);
-      setActiveTab('site');
-      return;
+      setError('Email liên hệ không hợp lệ')
+      setSaving(false)
+      setActiveTab('site')
+      return
     }
 
     try {
-      const response = await axios.put('/admin/settings', settings);
-      setSettings(response.data.settings);
-      setSuccess('Lưu cài đặt thành công!');
+      const response = await axios.put('/admin/settings', settings)
+      setSettings(response.data.settings)
+      setSuccess('Lưu cài đặt thành công!')
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể lưu cài đặt');
+      setError(err.response?.data?.message || 'Không thể lưu cài đặt')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const isValidEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return re.test(email)
+  }
 
   const handleReset = async () => {
-    if (!window.confirm('Bạn có chắc muốn reset tất cả cài đặt về mặc định?')) return;
+    if (!window.confirm('Bạn có chắc muốn reset tất cả cài đặt về mặc định?')) return
 
     try {
-      const response = await axios.post('/admin/settings/reset');
-      setSettings(response.data.settings);
-      setSuccess('Đã reset cài đặt về mặc định');
+      const response = await axios.post('/admin/settings/reset')
+      setSettings(response.data.settings)
+      setSuccess('Đã reset cài đặt về mặc định')
     } catch (err) {
-      setError('Không thể reset cài đặt');
+      setError('Không thể reset cài đặt')
     }
-  };
+  }
 
   const updateField = (field, value) => {
-    setSettings({ ...settings, [field]: value });
-  };
+    setSettings({ ...settings, [field]: value })
+  }
 
-  if (loading) return <div className="loading">Đang tải...</div>;
-  if (!settings) return <div className="loading">Không có dữ liệu</div>;
+  if (loading) return <div className="loading">Đang tải...</div>
+  if (!settings) return <div className="loading">Không có dữ liệu</div>
 
   return (
     <div className="settings-management">
@@ -108,16 +108,28 @@ export default function SettingsManagement() {
       {success && <div className="alert alert-success">{success}</div>}
 
       <div className="settings-tabs">
-        <button className={activeTab === 'site' ? 'active' : ''} onClick={() => setActiveTab('site')}>
+        <button
+          className={activeTab === 'site' ? 'active' : ''}
+          onClick={() => setActiveTab('site')}
+        >
           Thông tin Site
         </button>
-        <button className={activeTab === 'order' ? 'active' : ''} onClick={() => setActiveTab('order')}>
+        <button
+          className={activeTab === 'order' ? 'active' : ''}
+          onClick={() => setActiveTab('order')}
+        >
           Đơn hàng & Vận chuyển
         </button>
-        <button className={activeTab === 'email' ? 'active' : ''} onClick={() => setActiveTab('email')}>
+        <button
+          className={activeTab === 'email' ? 'active' : ''}
+          onClick={() => setActiveTab('email')}
+        >
           Email
         </button>
-        <button className={activeTab === 'social' ? 'active' : ''} onClick={() => setActiveTab('social')}>
+        <button
+          className={activeTab === 'social' ? 'active' : ''}
+          onClick={() => setActiveTab('social')}
+        >
           Mạng xã hội & SEO
         </button>
       </div>
@@ -126,7 +138,7 @@ export default function SettingsManagement() {
         {activeTab === 'site' && (
           <div className="settings-section">
             <h2>Thông tin Website</h2>
-            
+
             <div className="form-group">
               <label>Tên Website</label>
               <input
@@ -207,7 +219,7 @@ export default function SettingsManagement() {
         {activeTab === 'order' && (
           <div className="settings-section">
             <h2>Cài đặt Đơn hàng</h2>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Giá trị đơn tối thiểu (VNĐ)</label>
@@ -275,7 +287,7 @@ export default function SettingsManagement() {
         {activeTab === 'email' && (
           <div className="settings-section">
             <h2>Cài đặt Email</h2>
-            
+
             <div className="form-group checkbox-group">
               <label>
                 <input
@@ -321,7 +333,7 @@ export default function SettingsManagement() {
         {activeTab === 'social' && (
           <div className="settings-section">
             <h2>Mạng xã hội</h2>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>Facebook URL</label>
@@ -363,7 +375,7 @@ export default function SettingsManagement() {
             </div>
 
             <h2>SEO & Analytics</h2>
-            
+
             <div className="form-group">
               <label>Meta Title</label>
               <input
@@ -416,5 +428,5 @@ export default function SettingsManagement() {
         )}
       </form>
     </div>
-  );
+  )
 }

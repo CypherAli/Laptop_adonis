@@ -1,26 +1,26 @@
 /**
  * ==================== REVIEW MANAGEMENT COMPONENT ====================
- * 
+ *
  * PHÂN QUYỀN HỆ THỐNG:
  * - Customer: Can create/update/delete own reviews (only for delivered orders)
  * - Admin: Can view all reviews, delete any review, moderate approval status
  * - IMPORTANT: Users can only review products they've purchased and received
- * 
+ *
  * CORE FUNCTIONS:
  * 1. Review Display (Public)
  *    - getByProduct() - GET /api/reviews/product/:productId (with filters: rating, sortBy)
  *    - Filters: rating (1-5), sortBy (recent, helpful, rating_high, rating_low)
- * 
+ *
  * 2. Review Management (User)
  *    - create() - POST /api/reviews (requires delivered order)
  *    - update() - PUT /api/reviews/:id (ownership check)
  *    - destroy() - DELETE /api/reviews/:id (owner or admin)
  *    - markHelpful() - POST /api/reviews/:id/helpful (toggle helpful mark)
- * 
+ *
  * 3. Admin Functions
  *    - index() - GET /api/reviews (all reviews with pagination)
  *    - Filter by isApproved status for moderation
- * 
+ *
  * BACKEND LOGIC NOTES:
  * - isVerifiedPurchase: Always true (checked via delivered orders)
  * - isApproved: Auto-approved for now (can add moderation)
@@ -30,32 +30,32 @@
  * - Helpful marks: Toggle system (click again to remove)
  */
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from '../../api/axiosConfig';
-import './ReviewManagement.css';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import axios from '../../api/axiosConfig'
+import './ReviewManagement.css'
 
 export default function ReviewManagement() {
-  const navigate = useNavigate();
-  const { productId } = useParams(); // If viewing reviews for specific product
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const navigate = useNavigate()
+  const { productId } = useParams() // If viewing reviews for specific product
+  const [currentUser, setCurrentUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   // Reviews state
-  const [reviews, setReviews] = useState([]);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [reviews, setReviews] = useState([])
+  const [totalReviews, setTotalReviews] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   // Filters
-  const [filterRating, setFilterRating] = useState('');
-  const [sortBy, setSortBy] = useState('recent'); // recent | helpful | rating_high | rating_low
+  const [filterRating, setFilterRating] = useState('')
+  const [sortBy, setSortBy] = useState('recent') // recent | helpful | rating_high | rating_low
 
   // Review form state
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [editingReview, setEditingReview] = useState(null);
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [editingReview, setEditingReview] = useState(null)
   const [reviewForm, setReviewForm] = useState({
     productId: productId || '',
     rating: 5,
@@ -63,62 +63,62 @@ export default function ReviewManagement() {
     comment: '',
     images: [],
     pros: [],
-    cons: []
-  });
+    cons: [],
+  })
 
   // Temp inputs for pros/cons
-  const [proInput, setProInput] = useState('');
-  const [conInput, setConInput] = useState('');
+  const [proInput, setProInput] = useState('')
+  const [conInput, setConInput] = useState('')
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token')
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
     if (!token) {
-      navigate('/login');
-      return;
+      navigate('/login')
+      return
     }
-    setCurrentUser(user);
-    fetchReviews();
-  }, [currentPage, filterRating, sortBy, navigate, productId]);
+    setCurrentUser(user)
+    fetchReviews()
+  }, [currentPage, filterRating, sortBy, navigate, productId])
 
   const fetchReviews = async () => {
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
     try {
-      let url = '';
+      let url = ''
       let params = {
         page: currentPage,
         limit: 10,
-        sortBy
-      };
+        sortBy,
+      }
 
       if (productId) {
         // Get reviews for specific product
-        url = `/api/reviews/product/${productId}`;
+        url = `/api/reviews/product/${productId}`
         if (filterRating) {
-          params.rating = filterRating;
+          params.rating = filterRating
         }
       } else {
         // Admin view: all reviews
-        url = '/api/reviews';
+        url = '/api/reviews'
       }
 
-      const response = await axios.get(url, { params });
-      setReviews(response.data.reviews);
-      setTotalReviews(response.data.totalReviews);
-      setCurrentPage(response.data.currentPage);
-      setTotalPages(response.data.totalPages);
+      const response = await axios.get(url, { params })
+      setReviews(response.data.reviews)
+      setTotalReviews(response.data.totalReviews)
+      setCurrentPage(response.data.currentPage)
+      setTotalPages(response.data.totalPages)
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải đánh giá');
+      setError(err.response?.data?.message || 'Lỗi khi tải đánh giá')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // ==================== CREATE REVIEW ====================
 
   const handleCreateReview = () => {
-    setEditingReview(null);
+    setEditingReview(null)
     setReviewForm({
       productId: productId || '',
       rating: 5,
@@ -126,13 +126,13 @@ export default function ReviewManagement() {
       comment: '',
       images: [],
       pros: [],
-      cons: []
-    });
-    setShowReviewForm(true);
-  };
+      cons: [],
+    })
+    setShowReviewForm(true)
+  }
 
   const handleEditReview = (review) => {
-    setEditingReview(review);
+    setEditingReview(review)
     setReviewForm({
       productId: review.product._id || review.product,
       rating: review.rating,
@@ -140,55 +140,55 @@ export default function ReviewManagement() {
       comment: review.comment,
       images: review.images || [],
       pros: review.pros || [],
-      cons: review.cons || []
-    });
-    setShowReviewForm(true);
-  };
+      cons: review.cons || [],
+    })
+    setShowReviewForm(true)
+  }
 
   const handleSaveReview = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
     try {
       if (editingReview) {
-        await axios.put(`/api/reviews/${editingReview._id}`, reviewForm);
-        setSuccess('Cập nhật đánh giá thành công');
+        await axios.put(`/api/reviews/${editingReview._id}`, reviewForm)
+        setSuccess('Cập nhật đánh giá thành công')
       } else {
-        await axios.post('/api/reviews', reviewForm);
-        setSuccess('Thêm đánh giá thành công');
+        await axios.post('/api/reviews', reviewForm)
+        setSuccess('Thêm đánh giá thành công')
       }
-      setShowReviewForm(false);
-      await fetchReviews();
+      setShowReviewForm(false)
+      await fetchReviews()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi lưu đánh giá');
+      setError(err.response?.data?.message || 'Lỗi khi lưu đánh giá')
     }
-  };
+  }
 
   // ==================== DELETE REVIEW ====================
 
   const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa đánh giá này?')) return
 
     try {
-      await axios.delete(`/api/reviews/${reviewId}`);
-      setSuccess('Xóa đánh giá thành công');
-      await fetchReviews();
+      await axios.delete(`/api/reviews/${reviewId}`)
+      setSuccess('Xóa đánh giá thành công')
+      await fetchReviews()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi xóa đánh giá');
+      setError(err.response?.data?.message || 'Lỗi khi xóa đánh giá')
     }
-  };
+  }
 
   // ==================== HELPFUL MARK ====================
 
   const handleMarkHelpful = async (reviewId) => {
     try {
-      await axios.post(`/api/reviews/${reviewId}/helpful`);
-      await fetchReviews();
+      await axios.post(`/api/reviews/${reviewId}/helpful`)
+      await fetchReviews()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi đánh dấu hữu ích');
+      setError(err.response?.data?.message || 'Lỗi khi đánh dấu hữu ích')
     }
-  };
+  }
 
   // ==================== PROS/CONS HELPERS ====================
 
@@ -196,48 +196,48 @@ export default function ReviewManagement() {
     if (proInput.trim()) {
       setReviewForm({
         ...reviewForm,
-        pros: [...reviewForm.pros, proInput.trim()]
-      });
-      setProInput('');
+        pros: [...reviewForm.pros, proInput.trim()],
+      })
+      setProInput('')
     }
-  };
+  }
 
   const handleRemovePro = (index) => {
     setReviewForm({
       ...reviewForm,
-      pros: reviewForm.pros.filter((_, i) => i !== index)
-    });
-  };
+      pros: reviewForm.pros.filter((_, i) => i !== index),
+    })
+  }
 
   const handleAddCon = () => {
     if (conInput.trim()) {
       setReviewForm({
         ...reviewForm,
-        cons: [...reviewForm.cons, conInput.trim()]
-      });
-      setConInput('');
+        cons: [...reviewForm.cons, conInput.trim()],
+      })
+      setConInput('')
     }
-  };
+  }
 
   const handleRemoveCon = (index) => {
     setReviewForm({
       ...reviewForm,
-      cons: reviewForm.cons.filter((_, i) => i !== index)
-    });
-  };
+      cons: reviewForm.cons.filter((_, i) => i !== index),
+    })
+  }
 
   // ==================== PERMISSIONS ====================
 
   const canEditReview = (review) => {
-    return currentUser && review.user._id === currentUser.id;
-  };
+    return currentUser && review.user._id === currentUser.id
+  }
 
   const canDeleteReview = (review) => {
-    return currentUser && (review.user._id === currentUser.id || currentUser.role === 'admin');
-  };
+    return currentUser && (review.user._id === currentUser.id || currentUser.role === 'admin')
+  }
 
   if (loading && reviews.length === 0) {
-    return <div className="review-loading">Đang tải...</div>;
+    return <div className="review-loading">Đang tải...</div>
   }
 
   return (
@@ -261,8 +261,8 @@ export default function ReviewManagement() {
           <select
             value={filterRating}
             onChange={(e) => {
-              setFilterRating(e.target.value);
-              setCurrentPage(1);
+              setFilterRating(e.target.value)
+              setCurrentPage(1)
             }}
             className="filter-select"
           >
@@ -280,8 +280,8 @@ export default function ReviewManagement() {
           <select
             value={sortBy}
             onChange={(e) => {
-              setSortBy(e.target.value);
-              setCurrentPage(1);
+              setSortBy(e.target.value)
+              setCurrentPage(1)
             }}
             className="filter-select"
           >
@@ -307,14 +307,14 @@ export default function ReviewManagement() {
                   {review.user?.avatar ? (
                     <img src={review.user.avatar} alt={review.user.username} />
                   ) : (
-                    <div className="avatar-placeholder">{review.user?.username?.[0]?.toUpperCase()}</div>
+                    <div className="avatar-placeholder">
+                      {review.user?.username?.[0]?.toUpperCase()}
+                    </div>
                   )}
                 </div>
                 <div className="user-info">
                   <div className="user-name">{review.user?.username || 'Người dùng'}</div>
-                  {review.isVerifiedPurchase && (
-                    <span className="verified-badge">Đã mua hàng</span>
-                  )}
+                  {review.isVerifiedPurchase && <span className="verified-badge">Đã mua hàng</span>}
                 </div>
               </div>
 
@@ -373,12 +373,18 @@ export default function ReviewManagement() {
 
                 <div className="review-actions">
                   {canEditReview(review) && (
-                    <button className="btn btn-sm btn-secondary" onClick={() => handleEditReview(review)}>
+                    <button
+                      className="btn btn-sm btn-secondary"
+                      onClick={() => handleEditReview(review)}
+                    >
                       Sửa
                     </button>
                   )}
                   {canDeleteReview(review) && (
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDeleteReview(review._id)}>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDeleteReview(review._id)}
+                    >
                       Xóa
                     </button>
                   )}
@@ -473,7 +479,9 @@ export default function ReviewManagement() {
                   {reviewForm.pros.map((pro, index) => (
                     <li key={index}>
                       {pro}
-                      <button type="button" onClick={() => handleRemovePro(index)}>×</button>
+                      <button type="button" onClick={() => handleRemovePro(index)}>
+                        ×
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -497,14 +505,20 @@ export default function ReviewManagement() {
                   {reviewForm.cons.map((con, index) => (
                     <li key={index}>
                       {con}
-                      <button type="button" onClick={() => handleRemoveCon(index)}>×</button>
+                      <button type="button" onClick={() => handleRemoveCon(index)}>
+                        ×
+                      </button>
                     </li>
                   ))}
                 </ul>
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowReviewForm(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowReviewForm(false)}
+                >
                   Hủy
                 </button>
                 <button type="submit" className="btn btn-primary">
@@ -516,5 +530,5 @@ export default function ReviewManagement() {
         </div>
       )}
     </div>
-  );
+  )
 }

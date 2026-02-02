@@ -7,7 +7,7 @@ import './ReviewCard.css'
 
 const ReviewCard = ({ review, onUpdate, onDelete, onMarkHelpful }) => {
   const { user } = useContext(AuthContext)
-   
+
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [editedReview, setEditedReview] = useState({

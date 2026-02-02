@@ -615,15 +615,22 @@ const ProductDetailPageUltra = () => {
                 const getColorHex = (colorName) => {
                   const name = (colorName || '').toLowerCase()
                   // Black / Đen
-                  if (name.includes('black') || name.includes('đen') || name.includes('core black')) return '#1a1a1a'
+                  if (name.includes('black') || name.includes('đen') || name.includes('core black'))
+                    return '#1a1a1a'
                   // White / Trắng
-                  if (name.includes('white') || name.includes('trắng') || name.includes('cloud white')) return '#ffffff'
+                  if (
+                    name.includes('white') ||
+                    name.includes('trắng') ||
+                    name.includes('cloud white')
+                  )
+                    return '#ffffff'
                   // Navy
                   if (name.includes('navy')) return '#001f3f'
                   // Red / Đỏ
                   if (name.includes('red') || name.includes('đỏ')) return '#ef4444'
                   // Gray / Grey / Xám
-                  if (name.includes('gray') || name.includes('grey') || name.includes('xám')) return '#9ca3af'
+                  if (name.includes('gray') || name.includes('grey') || name.includes('xám'))
+                    return '#9ca3af'
                   // Pink / Hồng
                   if (name.includes('pink') || name.includes('hồng')) return '#ec4899'
                   // Purple / Tím
@@ -668,7 +675,11 @@ const ProductDetailPageUltra = () => {
                                 className="color-preview"
                                 style={{
                                   backgroundColor: getColorHex(color),
-                                  border: color.toLowerCase().includes('white') || color.toLowerCase().includes('trắng') ? '1px solid #ddd' : 'none',
+                                  border:
+                                    color.toLowerCase().includes('white') ||
+                                    color.toLowerCase().includes('trắng')
+                                      ? '1px solid #ddd'
+                                      : 'none',
                                 }}
                               />
                               <span className="color-name">{color}</span>

@@ -7,6 +7,7 @@ import { Review } from '#models/review'
 import { Category } from '#models/category'
 import { Brand } from '#models/brand'
 import { Settings } from '#models/settings'
+import { ValidationHelper } from '#utils/validation'
 
 export default class AdminController {
   /**
@@ -98,19 +99,55 @@ export default class AdminController {
    */
   async dashboard({ inertia }: HttpContext) {
     try {
-      // Get basic counts
-      const [totalClients, totalPartners, totalAdmins, totalProducts, totalOrders] =
-        await Promise.all([
-          User.countDocuments({ role: 'client' }),
-          User.countDocuments({ role: 'partner' }),
-          User.countDocuments({ role: 'admin' }),
-          Product.countDocuments(),
-          Order.countDocuments(),
-        ])
+      // Get comprehensive statistics
+      const [
+        totalClients,
+        totalPartners,
+        totalAdmins,
+        totalProducts,
+        totalOrders,
+        pendingPartners,
+        activeProducts,
+        outOfStockProducts,
+        lowStockProducts,
+        totalReviews,
+        pendingReviews,
+        pendingOrders,
+        deliveredOrders,
+      ] = await Promise.all([
+        User.countDocuments({ role: 'client' }),
+        User.countDocuments({ role: 'partner' }),
+        User.countDocuments({ role: 'admin' }),
+        Product.countDocuments(),
+        Order.countDocuments(),
+        User.countDocuments({ role: 'partner', isApproved: false }),
+        Product.countDocuments({ 'variants.stock': { $gt: 0 } }),
+        Product.countDocuments({
+          $or: [{ 'variants.stock': 0 }, { 'variants.stock': { $exists: false } }],
+        }),
+        Product.countDocuments({
+          'variants.stock': { $gt: 0, $lte: 10 },
+        }),
+        Review.countDocuments(),
+        Review.countDocuments({ isApproved: false }),
+        Order.countDocuments({ status: 'pending' }),
+        Order.countDocuments({ status: 'delivered' }),
+      ])
 
       // Revenue statistics
       const paidOrders = await Order.find({ paymentStatus: 'paid' })
       const totalRevenue = paidOrders.reduce((sum, order) => sum + order.totalAmount, 0)
+
+      // Order statistics by status
+      const orderStats = await Order.aggregate([
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+            total: { $sum: '$totalAmount' },
+          },
+        },
+      ])
 
       // Recent orders
       const recentOrders = await Order.find()
@@ -125,17 +162,31 @@ export default class AdminController {
         customerName: order.user?.username || 'Guest',
         total: order.totalAmount,
         status: order.status,
+        createdAt: order.createdAt,
       }))
 
       // Render Inertia page
       return inertia.render('admin/dashboard', {
         stats: {
           totalUsers: totalClients + totalPartners + totalAdmins,
+          totalClients,
+          totalPartners,
+          totalAdmins,
           totalProducts,
           totalOrders,
+          pendingOrders,
+          deliveredOrders,
+          pendingPartners,
           totalRevenue,
+          activeProducts,
+          outOfStockProducts,
+          lowStockProducts,
+          totalReviews,
+          pendingReviews,
         },
+        orderStats,
         recentOrders: formattedOrders,
+        currentPath: '/admin/dashboard',
       })
     } catch (error) {
       console.error('❌ Admin dashboard error:', error)
@@ -161,10 +212,11 @@ export default class AdminController {
       }
 
       if (search) {
+        const safeSearchRegex = ValidationHelper.createSafeSearchRegex(search)
         filter.$or = [
-          { username: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { shopName: { $regex: search, $options: 'i' } },
+          { username: { $regex: safeSearchRegex } },
+          { email: { $regex: safeSearchRegex } },
+          { shopName: { $regex: safeSearchRegex } },
         ]
       }
 
@@ -210,7 +262,8 @@ export default class AdminController {
       }
 
       if (search) {
-        filter.orderNumber = { $regex: search, $options: 'i' }
+        const safeSearchRegex = ValidationHelper.createSafeSearchRegex(search)
+        filter.orderNumber = { $regex: safeSearchRegex }
       }
 
       if (startDate || endDate) {
@@ -393,10 +446,8 @@ export default class AdminController {
       }
 
       if (search) {
-        filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { brand: { $regex: search, $options: 'i' } },
-        ]
+        const safeSearchRegex = ValidationHelper.createSafeSearchRegex(search)
+        filter.$or = [{ name: { $regex: safeSearchRegex } }, { brand: { $regex: safeSearchRegex } }]
       }
 
       const pageNum = Number(page)

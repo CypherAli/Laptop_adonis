@@ -27,3 +27,6 @@ server-error.log
 
 # Platform specific
 .DS_Store
+
+# Old backoffice folder (not used - admin uses Inertia.js)
+backoffice/

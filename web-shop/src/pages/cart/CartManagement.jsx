@@ -7,14 +7,14 @@ import './CartManagement.css'
  * ============================================
  * CART MANAGEMENT SYSTEM - REACT TEMPLATE
  * ============================================
- * 
+ *
  * 5 CORE FUNCTIONS:
  * 1. getCart() - GET /api/cart - Lấy giỏ hàng hiện tại
  * 2. addItem() - POST /api/cart/items - Thêm sản phẩm vào giỏ
  * 3. updateItem() - PUT /api/cart/items/:id - Cập nhật số lượng
  * 4. removeItem() - DELETE /api/cart/items/:id - Xóa sản phẩm
  * 5. clearCart() - DELETE /api/cart - Xóa toàn bộ giỏ hàng
- * 
+ *
  * BUSINESS LOGIC:
  * - Mỗi user có 1 cart duy nhất
  * - Cart items có product + variant (sku)
@@ -224,9 +224,7 @@ const CartManagement = () => {
                 <div className="item-details">
                   <h3>{item.product?.name}</h3>
                   <p className="item-brand">{item.product?.brand}</p>
-                  <p className="item-variant">
-                    Phân loại: {item.variantSku}
-                  </p>
+                  <p className="item-variant">Phân loại: {item.variantSku}</p>
                   <p className="item-seller">
                     Nhà bán: {item.sellerName || item.seller?.shopName || item.seller?.username}
                   </p>
@@ -313,10 +311,7 @@ const CartManagement = () => {
               Thanh Toán
             </button>
 
-            <button
-              className="btn btn-secondary btn-block"
-              onClick={() => navigate('/products')}
-            >
+            <button className="btn btn-secondary btn-block" onClick={() => navigate('/products')}>
               Tiếp Tục Mua Sắm
             </button>
           </div>

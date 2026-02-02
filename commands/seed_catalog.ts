@@ -48,7 +48,19 @@ export default class SeedCatalog extends BaseCommand {
   }
 
   async seedCategories(Category: any) {
-    const categoryData = [
+    interface CategoryData {
+      name: string
+      description: string
+      isActive: boolean
+      order: number
+      createdAt: Date
+      updatedAt: Date
+      slug?: string
+      level?: number
+      parentId?: any
+    }
+
+    const categoryData: CategoryData[] = [
       // Root categories
       {
         name: 'Giày Thể Thao',
@@ -94,14 +106,14 @@ export default class SeedCatalog extends BaseCommand {
 
     // Auto-generate slugs
     categoryData.forEach((cat) => {
-      cat['slug'] = cat.name
+      cat.slug = cat.name
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/đ/g, 'd')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
-      cat['level'] = 0
+      cat.level = 0
     })
 
     const rootResult = await Category.insertMany(categoryData)
@@ -109,7 +121,7 @@ export default class SeedCatalog extends BaseCommand {
 
     // Create subcategories for Giày Thể Thao
     const sportsId = rootCategories[0]
-    const subCats1 = [
+    const subCats1: CategoryData[] = [
       {
         name: 'Giày Chạy Bộ',
         description: 'Chuyên dụng cho chạy bộ',
@@ -162,7 +174,7 @@ export default class SeedCatalog extends BaseCommand {
       },
     ]
     subCats1.forEach((cat) => {
-      cat['slug'] = cat.name
+      cat.slug = cat.name
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')

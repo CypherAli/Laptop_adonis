@@ -1,151 +1,151 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../../../api/axiosConfig';
-import './BrandsManagement.css';
+import React, { useState, useEffect } from 'react'
+import axios from '../../../api/axiosConfig'
+import './BrandsManagement.css'
 
 export default function BrandsManagement() {
-  const [brands, setBrands] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  
+  const [brands, setBrands] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
   // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+
   // Form state
-  const [showForm, setShowForm] = useState(false);
-  const [editingBrand, setEditingBrand] = useState(null);
+  const [showForm, setShowForm] = useState(false)
+  const [editingBrand, setEditingBrand] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     logo: '',
     website: '',
     categories: [],
-    isActive: true
-  });
+    isActive: true,
+  })
 
   useEffect(() => {
-    loadBrands();
-    loadCategories();
-  }, [currentPage, searchTerm, categoryFilter]);
+    loadBrands()
+    loadCategories()
+  }, [currentPage, searchTerm, categoryFilter])
 
   const loadBrands = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const params = {
         page: currentPage,
         limit: 12,
         search: searchTerm || undefined,
-        categoryId: categoryFilter || undefined
-      };
-      const response = await axios.get('/admin/brands', { params });
-      setBrands(response.data.brands || []);
-      setTotalPages(response.data.totalPages || 1);
+        categoryId: categoryFilter || undefined,
+      }
+      const response = await axios.get('/admin/brands', { params })
+      setBrands(response.data.brands || [])
+      setTotalPages(response.data.totalPages || 1)
     } catch (err) {
-      setError('Không thể tải thương hiệu');
-      console.error(err);
+      setError('Không thể tải thương hiệu')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const loadCategories = async () => {
     try {
-      const response = await axios.get('/admin/categories/tree');
-      setCategories(response.data.tree || []);
+      const response = await axios.get('/admin/categories/tree')
+      setCategories(response.data.tree || [])
     } catch (err) {
-      console.error('Không thể tải danh mục:', err);
+      console.error('Không thể tải danh mục:', err)
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
     // Validation
     if (!formData.name.trim()) {
-      setError('Tên thương hiệu không được để trống');
-      return;
+      setError('Tên thương hiệu không được để trống')
+      return
     }
 
     if (formData.name.length > 100) {
-      setError('Tên thương hiệu không được quá 100 ký tự');
-      return;
+      setError('Tên thương hiệu không được quá 100 ký tự')
+      return
     }
 
     if (formData.logo && !isValidUrl(formData.logo)) {
-      setError('URL logo không hợp lệ');
-      return;
+      setError('URL logo không hợp lệ')
+      return
     }
 
     if (formData.website && !isValidUrl(formData.website)) {
-      setError('URL website không hợp lệ');
-      return;
+      setError('URL website không hợp lệ')
+      return
     }
 
     try {
       if (editingBrand) {
-        await axios.put(`/admin/brands/${editingBrand._id}`, formData);
-        setSuccess('Cập nhật thương hiệu thành công');
+        await axios.put(`/admin/brands/${editingBrand._id}`, formData)
+        setSuccess('Cập nhật thương hiệu thành công')
       } else {
-        await axios.post('/admin/brands', formData);
-        setSuccess('Tạo thương hiệu mới thành công');
+        await axios.post('/admin/brands', formData)
+        setSuccess('Tạo thương hiệu mới thành công')
       }
-      
-      resetForm();
-      loadBrands();
+
+      resetForm()
+      loadBrands()
     } catch (err) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra');
+      setError(err.response?.data?.message || 'Có lỗi xảy ra')
     }
-  };
+  }
 
   const isValidUrl = (string) => {
     try {
-      new URL(string);
-      return true;
+      new URL(string)
+      return true
     } catch (_) {
-      return false;
+      return false
     }
-  };
+  }
 
   const handleEdit = (brand) => {
-    setEditingBrand(brand);
+    setEditingBrand(brand)
     setFormData({
       name: brand.name,
       description: brand.description || '',
       logo: brand.logo || '',
       website: brand.website || '',
-      categories: brand.categories?.map(cat => cat._id || cat) || [],
-      isActive: brand.isActive
-    });
-    setShowForm(true);
-  };
+      categories: brand.categories?.map((cat) => cat._id || cat) || [],
+      isActive: brand.isActive,
+    })
+    setShowForm(true)
+  }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa thương hiệu này?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa thương hiệu này?')) return
 
     try {
-      await axios.delete(`/admin/brands/${id}`);
-      setSuccess('Xóa thương hiệu thành công');
-      loadBrands();
+      await axios.delete(`/admin/brands/${id}`)
+      setSuccess('Xóa thương hiệu thành công')
+      loadBrands()
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể xóa thương hiệu');
+      setError(err.response?.data?.message || 'Không thể xóa thương hiệu')
     }
-  };
+  }
 
   const handleToggleActive = async (id, currentStatus) => {
     try {
-      await axios.put(`/admin/brands/${id}/toggle-active`);
-      setSuccess(currentStatus ? 'Đã ẩn thương hiệu' : 'Đã kích hoạt thương hiệu');
-      loadBrands();
+      await axios.put(`/admin/brands/${id}/toggle-active`)
+      setSuccess(currentStatus ? 'Đã ẩn thương hiệu' : 'Đã kích hoạt thương hiệu')
+      loadBrands()
     } catch (err) {
-      setError('Không thể thay đổi trạng thái');
+      setError('Không thể thay đổi trạng thái')
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -154,36 +154,36 @@ export default function BrandsManagement() {
       logo: '',
       website: '',
       categories: [],
-      isActive: true
-    });
-    setEditingBrand(null);
-    setShowForm(false);
-  };
+      isActive: true,
+    })
+    setEditingBrand(null)
+    setShowForm(false)
+  }
 
   // Get flat categories for selection
   const getFlatCategories = (cats, level = 0, result = []) => {
-    if (!Array.isArray(cats)) return result;
-    cats.forEach(cat => {
-      result.push({ ...cat, level });
+    if (!Array.isArray(cats)) return result
+    cats.forEach((cat) => {
+      result.push({ ...cat, level })
       if (cat.children && cat.children.length > 0) {
-        getFlatCategories(cat.children, level + 1, result);
+        getFlatCategories(cat.children, level + 1, result)
       }
-    });
-    return result;
-  };
+    })
+    return result
+  }
 
-  const flatCategories = getFlatCategories(categories);
+  const flatCategories = getFlatCategories(categories)
 
   const handleCategoryToggle = (categoryId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       categories: prev.categories.includes(categoryId)
-        ? prev.categories.filter(id => id !== categoryId)
-        : [...prev.categories, categoryId]
-    }));
-  };
+        ? prev.categories.filter((id) => id !== categoryId)
+        : [...prev.categories, categoryId],
+    }))
+  }
 
-  if (loading) return <div className="loading">Đang tải...</div>;
+  if (loading) return <div className="loading">Đang tải...</div>
 
   return (
     <div className="brands-management">
@@ -250,14 +250,16 @@ export default function BrandsManagement() {
             <div className="form-group">
               <label>Danh mục liên quan</label>
               <div className="categories-checkboxes">
-                {flatCategories.map(cat => (
+                {flatCategories.map((cat) => (
                   <label key={cat._id} className="checkbox-label">
                     <input
                       type="checkbox"
                       checked={formData.categories.includes(cat._id)}
                       onChange={() => handleCategoryToggle(cat._id)}
                     />
-                    <span>{'─'.repeat(cat.level)} {cat.name}</span>
+                    <span>
+                      {'─'.repeat(cat.level)} {cat.name}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -294,20 +296,20 @@ export default function BrandsManagement() {
           placeholder="Tìm kiếm thương hiệu..."
           value={searchTerm}
           onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
+            setSearchTerm(e.target.value)
+            setCurrentPage(1)
           }}
         />
         <select
           className="filter-select"
           value={categoryFilter}
           onChange={(e) => {
-            setCategoryFilter(e.target.value);
-            setCurrentPage(1);
+            setCategoryFilter(e.target.value)
+            setCurrentPage(1)
           }}
         >
           <option value="">Tất cả danh mục</option>
-          {flatCategories.map(cat => (
+          {flatCategories.map((cat) => (
             <option key={cat._id} value={cat._id}>
               {'─'.repeat(cat.level)} {cat.name}
             </option>
@@ -318,11 +320,9 @@ export default function BrandsManagement() {
       {/* Brands Grid */}
       <div className="brands-grid">
         {brands.length === 0 ? (
-          <div className="empty-state">
-            Chưa có thương hiệu nào. Hãy thêm thương hiệu đầu tiên!
-          </div>
+          <div className="empty-state">Chưa có thương hiệu nào. Hãy thêm thương hiệu đầu tiên!</div>
         ) : (
-          brands.map(brand => (
+          brands.map((brand) => (
             <div key={brand._id} className="brand-card">
               {brand.logo && (
                 <div className="brand-logo">
@@ -332,12 +332,10 @@ export default function BrandsManagement() {
               <div className="brand-info">
                 <h3>{brand.name}</h3>
                 <p className="brand-slug">/{brand.slug}</p>
-                {brand.description && (
-                  <p className="brand-description">{brand.description}</p>
-                )}
+                {brand.description && <p className="brand-description">{brand.description}</p>}
                 {brand.categories && brand.categories.length > 0 && (
                   <div className="brand-categories">
-                    {brand.categories.slice(0, 3).map(cat => (
+                    {brand.categories.slice(0, 3).map((cat) => (
                       <span key={cat._id || cat} className="category-tag">
                         {cat.name || cat}
                       </span>
@@ -360,7 +358,7 @@ export default function BrandsManagement() {
                 <button className="btn-edit" onClick={() => handleEdit(brand)}>
                   Sửa
                 </button>
-                <button 
+                <button
                   className="btn-toggle"
                   onClick={() => handleToggleActive(brand._id, brand.isActive)}
                 >
@@ -378,13 +376,12 @@ export default function BrandsManagement() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="pagination">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          >
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>
             Trước
           </button>
-          <span>Trang {currentPage} / {totalPages}</span>
+          <span>
+            Trang {currentPage} / {totalPages}
+          </span>
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(currentPage + 1)}
@@ -394,5 +391,5 @@ export default function BrandsManagement() {
         </div>
       )}
     </div>
-  );
+  )
 }

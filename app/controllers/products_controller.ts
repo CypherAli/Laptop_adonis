@@ -4,8 +4,25 @@ import { Product } from '#models/product'
 import { Review } from '#models/review'
 import { Cart } from '#models/cart'
 import { User } from '#models/user'
+import { ValidationHelper } from '#utils/validation'
 
 export default class ProductsController {
+  /**
+   * Helper: Calculate total stock from product variants
+   */
+  private calculateTotalStock(product: any): number {
+    return product.variants?.reduce((sum: number, v: any) => sum + (v.stock || 0), 0) || 0
+  }
+
+  /**
+   * Helper: Get product status based on stock
+   */
+  private getStockStatus(totalStock: number): string {
+    if (totalStock === 0) return 'Out of Stock'
+    if (totalStock <= 10) return 'Low Stock'
+    return 'In Stock'
+  }
+
   /**
    * Get partner's own products
    */
@@ -69,12 +86,13 @@ export default class ProductsController {
       const filter: any = {}
       const andConditions: any[] = []
 
-      // Search filter
+      // Search filter - SECURITY: Use escaped regex to prevent ReDoS
       if (search) {
+        const safeSearchRegex = ValidationHelper.createSafeSearchRegex(search)
         andConditions.push({
           $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } },
+            { name: { $regex: safeSearchRegex } },
+            { description: { $regex: safeSearchRegex } },
           ],
         })
       }
@@ -111,7 +129,7 @@ export default class ProductsController {
         }
       }
 
-      // Color filter (search in variants)
+      // Color filter (search in variants) - SECURITY: Use escaped regex
       if (color) {
         const colors = color
           .split(',')
@@ -119,12 +137,14 @@ export default class ProductsController {
           .filter((c: string) => c)
         if (colors.length > 0) {
           andConditions.push({
-            'variants.color': { $in: colors.map((c: string) => new RegExp(c, 'i')) },
+            'variants.color': {
+              $in: colors.map((c: string) => ValidationHelper.createSafeSearchRegex(c)),
+            },
           })
         }
       }
 
-      // Material filter (search in variants)
+      // Material filter (search in variants) - SECURITY: Use escaped regex
       if (material) {
         const materials = material
           .split(',')
@@ -132,7 +152,9 @@ export default class ProductsController {
           .filter((m: string) => m)
         if (materials.length > 0) {
           andConditions.push({
-            'variants.material': { $in: materials.map((m: string) => new RegExp(m, 'i')) },
+            'variants.material': {
+              $in: materials.map((m: string) => ValidationHelper.createSafeSearchRegex(m)),
+            },
           })
         }
       }
@@ -168,11 +190,7 @@ export default class ProductsController {
 
       // Execute query
       const [products, total] = await Promise.all([
-        Product.find(filter)
-          .sort(sort)
-          .skip(skip)
-          .limit(limitNum)
-          .lean(),
+        Product.find(filter).sort(sort).skip(skip).limit(limitNum).lean(),
         Product.countDocuments(filter),
       ])
 
@@ -549,6 +567,223 @@ export default class ProductsController {
         message: 'Lỗi server',
         error: error.message,
       })
+    }
+  }
+
+  /**
+   * Show products page (Inertia - Admin only)
+   */
+  async showProducts({ inertia, request }: HttpContext) {
+    const { page = 1, limit = 20, search, status } = request.qs()
+
+    const filter: any = {}
+    if (search) {
+      const searchRegex = new RegExp(search, 'i')
+      filter.$or = [{ name: searchRegex }, { brand: searchRegex }, { description: searchRegex }]
+    }
+
+    // Note: Stock filtering done after fetch due to variant complexity
+    const pageNum = Number(page)
+    const limitNum = Number(limit)
+    const skip = (pageNum - 1) * limitNum
+
+    // Fetch all products once for both display and stats
+    const allProducts = await Product.find(filter)
+      .populate('createdBy', 'username shopName email role')
+      .sort({ createdAt: -1 })
+      .lean()
+
+    // Apply stock-based filtering
+    let filteredProducts = allProducts
+    if (status) {
+      filteredProducts = allProducts.filter((product: any) => {
+        const totalStock = this.calculateTotalStock(product)
+        if (status === 'active') return totalStock > 10
+        if (status === 'outOfStock') return totalStock === 0
+        if (status === 'lowStock') return totalStock > 0 && totalStock <= 10
+        return true
+      })
+    }
+
+    // Pagination
+    const total = filteredProducts.length
+    const products = filteredProducts.slice(skip, skip + limitNum)
+
+    // Calculate stats from all products
+    const statsData = allProducts.reduce(
+      (acc, product: any) => {
+        const totalStock = this.calculateTotalStock(product)
+        acc.total++
+        if (totalStock > 10) acc.inStock++
+        else if (totalStock > 0) acc.lowStock++
+        else acc.outOfStock++
+        return acc
+      },
+      { total: 0, inStock: 0, lowStock: 0, outOfStock: 0 }
+    )
+
+    return inertia.render('admin/products', {
+      products: products.map((product: any) => {
+        const totalStock = this.calculateTotalStock(product)
+        return {
+          id: product._id.toString(),
+          name: product.name,
+          brand: product.brand,
+          price: product.basePrice,
+          stock: totalStock,
+          images: product.images,
+          variantCount: product.variants?.length || 0,
+          status: this.getStockStatus(totalStock),
+          createdBy: product.createdBy
+            ? {
+                id: product.createdBy._id?.toString(),
+                username: product.createdBy.username,
+                shopName: product.createdBy.shopName,
+                role: product.createdBy.role,
+              }
+            : null,
+          createdAt: product.createdAt,
+        }
+      }),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      stats: {
+        total: statsData.total,
+        inStock: statsData.inStock,
+        lowStock: statsData.lowStock,
+        outOfStock: statsData.outOfStock,
+      },
+      filters: { search, status },
+      currentPath: '/admin/products',
+    })
+  }
+
+  /**
+   * Show create product page (Inertia - Admin only)
+   */
+  async createProduct({ inertia }: HttpContext) {
+    // Import Brand and Category models
+    const { Brand } = await import('#models/brand')
+    const { Category } = await import('#models/category')
+    
+    const [brands, categories] = await Promise.all([
+      Brand.find({ isActive: true }).sort({ name: 1 }).lean(),
+      Category.find({ isActive: true }).sort({ name: 1 }).lean(),
+    ])
+
+    return inertia.render('admin/products/create', {
+      brands: brands.map((b: any) => ({
+        _id: b._id.toString(),
+        name: b.name,
+      })),
+      categories: categories.map((c: any) => ({
+        _id: c._id.toString(),
+        name: c.name,
+      })),
+      currentPath: '/admin/products/create',
+    })
+  }
+
+  /**
+   * Store new product (Admin Inertia route)
+   */
+  async storeProduct({ request, response, session }: HttpContext) {
+    try {
+      const user = (request as any).user
+
+      const data = request.only([
+        'name',
+        'description',
+        'brand',
+        'category',
+        'basePrice',
+        'images',
+        'variants',
+      ])
+
+      // Create product
+      const product = await Product.create({
+        ...data,
+        createdBy: user?.id || null,
+      })
+
+      session.flash('success', 'Tạo sản phẩm thành công')
+      return response.redirect('/admin/products')
+    } catch (error) {
+      console.error('Store product error:', error)
+      session.flash('error', 'Lỗi khi tạo sản phẩm')
+      return response.redirect().back()
+    }
+  }
+
+  /**
+   * Update product (Admin Inertia route)
+   */
+  async updateProduct({ request, response, session }: HttpContext) {
+    try {
+      const productId = request.param('id')
+      const { name, brand, basePrice } = request.body()
+
+      const product = await Product.findById(productId)
+      if (!product) {
+        session.flash('error', 'Product not found')
+        return response.redirect().back()
+      }
+
+      // Track if basePrice changed
+      const basePriceChanged = product.basePrice !== Number(basePrice)
+
+      product.name = name
+      product.brand = brand
+      product.basePrice = Number(basePrice)
+
+      // IMPORTANT: Sync basePrice to all variant prices
+      // This ensures web-shop displays updated prices
+      if (basePriceChanged && product.variants && product.variants.length > 0) {
+        product.variants = product.variants.map((variant: any) => ({
+          ...variant,
+          price: Number(basePrice),
+          // Keep originalPrice if exists
+          originalPrice: variant.originalPrice || variant.price,
+        }))
+      }
+
+      await product.save()
+
+      session.flash('success', 'Product and all variants updated successfully')
+      return response.redirect().back()
+    } catch (error) {
+      console.error('Update product error:', error)
+      session.flash('error', 'Failed to update product')
+      return response.redirect().back()
+    }
+  }
+
+  /**
+   * Delete product (Admin Inertia route)
+   */
+  async deleteProduct({ request, response, session }: HttpContext) {
+    try {
+      const productId = request.param('id')
+
+      const product = await Product.findById(productId)
+      if (!product) {
+        session.flash('error', 'Product not found')
+        return response.redirect().back()
+      }
+
+      await product.deleteOne()
+
+      session.flash('success', 'Product deleted successfully')
+      return response.redirect().back()
+    } catch (error) {
+      console.error('Delete product error:', error)
+      session.flash('error', 'Failed to delete product')
+      return response.redirect().back()
     }
   }
 }

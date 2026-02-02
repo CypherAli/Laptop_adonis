@@ -40,7 +40,6 @@ const WishlistPage = () => {
     return 0
   }
 
-   
   const handleAddToCart = (product) => {
     addToCart(product)
     alert(`${product.name} has been added to cart!`)

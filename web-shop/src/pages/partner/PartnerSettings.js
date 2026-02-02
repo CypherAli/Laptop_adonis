@@ -128,11 +128,11 @@ const PartnerSettings = () => {
 
       console.log('Profile update response:', response.data)
       setMessage({ type: 'success', text: 'Cập nhật thông tin thành công!' })
-      
+
       // Update user details in context
       if (response.data.user) {
         updateUser(response.data.user)
-        
+
         // Update local profileData state to reflect changes
         setProfileData({
           shopName: response.data.user.shopName || '',
@@ -145,7 +145,7 @@ const PartnerSettings = () => {
           bankAccount: response.data.user.bankAccount || '',
           bankName: response.data.user.bankName || '',
         })
-        
+
         // Update avatar preview if changed
         if (response.data.user.avatar) {
           setAvatarPreview(response.data.user.avatar)
@@ -154,9 +154,9 @@ const PartnerSettings = () => {
     } catch (err) {
       console.error('Profile update error:', err)
       console.error('Error response:', err.response)
-      
+
       let errorMessage = 'Không thể cập nhật. Vui lòng thử lại.'
-      
+
       if (err.response) {
         // Server responded with error
         errorMessage = err.response.data?.message || errorMessage
@@ -169,7 +169,7 @@ const PartnerSettings = () => {
         // Error in request setup
         console.error('Request setup error:', err.message)
       }
-      
+
       setMessage({
         type: 'error',
         text: errorMessage,
@@ -326,9 +326,7 @@ const PartnerSettings = () => {
                     <input
                       type="text"
                       value={profileData.shopName}
-                      onChange={(e) =>
-                        setProfileData({ ...profileData, shopName: e.target.value })
-                      }
+                      onChange={(e) => setProfileData({ ...profileData, shopName: e.target.value })}
                       required
                     />
                   </div>
@@ -422,9 +420,7 @@ const PartnerSettings = () => {
                     <input
                       type="text"
                       value={profileData.bankName}
-                      onChange={(e) =>
-                        setProfileData({ ...profileData, bankName: e.target.value })
-                      }
+                      onChange={(e) => setProfileData({ ...profileData, bankName: e.target.value })}
                     />
                   </div>
                 </div>
@@ -661,30 +657,36 @@ const PartnerSettings = () => {
                 <div className="form-group">
                   <label>Ngày làm việc</label>
                   <div className="days-selector">
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(
-                      (day) => (
-                        <label key={day} className="day-checkbox">
-                          <input
-                            type="checkbox"
-                            checked={storeSettings.workingDays.includes(day)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setStoreSettings({
-                                  ...storeSettings,
-                                  workingDays: [...storeSettings.workingDays, day],
-                                })
-                              } else {
-                                setStoreSettings({
-                                  ...storeSettings,
-                                  workingDays: storeSettings.workingDays.filter((d) => d !== day),
-                                })
-                              }
-                            }}
-                          />
-                          {day}
-                        </label>
-                      )
-                    )}
+                    {[
+                      'Monday',
+                      'Tuesday',
+                      'Wednesday',
+                      'Thursday',
+                      'Friday',
+                      'Saturday',
+                      'Sunday',
+                    ].map((day) => (
+                      <label key={day} className="day-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={storeSettings.workingDays.includes(day)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setStoreSettings({
+                                ...storeSettings,
+                                workingDays: [...storeSettings.workingDays, day],
+                              })
+                            } else {
+                              setStoreSettings({
+                                ...storeSettings,
+                                workingDays: storeSettings.workingDays.filter((d) => d !== day),
+                              })
+                            }
+                          }}
+                        />
+                        {day}
+                      </label>
+                    ))}
                   </div>
                 </div>
               </div>

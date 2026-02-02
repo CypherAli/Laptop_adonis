@@ -5,12 +5,11 @@ import AuthContext from '../../context/AuthContext'
 import './NotificationBell.css'
 
 const NotificationBell = () => {
-   
   const [notifications] = useState([])
-   
+
   const [unreadCount] = useState(0)
   const [showDropdown, setShowDropdown] = useState(false)
-   
+
   const [loading] = useState(false)
   const { user } = useContext(AuthContext)
   const navigate = useNavigate()

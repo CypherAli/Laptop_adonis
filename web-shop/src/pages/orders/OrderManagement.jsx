@@ -6,36 +6,36 @@ import './OrderManagement.css'
  * ============================================
  * ORDER MANAGEMENT SYSTEM - REACT TEMPLATE
  * ============================================
- * 
+ *
  * PHÂN QUYỀN HỆ THỐNG:
- * 
+ *
  * 1. ADMIN (Backend Only):
  *    - Quản lý toàn bộ cấu hình, nội dung hệ thống
  *    - Không sử dụng giao diện này (có admin dashboard riêng)
  *    - Có quyền cao nhất để debug/fix data
- * 
+ *
  * 2. PARTNER/SELLER (Frontend - Shop Owner):
  *    - Xem orders có sản phẩm của họ
  *    - Cập nhật trạng thái đơn hàng (confirmed → shipped)
  *    - KHÔNG được hủy đơn
  *    - KHÔNG được xem orders của shop khác
- * 
+ *
  * 3. USER/CUSTOMER (Frontend - Người mua):
  *    - Xem orders của chính họ
  *    - Tạo order mới
  *    - Hủy đơn hàng (nếu chưa shipped)
  *    - KHÔNG được đổi trạng thái
- * 
+ *
  * 4. GUEST (Frontend - Chưa đăng nhập):
  *    - KHÔNG truy cập được trang này
  *    → Redirect về /login
- * 
+ *
  * DATA SNAPSHOT PATTERN:
  * - Order items lưu SNAPSHOT (name, price, sellerName...) tại thời điểm mua
  * - LÝ DO: Hóa đơn phải BẤT BIẾN theo chuẩn kế toán
  * - Nếu seller đổi tên → order cũ VẪN hiển thị tên lúc mua (ĐÚNG pháp lý)
  * - Không populate từ Product/User → tránh data bị thay đổi
- * 
+ *
  * 5 CORE FUNCTIONS:
  * 1. fetchOrders() - GET /api/orders - List với pagination
  * 2. fetchOrderDetail() - GET /api/orders/:id - Chi tiết 1 order
@@ -91,113 +91,126 @@ const OrderManagement = () => {
   // ==================== PERMISSION CHECKS ====================
   /**
    * hasPermission() - Kiểm tra quyền theo ROLE
-   * 
+   *
    * LƯU Ý: Component này là cho FRONTEND users (Partner + Customer)
    * Admin có dashboard riêng, nhưng vẫn có full permission để debug
-   * 
+   *
    * CUSTOMER (role: 'customer') - NGƯỜI MUA:
    *   - VIEW_OWN_ORDERS - Xem đơn hàng của họ
    *   - CREATE_ORDER - Đặt hàng mới
    *   - CANCEL_ORDER - Hủy đơn (nếu chưa shipped)
    *   - UPDATE_ORDER_STATUS - KHÔNG đổi trạng thái
-   * 
+   *
    * PARTNER/SELLER (role: 'partner') - CHỦ SHOP:
    *   - VIEW_OWN_ORDERS - Xem đơn có sản phẩm của shop họ
    *   - CREATE_ORDER - Đặt hàng (nếu họ cũng mua)
    *   - UPDATE_ORDER_STATUS - Đổi status: confirmed → processing → shipped
    *   - CANCEL_ORDER - KHÔNG được hủy (chỉ customer/admin)
-   * 
+   *
    * ADMIN (role: 'admin') - QUẢN TRỊ (Backend):
    *   - Thông thường KHÔNG dùng giao diện này
    *   - Full permissions (để debug/support)
    *   - Có admin dashboard riêng với nhiều tính năng hơn
    */
-  const hasPermission = useCallback((action) => {
-    if (!currentUser) {
-      console.log('❌ Permission denied: No user logged in')
-      return false
-    }
+  const hasPermission = useCallback(
+    (action) => {
+      if (!currentUser) {
+        console.log('❌ Permission denied: No user logged in')
+        return false
+      }
 
-    const permissions = {
-      VIEW_OWN_ORDERS: true, // TẤT CẢ users
-      UPDATE_ORDER_STATUS: ['admin', 'partner'].includes(currentUser.role), // Admin + Partner
-      CREATE_ORDER: true, // TẤT CẢ users
-      // CANCEL_ORDER: Không dùng hasPermission!
-      // Backend check ownership (order.user === userId || isAdmin), không check role
-      // → Xem canCancelOrder() bên dưới
-    }
+      const permissions = {
+        VIEW_OWN_ORDERS: true, // TẤT CẢ users
+        UPDATE_ORDER_STATUS: ['admin', 'partner'].includes(currentUser.role), // Admin + Partner
+        CREATE_ORDER: true, // TẤT CẢ users
+        // CANCEL_ORDER: Không dùng hasPermission!
+        // Backend check ownership (order.user === userId || isAdmin), không check role
+        // → Xem canCancelOrder() bên dưới
+      }
 
-    const hasAccess = permissions[action] || false
-    console.log(`Permission Check: ${action} | Role: ${currentUser.role} | Result: ${hasAccess ? 'GRANTED' : 'DENIED'}`)
-    
-    return hasAccess
-  }, [currentUser])
+      const hasAccess = permissions[action] || false
+      console.log(
+        `Permission Check: ${action} | Role: ${currentUser.role} | Result: ${hasAccess ? 'GRANTED' : 'DENIED'}`
+      )
+
+      return hasAccess
+    },
+    [currentUser]
+  )
 
   /**
    * canCancelOrder() - Check quyền hủy order dựa trên OWNERSHIP
    * Backend logic (line 366): order.user === userId || role === 'admin'
-   * 
+   *
    * KHÔNG PHỤ THUỘC ROLE!
    * - Partner mua hàng → có thể hủy đơn của họ
    * - Customer mua hàng → có thể hủy đơn của họ
    * - Admin → có thể hủy bất kỳ đơn nào
    */
-  const canCancelOrder = useCallback((order) => {
-    if (!currentUser) return false
-    
-    const isOwner = order.user?._id === currentUser.id || order.user === currentUser.id
-    const isAdmin = currentUser.role === 'admin'
-    
-    const canCancel = isOwner || isAdmin
-    console.log(`Can Cancel Check: Order ${order._id} | isOwner: ${isOwner} | isAdmin: ${isAdmin} | Result: ${canCancel}`)
-    
-    return canCancel
-  }, [currentUser])
+  const canCancelOrder = useCallback(
+    (order) => {
+      if (!currentUser) return false
+
+      const isOwner = order.user?._id === currentUser.id || order.user === currentUser.id
+      const isAdmin = currentUser.role === 'admin'
+
+      const canCancel = isOwner || isAdmin
+      console.log(
+        `Can Cancel Check: Order ${order._id} | isOwner: ${isOwner} | isAdmin: ${isAdmin} | Result: ${canCancel}`
+      )
+
+      return canCancel
+    },
+    [currentUser]
+  )
 
   /**
    * canAccessOrder() - Kiểm tra quyền truy cập CHI TIẾT 1 order cụ thể
    * Backend: show() method (lines 82-87 trong orders_controller.ts)
-   * 
+   *
    * Backend Logic (KHÔNG CHECK ROLE):
    * if (
    *   order.user !== currentUser.id &&              // KHÔNG phải người mua
    *   currentUser.role !== 'admin' &&               // KHÔNG phải admin
    *   !order.items.some(seller === currentUser.id) // KHÔNG có items bán
    * ) → 403 FORBIDDEN
-   * 
+   *
    * ⇒ Ai cũng xem được NẾU: là người mua HOẶC admin HOẶC seller có items
-   * 
+   *
    * LƯU Ý: Order chứa SNAPSHOT data (sellerName, price, productName...)
    * → Không cần populate, data đã được lưu tại thời điểm mua
    * → Đảm bảo hóa đơn KHÔNG thay đổi dù seller sửa tên/giá
    */
-  const canAccessOrder = useCallback((order) => {
-    if (!currentUser) {
-      console.log('Access denied: No user')
+  const canAccessOrder = useCallback(
+    (order) => {
+      if (!currentUser) {
+        console.log('Access denied: No user')
+        return false
+      }
+
+      // Check 1: Là người mua của order này?
+      const isOwner = order.user?._id === currentUser.id || order.user === currentUser.id
+
+      // Check 2: Là admin?
+      const isAdmin = currentUser.role === 'admin'
+
+      // Check 3: Là seller có items trong order này?
+      const isSeller = order.items?.some((item) => {
+        const sellerId = item.seller?._id || item.seller
+        return sellerId === currentUser.id
+      })
+
+      // GRANT ACCESS nếu 1 trong 3 điều kiện thỏa mãn
+      if (isOwner || isAdmin || isSeller) {
+        console.log('Access granted:', { isOwner, isAdmin, isSeller })
+        return true
+      }
+
+      console.log('Access denied: Not owner/admin/seller')
       return false
-    }
-
-    // Check 1: Là người mua của order này?
-    const isOwner = order.user?._id === currentUser.id || order.user === currentUser.id
-    
-    // Check 2: Là admin?
-    const isAdmin = currentUser.role === 'admin'
-    
-    // Check 3: Là seller có items trong order này?
-    const isSeller = order.items?.some(item => {
-      const sellerId = item.seller?._id || item.seller
-      return sellerId === currentUser.id
-    })
-
-    // GRANT ACCESS nếu 1 trong 3 điều kiện thỏa mãn
-    if (isOwner || isAdmin || isSeller) {
-      console.log('Access granted:', { isOwner, isAdmin, isSeller })
-      return true
-    }
-
-    console.log('Access denied: Not owner/admin/seller')
-    return false
-  }, [currentUser])
+    },
+    [currentUser]
+  )
 
   // ==================== API CALLS ====================
 
@@ -205,95 +218,101 @@ const OrderManagement = () => {
   /**
    * fetchOrders() - Backend: index() method
    * API: GET /api/orders
-   * 
+   *
    * Params:
    * - page: số trang hiện tại
    * - limit: số orders mỗi trang
    * - status: lọc theo trạng thái (pending, confirmed, processing, shipped, delivered, cancelled)
-   * 
+   *
    * Backend Logic:
    * - TẤT CẢ users chỉ xem orders của CHÍNH HỌ (filter by user.id)
    * - Không có "view all" cho admin trong hàm index()
    */
-  const fetchOrders = useCallback(async (page = 1, statusFilter = '') => {
-    console.log('Fetching orders...', { page, statusFilter, role: currentUser?.role })
-    setLoading(true)
-    setError(null)
+  const fetchOrders = useCallback(
+    async (page = 1, statusFilter = '') => {
+      console.log('Fetching orders...', { page, statusFilter, role: currentUser?.role })
+      setLoading(true)
+      setError(null)
 
-    try {
-      const response = await axios.get('/api/orders', {
-        params: {
-          page,
-          limit: pagination.limit,
-          status: statusFilter || undefined,
-        },
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      })
+      try {
+        const response = await axios.get('/api/orders', {
+          params: {
+            page,
+            limit: pagination.limit,
+            status: statusFilter || undefined,
+          },
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        })
 
-      const { orders: fetchedOrders, currentPage, totalPages, totalOrders } = response.data
-      console.log('Orders fetched:', { count: fetchedOrders.length, totalOrders })
+        const { orders: fetchedOrders, currentPage, totalPages, totalOrders } = response.data
+        console.log('Orders fetched:', { count: fetchedOrders.length, totalOrders })
 
-      setOrders(fetchedOrders)
-      setPagination({ page: currentPage, limit: pagination.limit, totalPages, totalOrders })
-      setFilters({ ...filters, status: statusFilter })
-    } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải đơn hàng')
-      console.error('Fetch orders error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [pagination.limit, filters, currentUser?.role])
+        setOrders(fetchedOrders)
+        setPagination({ page: currentPage, limit: pagination.limit, totalPages, totalOrders })
+        setFilters({ ...filters, status: statusFilter })
+      } catch (err) {
+        setError(err.response?.data?.message || 'Lỗi khi tải đơn hàng')
+        console.error('Fetch orders error:', err)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [pagination.limit, filters, currentUser?.role]
+  )
 
   // GET SINGLE ORDER DETAIL
   /**
    * fetchOrderDetail() - Backend: show() method
    * API: GET /api/orders/:id
-   * 
+   *
    * Backend Logic:
    * - ADMIN: Xem tất cả orders
    * - PARTNER: Xem orders có items của họ (isOrderSeller check)
    * - CUSTOMER: Chỉ xem orders của họ
    */
-  const fetchOrderDetail = useCallback(async (orderId) => {
-    console.log('Fetching order detail:', orderId)
-    setLoading(true)
-    setError(null)
+  const fetchOrderDetail = useCallback(
+    async (orderId) => {
+      console.log('Fetching order detail:', orderId)
+      setLoading(true)
+      setError(null)
 
-    try {
-      const response = await axios.get(`/api/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      })
+      try {
+        const response = await axios.get(`/api/orders/${orderId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        })
 
-      const { order } = response.data
+        const { order } = response.data
 
-      // Check permission
-      if (!canAccessOrder(order)) {
-        console.log('Permission denied for order:', orderId)
-        setError('Bạn không có quyền xem đơn hàng này')
-        return
+        // Check permission
+        if (!canAccessOrder(order)) {
+          console.log('Permission denied for order:', orderId)
+          setError('Bạn không có quyền xem đơn hàng này')
+          return
+        }
+
+        console.log('Order detail loaded:', order._id)
+        setSelectedOrder(order)
+      } catch (err) {
+        setError(err.response?.data?.message || 'Lỗi khi tải chi tiết đơn hàng')
+        console.error('Fetch order detail error:', err)
+      } finally {
+        setLoading(false)
       }
-
-      console.log('Order detail loaded:', order._id)
-      setSelectedOrder(order)
-    } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải chi tiết đơn hàng')
-      console.error('Fetch order detail error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [canAccessOrder])
+    },
+    [canAccessOrder]
+  )
 
   // CREATE NEW ORDER
   /**
    * createOrder() - Backend: store() method (lines 105-260)
    * API: POST /api/orders
-   * 
+   *
    * Request Body:
    * - items: [{product, variantSku, quantity}]
    * - shippingAddress: {fullName, phone, address: {street, district, city}}
    * - paymentMethod: 'cod' | 'bank_transfer' | 'momo'
    * - notes: optional
-   * 
+   *
    * Backend Transaction Flow:
    * 1. Validate cart không rỗng
    * 2. Validate địa chỉ đầy đủ
@@ -307,163 +326,172 @@ const OrderManagement = () => {
    * 5. Create Order + Save
    * 6. Delete Cart
    * 7. Commit transaction
-   * 
+   *
    * Snapshot Pattern:
    * - Order items chứa FULL DATA snapshot tại thời điểm mua
    * - Lý do: Hóa đơn phải BẤT BIẾN theo chuẩn kế toán/pháp lý
    * - Nếu seller đổi tên/giá → Order cũ VẪN hiển thị data lúc mua
    * - Tránh populate Product/User → đảm bảo data không thay đổi
    */
-  const createOrder = useCallback(async (orderData) => {
-    console.log('Creating order...', orderData)
-    setLoading(true)
-    setError(null)
+  const createOrder = useCallback(
+    async (orderData) => {
+      console.log('Creating order...', orderData)
+      setLoading(true)
+      setError(null)
 
-    try {
-      // Validation
-      if (!orderData.items || orderData.items.length === 0) {
-        console.log('Validation failed: Empty cart')
-        setError('Giỏ hàng trống')
+      try {
+        // Validation
+        if (!orderData.items || orderData.items.length === 0) {
+          console.log('Validation failed: Empty cart')
+          setError('Giỏ hàng trống')
+          setLoading(false)
+          return
+        }
+
+        if (!orderData.shippingAddress?.fullName || !orderData.shippingAddress?.phone) {
+          console.log('Validation failed: Incomplete address')
+          setError('Địa chỉ giao hàng không đầy đủ thông tin')
+          setLoading(false)
+          return
+        }
+
+        const response = await axios.post('/api/orders', orderData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        })
+
+        const { order, message } = response.data
+        console.log('Order created:', order._id)
+
+        setSuccess(message)
+        setOrders([order, ...orders])
+        setCreateMode(false)
+        setNewOrder({
+          items: [],
+          shippingAddress: {
+            fullName: '',
+            phone: '',
+            address: { street: '', district: '', city: '' },
+          },
+          paymentMethod: 'cod',
+          notes: '',
+        })
+
+        // Auto-refresh list
+        setTimeout(() => fetchOrders(1), 1500)
+      } catch (err) {
+        setError(err.response?.data?.message || 'Lỗi khi tạo đơn hàng')
+        console.error('Create order error:', err)
+      } finally {
         setLoading(false)
-        return
       }
-
-      if (!orderData.shippingAddress?.fullName || !orderData.shippingAddress?.phone) {
-        console.log('Validation failed: Incomplete address')
-        setError('Địa chỉ giao hàng không đầy đủ thông tin')
-        setLoading(false)
-        return
-      }
-
-      const response = await axios.post('/api/orders', orderData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      })
-
-      const { order, message } = response.data
-      console.log('Order created:', order._id)
-
-      setSuccess(message)
-      setOrders([order, ...orders])
-      setCreateMode(false)
-      setNewOrder({
-        items: [],
-        shippingAddress: {
-          fullName: '',
-          phone: '',
-          address: { street: '', district: '', city: '' },
-        },
-        paymentMethod: 'cod',
-        notes: '',
-      })
-
-      // Auto-refresh list
-      setTimeout(() => fetchOrders(1), 1500)
-    } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tạo đơn hàng')
-      console.error('Create order error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [orders, fetchOrders])
+    },
+    [orders, fetchOrders]
+  )
 
   // UPDATE ORDER STATUS (Admin/Seller only)
   /**
    * updateOrderStatus() - Backend: updateStatus() method
    * API: PATCH /api/orders/:id/status
-   * 
+   *
    * Body:
    * - status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
    * - note: optional
-   * 
+   *
    * Backend Logic:
    * - Chỉ ADMIN và SELLER (isOrderSeller) được update
    * - Seller chỉ update orders có items của họ
    * - Không thể update khi status = 'delivered' hoặc 'cancelled'
    */
-  const updateOrderStatus = useCallback(async (orderId, newStatus, note = '') => {
-    console.log('Updating order status:', { orderId, newStatus, note })
-    
-    if (!hasPermission('UPDATE_ORDER_STATUS')) {
-      console.log('Permission denied: UPDATE_ORDER_STATUS')
-      setError('Bạn không có quyền cập nhật trạng thái đơn hàng')
-      return
-    }
+  const updateOrderStatus = useCallback(
+    async (orderId, newStatus, note = '') => {
+      console.log('Updating order status:', { orderId, newStatus, note })
 
-    setLoading(true)
-    setError(null)
+      if (!hasPermission('UPDATE_ORDER_STATUS')) {
+        console.log('Permission denied: UPDATE_ORDER_STATUS')
+        setError('Bạn không có quyền cập nhật trạng thái đơn hàng')
+        return
+      }
 
-    try {
-      const response = await axios.patch(
-        `/api/orders/${orderId}/status`,
-        { status: newStatus, note },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      )
+      setLoading(true)
+      setError(null)
 
-      const { order, message } = response.data
-      console.log('Status updated:', order.status)
+      try {
+        const response = await axios.patch(
+          `/api/orders/${orderId}/status`,
+          { status: newStatus, note },
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        )
 
-      setSuccess(message)
-      setSelectedOrder(order)
+        const { order, message } = response.data
+        console.log('Status updated:', order.status)
 
-      // Update in list
-      setOrders(orders.map(o => o._id === orderId ? order : o))
-    } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi cập nhật trạng thái')
-      console.error('Update status error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [hasPermission, orders])
+        setSuccess(message)
+        setSelectedOrder(order)
+
+        // Update in list
+        setOrders(orders.map((o) => (o._id === orderId ? order : o)))
+      } catch (err) {
+        setError(err.response?.data?.message || 'Lỗi khi cập nhật trạng thái')
+        console.error('Update status error:', err)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [hasPermission, orders]
+  )
 
   // CANCEL ORDER (User/Admin only)
   /**
-   * cancelOrder() - Backend: cancel() method  
+   * cancelOrder() - Backend: cancel() method
    * API: POST /api/orders/:id/cancel
-   * 
+   *
    * Body:
    * - reason: lý do hủy
-   * 
+   *
    * Backend Logic:
    * - Chỉ CUSTOMER và ADMIN được hủy
    * - Customer chỉ hủy orders của họ
    * - Restore stock về Product
    * - Refund vào User wallet
    */
-  const cancelOrder = useCallback(async (orderId, reason = '') => {
-    console.log('Cancelling order:', { orderId, reason })
-    
-    // Backend sẽ check ownership trên server
-    // Ở đây chỉ cần đảm bảo user đã đăng nhập
-    if (!currentUser) {
-      console.log('Permission denied: No user')
-      setError('Bạn chưa đăng nhập')
-      return
-    }
+  const cancelOrder = useCallback(
+    async (orderId, reason = '') => {
+      console.log('Cancelling order:', { orderId, reason })
 
-    setLoading(true)
-    setError(null)
+      // Backend sẽ check ownership trên server
+      // Ở đây chỉ cần đảm bảo user đã đăng nhập
+      if (!currentUser) {
+        console.log('Permission denied: No user')
+        setError('Bạn chưa đăng nhập')
+        return
+      }
 
-    try {
-      const response = await axios.post(
-        `/api/orders/${orderId}/cancel`,
-        { reason },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      )
+      setLoading(true)
+      setError(null)
 
-      const { order, message } = response.data
-      console.log('Order cancelled:', order._id)
+      try {
+        const response = await axios.post(
+          `/api/orders/${orderId}/cancel`,
+          { reason },
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        )
 
-      setSuccess(message)
-      setSelectedOrder(order)
-      setOrders(orders.map(o => o._id === orderId ? order : o))
-    } catch (err) {
-      // Backend sẽ trả 403 nếu không phải owner/admin
-      setError(err.response?.data?.message || 'Lỗi khi hủy đơn hàng')
-      console.error('Cancel order error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [currentUser, orders])
+        const { order, message } = response.data
+        console.log('Order cancelled:', order._id)
+
+        setSuccess(message)
+        setSelectedOrder(order)
+        setOrders(orders.map((o) => (o._id === orderId ? order : o)))
+      } catch (err) {
+        // Backend sẽ trả 403 nếu không phải owner/admin
+        setError(err.response?.data?.message || 'Lỗi khi hủy đơn hàng')
+        console.error('Cancel order error:', err)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [currentUser, orders]
+  )
 
   // ==================== LIFECYCLE ====================
 
@@ -489,7 +517,7 @@ const OrderManagement = () => {
     <div className="order-management-container">
       <header className="order-header">
         <h1>Quản Lý Đơn Hàng</h1>
-        
+
         {/* USER INFO */}
         <div className="header-info">
           <div className="user-info">
@@ -500,7 +528,7 @@ const OrderManagement = () => {
               {currentUser?.role === 'admin' && 'QUẢN TRỊ (Debug Mode)'}
             </span>
           </div>
-          
+
           {/* PERMISSIONS DISPLAY */}
           <div className="permissions-info">
             <small>Quyền của bạn trong hệ thống:</small>
@@ -625,10 +653,7 @@ const OrderManagement = () => {
       {/* ============ PAGINATION ============ */}
       {pagination.totalPages > 1 && (
         <div className="pagination">
-          <button
-            disabled={pagination.page === 1}
-            onClick={() => fetchOrders(pagination.page - 1)}
-          >
+          <button disabled={pagination.page === 1} onClick={() => fetchOrders(pagination.page - 1)}>
             ← Trang Trước
           </button>
           <span>
@@ -798,11 +823,7 @@ const CreateOrderForm = ({ order, setOrder, onSubmit, onCancel, loading }) => {
         </div>
 
         <div className="form-actions">
-          <button
-            className="btn btn-primary"
-            onClick={() => onSubmit(order)}
-            disabled={loading}
-          >
+          <button className="btn btn-primary" onClick={() => onSubmit(order)} disabled={loading}>
             {loading ? 'Đang Tạo...' : 'Tạo Đơn Hàng'}
           </button>
           <button className="btn btn-secondary" onClick={onCancel} disabled={loading}>
@@ -819,7 +840,7 @@ const CreateOrderForm = ({ order, setOrder, onSubmit, onCancel, loading }) => {
  * - Hiển thị đầy đủ thông tin order
  * - Cho phép cập nhật trạng thái (nếu có quyền)
  * - Cho phép hủy đơn (nếu có quyền)
- * 
+ *
  * PERMISSIONS:
  * - canUpdateStatus: admin/partner có thể đổi status
  * - canCancel: customer/admin có thể hủy đơn
@@ -838,11 +859,11 @@ const OrderDetailModal = ({
   const [cancelReason, setCancelReason] = useState('')
   const [showCancelForm, setShowCancelForm] = useState(false)
 
-  console.log('Order Detail Modal opened:', { 
-    orderId: order._id, 
+  console.log('Order Detail Modal opened:', {
+    orderId: order._id,
     currentRole: currentUser?.role,
-    canUpdateStatus, 
-    canCancel 
+    canUpdateStatus,
+    canCancel,
   })
 
   return (
@@ -860,9 +881,7 @@ const OrderDetailModal = ({
           <div className="info-grid">
             <div>
               <strong>Trạng Thái:</strong>
-              <span className={`status-badge ${order.status}`}>
-                {getStatusLabel(order.status)}
-              </span>
+              <span className={`status-badge ${order.status}`}>{getStatusLabel(order.status)}</span>
             </div>
             <div>
               <strong>Ngày Đặt:</strong>
@@ -897,8 +916,8 @@ const OrderDetailModal = ({
         <section className="order-items">
           <h3>Sản Phẩm (Snapshot Data)</h3>
           <p className="snapshot-note">
-            Thông tin này là SNAPSHOT tại thời điểm mua hàng.
-            Nếu seller đổi tên/giá, đơn hàng này VẪN hiển thị data gốc (đúng chuẩn hóa đơn).
+            Thông tin này là SNAPSHOT tại thời điểm mua hàng. Nếu seller đổi tên/giá, đơn hàng này
+            VẪN hiển thị data gốc (đúng chuẩn hóa đơn).
           </p>
           <table className="items-table">
             <thead>
@@ -979,8 +998,10 @@ const OrderDetailModal = ({
           <section className="update-status">
             <h3>Cập Nhật Trạng Thái</h3>
             <p className="help-text">
-              {currentUser?.role === 'admin' && 'ADMIN: Bạn có thể đổi trạng thái bất kỳ đơn hàng nào'}
-              {currentUser?.role === 'partner' && 'SELLER: Bạn chỉ đổi được trạng thái đơn có sản phẩm của bạn'}
+              {currentUser?.role === 'admin' &&
+                'ADMIN: Bạn có thể đổi trạng thái bất kỳ đơn hàng nào'}
+              {currentUser?.role === 'partner' &&
+                'SELLER: Bạn chỉ đổi được trạng thái đơn có sản phẩm của bạn'}
             </p>
             <div className="form-group">
               <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
@@ -1006,8 +1027,8 @@ const OrderDetailModal = ({
           <section className="cancel-section">
             <h3>Hủy Đơn Hàng</h3>
             <p className="help-text">
-              {currentUser?.role === 'admin' 
-                ? 'ADMIN: Bạn có thể hủy bất kỳ đơn hàng nào' 
+              {currentUser?.role === 'admin'
+                ? 'ADMIN: Bạn có thể hủy bất kỳ đơn hàng nào'
                 : 'Bạn có thể hủy đơn hàng này vì bạn là người mua'}
             </p>
             {!showCancelForm ? (
@@ -1031,10 +1052,7 @@ const OrderDetailModal = ({
                   >
                     {loading ? 'Đang Hủy...' : 'Xác Nhận Hủy'}
                   </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowCancelForm(false)}
-                  >
+                  <button className="btn btn-secondary" onClick={() => setShowCancelForm(false)}>
                     Huỷ
                   </button>
                 </div>

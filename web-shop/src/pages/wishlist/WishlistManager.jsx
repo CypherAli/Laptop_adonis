@@ -1,23 +1,23 @@
 /**
  * ==================== WISHLIST MANAGER COMPONENT ====================
- * 
+ *
  * PHÂN QUYỀN HỆ THỐNG:
  * - All logged-in users can manage their wishlist
  * - Ownership-based: Users only access their own wishlist
  * - Guest users: Cannot access (requires authentication)
- * 
+ *
  * CORE FUNCTIONS:
  * 1. Wishlist Display
  *    - index() - GET /api/wishlist (get user's wishlist with product details)
- * 
+ *
  * 2. Add/Remove Operations
  *    - add() - POST /api/wishlist (add product, $addToSet avoids duplicates)
  *    - remove() - DELETE /api/wishlist/:productId (remove specific product)
  *    - clear() - DELETE /api/wishlist/clear (remove all items)
- * 
+ *
  * 3. Check Status
  *    - check() - GET /api/wishlist/check/:productId (check if product in wishlist)
- * 
+ *
  * BACKEND LOGIC NOTES:
  * - Wishlist stored as product IDs array in User model
  * - Products auto-populated with details when fetching
@@ -26,100 +26,100 @@
  * - Stock summed from all variants
  */
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '../../api/axiosConfig';
-import './WishlistManager.css';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from '../../api/axiosConfig'
+import './WishlistManager.css'
 
 export default function WishlistManager() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [wishlistItems, setWishlistItems] = useState([]);
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [wishlistItems, setWishlistItems] = useState([])
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (!token) {
-      navigate('/login');
-      return;
+      navigate('/login')
+      return
     }
-    fetchWishlist();
-  }, [navigate]);
+    fetchWishlist()
+  }, [navigate])
 
   const fetchWishlist = async () => {
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
     try {
-      const response = await axios.get('/api/wishlist');
-      setWishlistItems(response.data || []);
+      const response = await axios.get('/api/wishlist')
+      setWishlistItems(response.data || [])
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi tải danh sách yêu thích');
+      setError(err.response?.data?.message || 'Lỗi khi tải danh sách yêu thích')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // ==================== REMOVE ITEM ====================
 
   const handleRemoveItem = async (productId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?')) return
 
     try {
-      await axios.delete(`/api/wishlist/${productId}`);
-      setSuccess('Đã xóa khỏi danh sách yêu thích');
-      await fetchWishlist();
+      await axios.delete(`/api/wishlist/${productId}`)
+      setSuccess('Đã xóa khỏi danh sách yêu thích')
+      await fetchWishlist()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi xóa sản phẩm');
+      setError(err.response?.data?.message || 'Lỗi khi xóa sản phẩm')
     }
-  };
+  }
 
   // ==================== CLEAR ALL ====================
 
   const handleClearWishlist = async () => {
-    if (!window.confirm('Bạn có chắc muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?')) return
 
     try {
-      await axios.delete('/api/wishlist/clear');
-      setSuccess('Đã xóa tất cả sản phẩm');
-      await fetchWishlist();
+      await axios.delete('/api/wishlist/clear')
+      setSuccess('Đã xóa tất cả sản phẩm')
+      await fetchWishlist()
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi xóa danh sách yêu thích');
+      setError(err.response?.data?.message || 'Lỗi khi xóa danh sách yêu thích')
     }
-  };
+  }
 
   // ==================== ADD TO CART ====================
 
   const handleAddToCart = async (product) => {
     try {
-      const variantToAdd = product.variants?.find(v => v.isAvailable && v.stock > 0);
+      const variantToAdd = product.variants?.find((v) => v.isAvailable && v.stock > 0)
       if (!variantToAdd) {
-        setError('Sản phẩm tạm hết hàng');
-        return;
+        setError('Sản phẩm tạm hết hàng')
+        return
       }
 
       await axios.post('/api/cart/items', {
         productId: product._id,
         variantId: variantToAdd._id,
-        quantity: 1
-      });
-      setSuccess('Đã thêm vào giỏ hàng');
+        quantity: 1,
+      })
+      setSuccess('Đã thêm vào giỏ hàng')
     } catch (err) {
-      setError(err.response?.data?.message || 'Lỗi khi thêm vào giỏ hàng');
+      setError(err.response?.data?.message || 'Lỗi khi thêm vào giỏ hàng')
     }
-  };
+  }
 
   // ==================== HELPERS ====================
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'VND'
-    }).format(amount);
-  };
+      currency: 'VND',
+    }).format(amount)
+  }
 
   if (loading) {
-    return <div className="wishlist-loading">Đang tải...</div>;
+    return <div className="wishlist-loading">Đang tải...</div>
   }
 
   return (
@@ -149,7 +149,7 @@ export default function WishlistManager() {
       ) : (
         <div className="wishlist-grid">
           {wishlistItems.map((item) => {
-            const product = item.product;
+            const product = item.product
             return (
               <div key={product._id} className="wishlist-item">
                 <button
@@ -202,10 +202,10 @@ export default function WishlistManager() {
                   </div>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
     </div>
-  );
+  )
 }

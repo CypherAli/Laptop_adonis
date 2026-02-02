@@ -14,7 +14,8 @@ export default class ResetPasswords extends BaseCommand {
     try {
       this.logger.info('Resetting all passwords to: 123456')
 
-      const bcrypt = (await import('bcryptjs')).default
+      const bcryptModule = await import('bcryptjs')
+      const bcrypt = bcryptModule.default
       const salt = await bcrypt.genSalt(10)
       const hashedPassword = await bcrypt.hash('123456', salt)
 

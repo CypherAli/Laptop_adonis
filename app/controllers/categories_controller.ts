@@ -1,12 +1,40 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { Category } from '#models/category'
+import { Product } from '#models/product'
 import mongoose from 'mongoose'
 
 export default class CategoriesController {
   /**
-   * Get all categories with hierarchy
+   * Get all categories (Inertia for Admin)
    */
-  async index({ request, response }: HttpContext) {
+  async index({ request, response, inertia }: HttpContext) {
+    // Check if this is an Inertia request
+    if (request.header('X-Inertia')) {
+      const categories = await Category.find().sort({ name: 1 }).lean()
+
+      const categoriesWithCount = await Promise.all(
+        categories.map(async (cat: any) => {
+          const productCount = await Product.countDocuments({ category: cat.name })
+          return {
+            id: cat._id.toString(),
+            name: cat.name,
+            slug: cat.slug,
+            description: cat.description,
+            image: cat.image,
+            isActive: cat.isActive,
+            productCount,
+            createdAt: cat.createdAt,
+          }
+        })
+      )
+
+      return inertia.render('admin/categories', {
+        categories: categoriesWithCount,
+        currentPath: '/admin/categories',
+      })
+    }
+
+    // API response for web-shop
     try {
       const { page = 1, limit = 50, isActive, parentId, search } = request.qs()
 
@@ -127,8 +155,11 @@ export default class CategoriesController {
   /**
    * Create new category (Admin only)
    */
-  async store({ request, response }: HttpContext) {
+  async store({ request, response, session }: HttpContext) {
     try {
+      // Check if this is an Inertia request
+      const isInertia = request.header('X-Inertia')
+
       const data: any = request.only([
         'name',
         'description',
@@ -143,6 +174,10 @@ export default class CategoriesController {
       // Validate parent category if provided
       if (data.parentId) {
         if (!mongoose.Types.ObjectId.isValid(data.parentId)) {
+          if (isInertia) {
+            session.flash('error', 'ID danh mục cha không hợp lệ')
+            return response.redirect().back()
+          }
           return response.status(400).json({
             message: 'ID danh mục cha không hợp lệ',
           })
@@ -150,6 +185,10 @@ export default class CategoriesController {
 
         const parentCategory = await Category.findById(data.parentId)
         if (!parentCategory) {
+          if (isInertia) {
+            session.flash('error', 'Không tìm thấy danh mục cha')
+            return response.redirect().back()
+          }
           return response.status(404).json({
             message: 'Không tìm thấy danh mục cha',
           })
@@ -160,7 +199,17 @@ export default class CategoriesController {
         data.level = 0
       }
 
+      // Generate slug if not provided
+      if (!data.slug && data.name) {
+        data.slug = data.name.toLowerCase().replace(/\s+/g, '-')
+      }
+
       const category = await Category.create(data)
+
+      if (isInertia) {
+        session.flash('success', 'Category created successfully')
+        return response.redirect().back()
+      }
 
       return response.status(201).json({
         message: 'Tạo danh mục thành công',
@@ -168,6 +217,12 @@ export default class CategoriesController {
       })
     } catch (error) {
       console.error('Create category error:', error)
+
+      const isInertia = request.header('X-Inertia')
+      if (isInertia) {
+        session.flash('error', 'Failed to create category')
+        return response.redirect().back()
+      }
 
       if (error.code === 11000) {
         return response.status(400).json({
@@ -185,9 +240,15 @@ export default class CategoriesController {
   /**
    * Update category (Admin only)
    */
-  async update({ params, request, response }: HttpContext) {
+  async update({ params, request, response, session }: HttpContext) {
     try {
+      const isInertia = request.header('X-Inertia')
+
       if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        if (isInertia) {
+          session.flash('error', 'ID danh mục không hợp lệ')
+          return response.redirect().back()
+        }
         return response.status(400).json({
           message: 'ID danh mục không hợp lệ',
         })
@@ -196,6 +257,10 @@ export default class CategoriesController {
       const category = await Category.findById(params.id)
 
       if (!category) {
+        if (isInertia) {
+          session.flash('error', 'Không tìm thấy danh mục')
+          return response.redirect().back()
+        }
         return response.status(404).json({
           message: 'Không tìm thấy danh mục',
         })
@@ -242,8 +307,18 @@ export default class CategoriesController {
         }
       }
 
+      // Update slug if name changed
+      if (data.name && data.name !== category.name) {
+        data.slug = data.name.toLowerCase().replace(/\s+/g, '-')
+      }
+
       Object.assign(category, data)
       await category.save()
+
+      if (isInertia) {
+        session.flash('success', 'Category updated successfully')
+        return response.redirect().back()
+      }
 
       return response.json({
         message: 'Cập nhật danh mục thành công',
@@ -251,6 +326,12 @@ export default class CategoriesController {
       })
     } catch (error) {
       console.error('Update category error:', error)
+
+      const isInertia = request.header('X-Inertia')
+      if (isInertia) {
+        session.flash('error', 'Failed to update category')
+        return response.redirect().back()
+      }
 
       if (error.code === 11000) {
         return response.status(400).json({
@@ -268,9 +349,15 @@ export default class CategoriesController {
   /**
    * Delete category (Admin only)
    */
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ params, request, response, session }: HttpContext) {
     try {
+      const isInertia = request.header('X-Inertia')
+
       if (!mongoose.Types.ObjectId.isValid(params.id)) {
+        if (isInertia) {
+          session.flash('error', 'ID danh mục không hợp lệ')
+          return response.redirect().back()
+        }
         return response.status(400).json({
           message: 'ID danh mục không hợp lệ',
         })
@@ -279,6 +366,10 @@ export default class CategoriesController {
       const category = await Category.findById(params.id)
 
       if (!category) {
+        if (isInertia) {
+          session.flash('error', 'Không tìm thấy danh mục')
+          return response.redirect().back()
+        }
         return response.status(404).json({
           message: 'Không tìm thấy danh mục',
         })
@@ -288,26 +379,46 @@ export default class CategoriesController {
       const childrenCount = await Category.countDocuments({ parentId: params.id })
 
       if (childrenCount > 0) {
+        if (isInertia) {
+          session.flash('error', `Cannot delete category with ${childrenCount} subcategories`)
+          return response.redirect().back()
+        }
         return response.status(400).json({
           message: 'Không thể xóa danh mục có danh mục con',
         })
       }
 
-      // Check if category has products (would need Product model)
-      // const productsCount = await Product.countDocuments({ categoryId: params.id })
-      // if (productsCount > 0) {
-      //   return response.status(400).json({
-      //     message: 'Không thể xóa danh mục có sản phẩm',
-      //   })
-      // }
+      // Check if category has products
+      const productCount = await Product.countDocuments({ category: category.name })
+      if (productCount > 0) {
+        if (isInertia) {
+          session.flash('error', `Cannot delete category with ${productCount} products`)
+          return response.redirect().back()
+        }
+        return response.status(400).json({
+          message: 'Không thể xóa danh mục có sản phẩm',
+        })
+      }
 
       await Category.findByIdAndDelete(params.id)
+
+      if (isInertia) {
+        session.flash('success', 'Category deleted successfully')
+        return response.redirect().back()
+      }
 
       return response.json({
         message: 'Xóa danh mục thành công',
       })
     } catch (error) {
       console.error('Delete category error:', error)
+
+      const isInertia = request.header('X-Inertia')
+      if (isInertia) {
+        session.flash('error', 'Failed to delete category')
+        return response.redirect().back()
+      }
+
       return response.status(500).json({
         message: 'Lỗi server',
         error: error.message,

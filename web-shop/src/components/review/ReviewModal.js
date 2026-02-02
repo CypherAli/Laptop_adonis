@@ -36,27 +36,27 @@ const ReviewModal = ({ isOpen, onClose, order, product, onReviewSubmitted }) => 
     try {
       // Extract productId - item can have product as ID or as populated object
       let productId = product.product || product._id
-      
+
       // If product.product is an object (populated), get its _id
       if (typeof product.product === 'object' && product.product?._id) {
         productId = product.product._id
       }
-      
+
       const orderId = order._id
-      
+
       // Check token
       const token = localStorage.getItem('token')
       console.log('Token exists:', !!token)
       console.log('Product data:', product)
       console.log('Extracted productId:', productId)
-      console.log('Submitting review:', { 
-        productId, 
-        orderId, 
-        rating, 
-        title: title.trim(), 
-        comment: comment.trim() 
+      console.log('Submitting review:', {
+        productId,
+        orderId,
+        rating,
+        title: title.trim(),
+        comment: comment.trim(),
       })
-      
+
       const reviewData = {
         productId,
         orderId,
@@ -77,23 +77,20 @@ const ReviewModal = ({ isOpen, onClose, order, product, onReviewSubmitted }) => 
       console.log('Review response:', response)
 
       alert('✅ Cảm ơn bạn đã đánh giá! Review của bạn đã được gửi thành công.')
-      
+
       // Reset form
       setRating(5)
       setTitle('')
       setComment('')
-      
+
       if (onReviewSubmitted) {
         onReviewSubmitted()
       }
-      
+
       onClose()
     } catch (err) {
       console.error('Review error:', err)
-      setError(
-        err.response?.data?.message || 
-        'Không thể gửi đánh giá. Vui lòng thử lại sau.'
-      )
+      setError(err.response?.data?.message || 'Không thể gửi đánh giá. Vui lòng thử lại sau.')
     } finally {
       setLoading(false)
     }
@@ -115,8 +112,8 @@ const ReviewModal = ({ isOpen, onClose, order, product, onReviewSubmitted }) => 
         <div className="review-modal-body">
           {/* Product Info */}
           <div className="review-product-info">
-            <img 
-              src={productImage} 
+            <img
+              src={productImage}
               alt={productName}
               className="review-product-image"
               onError={(e) => {
@@ -126,17 +123,15 @@ const ReviewModal = ({ isOpen, onClose, order, product, onReviewSubmitted }) => 
             />
             <div className="review-product-details">
               <h3>{productName}</h3>
-              <p className="review-order-id">Đơn hàng: #{order.orderNumber || order._id?.slice(-8).toUpperCase()}</p>
+              <p className="review-order-id">
+                Đơn hàng: #{order.orderNumber || order._id?.slice(-8).toUpperCase()}
+              </p>
             </div>
           </div>
 
           {/* Review Form */}
           <form onSubmit={handleSubmit} className="review-form">
-            {error && (
-              <div className="review-error">
-                ⚠️ {error}
-              </div>
-            )}
+            {error && <div className="review-error">⚠️ {error}</div>}
 
             {/* Star Rating */}
             <div className="review-rating-section">
@@ -176,9 +171,7 @@ const ReviewModal = ({ isOpen, onClose, order, product, onReviewSubmitted }) => 
                 required
                 maxLength={200}
               />
-              <p className="title-hint">
-                Tối đa 200 ký tự ({title.length}/200)
-              </p>
+              <p className="title-hint">Tối đa 200 ký tự ({title.length}/200)</p>
             </div>
 
             {/* Comment */}
@@ -193,23 +186,16 @@ const ReviewModal = ({ isOpen, onClose, order, product, onReviewSubmitted }) => 
                 required
                 minLength={10}
               />
-              <p className="comment-hint">
-                Tối thiểu 10 ký tự ({comment.length}/10)
-              </p>
+              <p className="comment-hint">Tối thiểu 10 ký tự ({comment.length}/10)</p>
             </div>
 
             {/* Submit Button */}
             <div className="review-actions">
-              <button 
-                type="button" 
-                className="btn-cancel" 
-                onClick={onClose}
-                disabled={loading}
-              >
+              <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
                 Hủy
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn-submit"
                 disabled={loading || !title.trim() || !comment.trim() || comment.length < 10}
               >

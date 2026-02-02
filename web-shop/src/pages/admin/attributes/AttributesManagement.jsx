@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../../../api/axiosConfig';
-import './AttributesManagement.css';
+import React, { useState, useEffect } from 'react'
+import axios from '../../../api/axiosConfig'
+import './AttributesManagement.css'
 
 export default function AttributesManagement() {
-  const [attributes, setAttributes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  
-  const [showForm, setShowForm] = useState(false);
-  const [editingAttribute, setEditingAttribute] = useState(null);
+  const [attributes, setAttributes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const [showForm, setShowForm] = useState(false)
+  const [editingAttribute, setEditingAttribute] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     type: 'select',
@@ -17,67 +17,67 @@ export default function AttributesManagement() {
     isFilterable: true,
     isRequired: false,
     values: [],
-    isActive: true
-  });
-  
-  const [newValue, setNewValue] = useState('');
+    isActive: true,
+  })
+
+  const [newValue, setNewValue] = useState('')
 
   useEffect(() => {
-    loadAttributes();
-  }, []);
+    loadAttributes()
+  }, [])
 
   const loadAttributes = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get('/admin/attributes');
-      setAttributes(response.data.attributes || []);
+      setLoading(true)
+      const response = await axios.get('/admin/attributes')
+      setAttributes(response.data.attributes || [])
     } catch (err) {
-      setError('Không thể tải thuộc tính');
-      console.error(err);
+      setError('Không thể tải thuộc tính')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault()
+    setError('')
+    setSuccess('')
 
     // Validation
     if (!formData.name.trim()) {
-      setError('Tên thuộc tính không được để trống');
-      return;
+      setError('Tên thuộc tính không được để trống')
+      return
     }
 
     if (formData.name.length > 100) {
-      setError('Tên thuộc tính không được quá 100 ký tự');
-      return;
+      setError('Tên thuộc tính không được quá 100 ký tự')
+      return
     }
 
     if (formData.values.length === 0) {
-      setError('Thuộc tính phải có ít nhất 1 giá trị');
-      return;
+      setError('Thuộc tính phải có ít nhất 1 giá trị')
+      return
     }
 
     try {
       if (editingAttribute) {
-        await axios.put(`/admin/attributes/${editingAttribute._id}`, formData);
-        setSuccess('Cập nhật thuộc tính thành công');
+        await axios.put(`/admin/attributes/${editingAttribute._id}`, formData)
+        setSuccess('Cập nhật thuộc tính thành công')
       } else {
-        await axios.post('/admin/attributes', formData);
-        setSuccess('Tạo thuộc tính mới thành công');
+        await axios.post('/admin/attributes', formData)
+        setSuccess('Tạo thuộc tính mới thành công')
       }
-      
-      resetForm();
-      loadAttributes();
+
+      resetForm()
+      loadAttributes()
     } catch (err) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra');
+      setError(err.response?.data?.message || 'Có lỗi xảy ra')
     }
-  };
+  }
 
   const handleEdit = (attribute) => {
-    setEditingAttribute(attribute);
+    setEditingAttribute(attribute)
     setFormData({
       name: attribute.name,
       type: attribute.type,
@@ -85,70 +85,70 @@ export default function AttributesManagement() {
       isFilterable: attribute.isFilterable,
       isRequired: attribute.isRequired,
       values: attribute.values || [],
-      isActive: attribute.isActive
-    });
-    setShowForm(true);
-  };
+      isActive: attribute.isActive,
+    })
+    setShowForm(true)
+  }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc muốn xóa thuộc tính này?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa thuộc tính này?')) return
 
     try {
-      await axios.delete(`/admin/attributes/${id}`);
-      setSuccess('Xóa thuộc tính thành công');
-      loadAttributes();
+      await axios.delete(`/admin/attributes/${id}`)
+      setSuccess('Xóa thuộc tính thành công')
+      loadAttributes()
     } catch (err) {
-      setError(err.response?.data?.message || 'Không thể xóa');
+      setError(err.response?.data?.message || 'Không thể xóa')
     }
-  };
+  }
 
   const handleToggleActive = async (id, currentStatus) => {
     try {
-      await axios.put(`/admin/attributes/${id}/toggle-active`);
-      setSuccess(currentStatus ? 'Đã ẩn thuộc tính' : 'Đã kích hoạt thuộc tính');
-      loadAttributes();
+      await axios.put(`/admin/attributes/${id}/toggle-active`)
+      setSuccess(currentStatus ? 'Đã ẩn thuộc tính' : 'Đã kích hoạt thuộc tính')
+      loadAttributes()
     } catch (err) {
-      setError('Không thể thay đổi trạng thái');
+      setError('Không thể thay đổi trạng thái')
     }
-  };
+  }
 
   const handleAddValue = () => {
-    const trimmedValue = newValue.trim();
-    
+    const trimmedValue = newValue.trim()
+
     if (!trimmedValue) {
-      setError('Giá trị không được để trống');
-      return;
+      setError('Giá trị không được để trống')
+      return
     }
 
     if (trimmedValue.length > 50) {
-      setError('Giá trị không được quá 50 ký tự');
-      return;
+      setError('Giá trị không được quá 50 ký tự')
+      return
     }
 
     if (formData.values.includes(trimmedValue)) {
-      setError('Giá trị đã tồn tại');
-      return;
+      setError('Giá trị đã tồn tại')
+      return
     }
 
     if (formData.values.length >= 50) {
-      setError('Tối đa 50 giá trị');
-      return;
+      setError('Tối đa 50 giá trị')
+      return
     }
 
-    setError(''); // Clear error
+    setError('') // Clear error
     setFormData({
       ...formData,
-      values: [...formData.values, trimmedValue]
-    });
-    setNewValue('');
-  };
+      values: [...formData.values, trimmedValue],
+    })
+    setNewValue('')
+  }
 
   const handleRemoveValue = (value) => {
     setFormData({
       ...formData,
-      values: formData.values.filter(v => v !== value)
-    });
-  };
+      values: formData.values.filter((v) => v !== value),
+    })
+  }
 
   const resetForm = () => {
     setFormData({
@@ -158,14 +158,14 @@ export default function AttributesManagement() {
       isFilterable: true,
       isRequired: false,
       values: [],
-      isActive: true
-    });
-    setEditingAttribute(null);
-    setShowForm(false);
-    setNewValue('');
-  };
+      isActive: true,
+    })
+    setEditingAttribute(null)
+    setShowForm(false)
+    setNewValue('')
+  }
 
-  if (loading) return <div className="loading">Đang tải...</div>;
+  if (loading) return <div className="loading">Đang tải...</div>
 
   return (
     <div className="attributes-management">
@@ -231,8 +231,8 @@ export default function AttributesManagement() {
                   placeholder="Nhập giá trị và nhấn Thêm..."
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddValue();
+                      e.preventDefault()
+                      handleAddValue()
                     }
                   }}
                 />
@@ -320,16 +320,14 @@ export default function AttributesManagement() {
                 </td>
               </tr>
             ) : (
-              attributes.map(attr => (
+              attributes.map((attr) => (
                 <tr key={attr._id}>
                   <td>
                     <strong>{attr.name}</strong>
                   </td>
                   <td className="slug-cell">{attr.slug}</td>
                   <td>
-                    <span className={`type-badge type-${attr.type}`}>
-                      {attr.type}
-                    </span>
+                    <span className={`type-badge type-${attr.type}`}>{attr.type}</span>
                   </td>
                   <td>{attr.values?.length || 0}</td>
                   <td>
@@ -357,7 +355,7 @@ export default function AttributesManagement() {
                       <button className="btn-sm btn-edit" onClick={() => handleEdit(attr)}>
                         Sửa
                       </button>
-                      <button 
+                      <button
                         className="btn-sm btn-toggle"
                         onClick={() => handleToggleActive(attr._id, attr.isActive)}
                       >
@@ -375,5 +373,5 @@ export default function AttributesManagement() {
         </table>
       </div>
     </div>
-  );
+  )
 }

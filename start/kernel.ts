@@ -27,7 +27,7 @@ server.use([
   () => import('#middleware/cors_middleware'), // Move CORS here first
   () => import('@adonisjs/static/static_middleware'),
   () => import('@adonisjs/vite/vite_middleware'),
-  () => import('@adonisjs/inertia/inertia_middleware')
+  () => import('@adonisjs/inertia/inertia_middleware'),
 ])
 
 /**
@@ -49,5 +49,4 @@ export const middleware = router.named({
   jwtAuth: () => import('#middleware/jwt_auth_middleware'),
   admin: () => import('#middleware/admin_middleware'),
   partner: () => import('#middleware/partner_middleware'),
-  inertia: () => import('#middleware/inertia_middleware'),
 })

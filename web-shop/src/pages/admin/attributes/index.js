@@ -1,1 +1,1 @@
-export { default as AttributesManagement } from './AttributesManagement';
+export { default as AttributesManagement } from './AttributesManagement'

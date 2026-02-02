@@ -4,7 +4,6 @@ import { FiMapPin, FiClock, FiDollarSign, FiSend } from 'react-icons/fi'
 import './CareersPage.css'
 
 const CareersPage = () => {
-   
   const [formData, setFormData] = useState({
     name: '',
     email: '',

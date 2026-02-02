@@ -36,11 +36,14 @@ const StoresPage = lazy(() => import('./pages/company/StoresPage'))
 const TermsPage = lazy(() => import('./pages/company/TermsPage'))
 const CartPage = lazy(() => import('./pages/user/cart/cart-list/CartPage'))
 const WishlistPage = lazy(() => import('./pages/user/wishlist/WishlistPage'))
-const ForgotPasswordPage = lazy(() => import('./pages/user/auth/forgot-password/ForgotPasswordPage'))
+const ForgotPasswordPage = lazy(
+  () => import('./pages/user/auth/forgot-password/ForgotPasswordPage')
+)
 const ResetPasswordPage = lazy(() => import('./pages/user/auth/reset-password/ResetPasswordPage'))
 const CheckoutPage = lazy(() => import('./pages/user/cart/checkout/CheckoutPage'))
 const OrdersPage = lazy(() => import('./pages/user/orders/orders-list/OrdersPage'))
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AddProduct = lazy(() => import('./pages/admin/AddProduct'))
 const EditProduct = lazy(() => import('./pages/admin/EditProduct'))
 const PartnerOrders = lazy(() => import('./pages/partner/PartnerOrders'))
@@ -55,23 +58,28 @@ const ShippingPolicyPage = lazy(() => import('./pages/user/policies/shipping/Shi
 
 // Loading component
 const LoadingFallback = () => (
-  <div style={{ 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    minHeight: '60vh',
-    fontSize: '18px',
-    color: '#666'
-  }}>
-    <div className="spinner" style={{
-      border: '4px solid #f3f3f3',
-      borderTop: '4px solid #3498db',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
-      animation: 'spin 1s linear infinite',
-      marginRight: '15px'
-    }}></div>
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '60vh',
+      fontSize: '18px',
+      color: '#666',
+    }}
+  >
+    <div
+      className="spinner"
+      style={{
+        border: '4px solid #f3f3f3',
+        borderTop: '4px solid #3498db',
+        borderRadius: '50%',
+        width: '40px',
+        height: '40px',
+        animation: 'spin 1s linear infinite',
+        marginRight: '15px',
+      }}
+    ></div>
     Đang tải...
   </div>
 )
@@ -84,96 +92,102 @@ function App() {
         <RoleBasedLayout>
           <ScrollToTop />
           <Header />
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            {/* === Public Routes === */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/product/:id" element={<ProductDetailPageUltra />} />
-            <Route path="/deals" element={<DealsPage />} />
-            <Route path="/best-sellers" element={<BestSellersPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:id" element={<BlogDetailPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              {/* === Public Routes === */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/product/:id" element={<ProductDetailPageUltra />} />
+              <Route path="/deals" element={<DealsPage />} />
+              <Route path="/best-sellers" element={<BestSellersPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<BlogDetailPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* === Policy Pages === */}
-          <Route path="/huong-dan-mua-hang" element={<HuongDanMuaHang />} />
-          <Route path="/huong-dan-thanh-toan" element={<PaymentGuidePage />} />
-          <Route path="/chinh-sach-bao-hanh" element={<WarrantyPolicyPage />} />
-          <Route path="/chinh-sach-doi-tra" element={<ReturnPolicyPage />} />
-          <Route path="/chinh-sach-van-chuyen" element={<ShippingPolicyPage />} />
-          <Route path="/tra-gop" element={<InstallmentGuidePage />} />
+              {/* === Policy Pages === */}
+              <Route path="/huong-dan-mua-hang" element={<HuongDanMuaHang />} />
+              <Route path="/huong-dan-thanh-toan" element={<PaymentGuidePage />} />
+              <Route path="/chinh-sach-bao-hanh" element={<WarrantyPolicyPage />} />
+              <Route path="/chinh-sach-doi-tra" element={<ReturnPolicyPage />} />
+              <Route path="/chinh-sach-van-chuyen" element={<ShippingPolicyPage />} />
+              <Route path="/tra-gop" element={<InstallmentGuidePage />} />
 
-          {/* === New Footer Content Pages === */}
-          <Route path="/gioi-thieu" element={<CompanyAboutPage />} />
-          <Route path="/tuyen-dung" element={<CareersPage />} />
-          <Route path="/tin-tuc" element={<NewsPage />} />
-          <Route path="/he-thong-cua-hang" element={<StoresPage />} />
-          <Route path="/dieu-khoan" element={<TermsPage />} />
-          <Route path="/lien-he" element={<ContactPage />} />
+              {/* === New Footer Content Pages === */}
+              <Route path="/gioi-thieu" element={<CompanyAboutPage />} />
+              <Route path="/tuyen-dung" element={<CareersPage />} />
+              <Route path="/tin-tuc" element={<NewsPage />} />
+              <Route path="/he-thong-cua-hang" element={<StoresPage />} />
+              <Route path="/dieu-khoan" element={<TermsPage />} />
+              <Route path="/lien-he" element={<ContactPage />} />
 
-          {/* Public routes - Wishlist & Cart */}
-          <Route path="/wishlist" element={<WishlistPage />} />
-          <Route path="/cart" element={<CartPage />} />
+              {/* Public routes - Wishlist & Cart */}
+              <Route path="/wishlist" element={<WishlistPage />} />
+              <Route path="/cart" element={<CartPage />} />
 
-          {/* === Protected User Routes === */}
-          <Route element={<PrivateRoute allowedRoles={['client', 'partner']} />}>
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
+              {/* === Protected User Routes === */}
+              <Route element={<PrivateRoute allowedRoles={['client', 'partner']} />}>
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+              </Route>
 
-          {/* === Protected Partner Routes === */}
-          <Route element={<PrivateRoute allowedRoles={['partner']} />}>
-            <Route path="/manager" element={<ManagerDashboard />} />
-            <Route path="/partner/orders" element={<PartnerOrders />} />
-            <Route path="/partner/settings" element={<PartnerSettings />} />
-            <Route path="/admin/add-product" element={<AddProduct />} />
-            <Route path="/admin/edit-product/:id" element={<EditProduct />} />
-          </Route>
+              {/* === Protected Partner Routes === */}
+              <Route element={<PrivateRoute allowedRoles={['partner']} />}>
+                <Route path="/manager" element={<ManagerDashboard />} />
+                <Route path="/partner/orders" element={<PartnerOrders />} />
+                <Route path="/partner/settings" element={<PartnerSettings />} />
+                <Route path="/admin/add-product" element={<AddProduct />} />
+                <Route path="/admin/edit-product/:id" element={<EditProduct />} />
+              </Route>
 
-          {/* Catch-all 404 */}
-          <Route
-            path="*"
-            element={
-              <div style={{ padding: '50px', textAlign: 'center' }}>
-                <h1>404 - Page Not Found</h1>
-                <p>URL: {window.location.pathname}</p>
-                <button
-                  onClick={() => (window.location.href = '/')}
-                  style={{
-                    marginTop: '20px',
-                    padding: '10px 20px',
-                    fontSize: '16px',
-                    cursor: 'pointer',
-                    backgroundColor: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '5px',
-                  }}
-                >
-                  Go to Home
-                </button>
-              </div>
-            }
-          />
-          </Routes>
-        </Suspense>
-        <Footer />
+              {/* === Protected Admin Routes === */}
+              <Route element={<PrivateRoute allowedRoles={['admin']} />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              </Route>
 
-        {/* Chat Widget - Support guest, user, partner */}
-        {user?.role === 'partner' ? (
-          <PartnerLiveChat />
-        ) : !user ? (
-          <GuestChatWidget />
-        ) : (
-          <UserLiveChat />
-        )}
-      </RoleBasedLayout>
+              {/* Catch-all 404 */}
+              <Route
+                path="*"
+                element={
+                  <div style={{ padding: '50px', textAlign: 'center' }}>
+                    <h1>404 - Page Not Found</h1>
+                    <p>URL: {window.location.pathname}</p>
+                    <button
+                      onClick={() => (window.location.href = '/')}
+                      style={{
+                        marginTop: '20px',
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        cursor: 'pointer',
+                        backgroundColor: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      Go to Home
+                    </button>
+                  </div>
+                }
+              />
+            </Routes>
+          </Suspense>
+          <Footer />
+
+          {/* Chat Widget - Support guest, user, partner */}
+          {user?.role === 'partner' ? (
+            <PartnerLiveChat />
+          ) : !user ? (
+            <GuestChatWidget />
+          ) : (
+            <UserLiveChat />
+          )}
+        </RoleBasedLayout>
       </ThemeProvider>
     </ErrorBoundary>
   )

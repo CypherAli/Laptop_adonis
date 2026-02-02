@@ -28,8 +28,9 @@ export default class SettingsController {
   /**
    * Update settings (Admin only)
    */
-  async update({ request, response }: HttpContext) {
+  async update({ request, response, session }: HttpContext) {
     try {
+      const isInertia = request.header('X-Inertia')
       const user = (request as any).user
       const updates: any = request.only([
         // Site Information
@@ -100,17 +101,36 @@ export default class SettingsController {
 
       settings = await Settings.findById(settings._id).populate('updatedBy', 'username email')
 
+      if (isInertia) {
+        session.flash('success', 'Cập nhật cài đặt thành công')
+        return response.redirect('/admin/settings')
+      }
+
       return response.json({
         message: 'Cập nhật cài đặt thành công',
         settings,
       })
     } catch (error) {
       console.error('❌ Update settings error:', error)
+      const isInertia = request.header('X-Inertia')
+      
+      if (isInertia) {
+        session.flash('error', 'Lỗi khi cập nhật cài đặt')
+        return response.redirect('/admin/settings')
+      }
+
       return response.status(500).json({
         message: 'Lỗi khi cập nhật cài đặt',
         error: error.message,
       })
     }
+  }
+
+  /**
+   * Alias for update method to support updateSettings route
+   */
+  async updateSettings(ctx: HttpContext) {
+    return this.update(ctx)
   }
 
   /**
@@ -162,5 +182,38 @@ export default class SettingsController {
         error: error.message,
       })
     }
+  }
+
+  /**
+   * Show settings page (Inertia - Admin only)
+   */
+  async showSettings({ inertia }: HttpContext) {
+    let settings = await Settings.findOne().populate('updatedBy', 'username email').lean()
+
+    if (!settings) {
+      settings = await Settings.create({})
+    }
+
+    return inertia.render('admin/settings', {
+      settings: {
+        siteName: settings.siteName,
+        siteDescription: settings.siteDescription,
+        siteLogo: settings.siteLogo,
+        contactEmail: settings.contactEmail,
+        contactPhone: settings.contactPhone,
+        address: settings.address,
+        maintenanceMode: settings.maintenanceMode,
+        maintenanceMessage: settings.maintenanceMessage,
+        emailNotifications: settings.emailNotifications,
+        updatedBy: settings.updatedBy
+          ? {
+              username: (settings.updatedBy as any).username,
+              email: (settings.updatedBy as any).email,
+            }
+          : null,
+        updatedAt: settings.updatedAt,
+      },
+      currentPath: '/admin/settings',
+    })
   }
 }

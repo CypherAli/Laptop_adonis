@@ -12,10 +12,10 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     // Lưu theme vào localStorage
     localStorage.setItem('theme', theme)
-    
+
     // Apply theme to document
     document.documentElement.setAttribute('data-theme', theme)
-    
+
     // Update body class for backward compatibility
     if (theme === 'dark') {
       document.body.classList.add('dark-mode')
@@ -30,11 +30,7 @@ export const ThemeProvider = ({ children }) => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'))
   }
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  )
+  return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>
 }
 
 export default ThemeContext

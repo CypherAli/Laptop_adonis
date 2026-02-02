@@ -26,16 +26,17 @@ instance.interceptors.request.use(
     if (config.method === 'get' && !config.skipCache) {
       const cacheKey = config.url + JSON.stringify(config.params)
       const cachedData = cache.get(cacheKey)
-      
+
       if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
         // Return cached response
-        config.adapter = () => Promise.resolve({
-          data: cachedData.data,
-          status: 200,
-          statusText: 'OK (Cached)',
-          headers: cachedData.headers,
-          config,
-        })
+        config.adapter = () =>
+          Promise.resolve({
+            data: cachedData.data,
+            status: 200,
+            statusText: 'OK (Cached)',
+            headers: cachedData.headers,
+            config,
+          })
       }
     }
 
